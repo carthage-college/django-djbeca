@@ -1,0 +1,508 @@
+{% extends "djkorra/base.html" %}
+{% load ifusergroup %}
+{% load livewhale_api %}
+{% block title %}Office of Sponsored Programs &mdash; Carthage College{% endblock %}
+{% block extra_style %}
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+<link href="//www.carthage.edu/static/vendor/bootstrap-select/bootstrap-select.min.css"
+    rel="stylesheet" type="text/css" />
+<link href="/static/djsani/css/main.css"
+    rel="stylesheet" type="text/css" />
+<!-- from portal head -->
+<link rel="stylesheet" type="text/css"
+    href="https://my.carthage.edu/ics/UI/Common/Styles/jQuery/jquery-ui.custom.css" />
+<link href="/static/djmaidez/css/index.css"
+    rel="stylesheet" type="text/css" />
+<style type="text/css">
+    div.growlUI { background: url(//www.carthage.edu/themes/shared/img/ico/check48.png) no-repeat 10px 10px; margin-top:60px; }
+    div.growlUI h1, div.growlUI h2 {
+    color: white; padding: 5px 5px 5px 75px; text-align: left;
+    font-size:1.4em;}
+    #page-content-wrap .content p, #page-content-wrap .content ul, #page-content-wrap .content ol {
+    margin-bottom: .7em;}
+    #djforms #athlete h2, #djforms #athlete h3 {margin-top:19px !important;}
+    #djforms #page-content-wrap .content .big-arrow-bullets{margin:1em 0;}
+</style>
+{% endblock %}
+{% block extra_javascript %}
+<!-- from portal head -->
+<script type="text/javascript"
+    src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<!-- bootstrap -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="//www.carthage.edu/static/vendor/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="https://malsup.github.io/min/jquery.blockUI.min.js"
+    type="text/javascript"></script>
+</script>
+<script src="https://raw.githubusercontent.com/digitalBush/jquery.maskedinput/1.4.0/dist/jquery.maskedinput.min.js"></script>
+<script src="/static/djsani/js/djmaidez.js"></script>
+<script src="/static/djmaidez/js/validate.js"></script>
+<script type="text/javascript" charset="utf-8">
+$(function() {
+    // build emergency contact modal
+    $("a.ens-link").click(function() {
+        makeDialog();
+    });
+    // set name/value pairs
+    function setVal(name, value) {
+        var $data = {
+            "college_id": {{request.user.id}},
+            "table": "cc_student_medical_manager",
+            "pk": {{manager.id}},
+            "name": name,
+            "value": value
+        };
+        $.ajax({
+            type: "POST",
+            async: true,
+            url:  "{{switch_earl}}",
+            dataType: "html",
+            data: $data,
+            success: function(data) {
+                if (data == "success") {
+                    $.growlUI('Success', "Data saved.");
+                } else {
+                    $.growlUI('Error', data);
+                }
+            }
+        });
+    }
+    // multiple select picker
+    $('#id_sports').selectpicker();
+    $('#id_sports').on('change', function(){
+        setVal( "sports", $(this).val() );
+        if ( $(this).val() ) {
+            $athlete.delay(200).slideDown(200);
+        }else{
+            $athlete.delay(200).slideUp(200);
+        }
+    });
+
+    {% if adult %}
+        $('#adult_athlete').delay(200).slideDown(200);
+        $('#adult_student').delay(200).slideDown(200);
+        $('#minor').slideUp(200);
+    {% endif %}
+
+    $stypes = $('.sTypes');
+    $student = $('#student');
+    $athlete = $('#athlete');
+    $("#sports-container").slideUp(200);
+    {% if manager.athlete == 0 %}
+        $athlete.slideUp(200);
+        $student.delay(200).slideDown(200);
+        $("#sports-container").slideUp(200);
+    {% endif %}
+    {% if manager.athlete == 1 %}
+        $student.slideUp(200);
+        $("#sports-container").delay(200).slideDown(200);
+        {% if my_sports %}
+            $athlete.delay(200).slideDown(200);
+        {% endif %}
+    {% endif %}
+    $stypes.change(function() {
+        $val = $(this).val();
+        if ($val == "0") {
+            $athlete.slideUp(200);
+            $("#sports-container").slideUp(200);
+            $student.delay(200).slideDown(200);
+        }
+        else if ($val == "1") {
+            $student.slideUp(200);
+            $("#sports-container").delay(200).slideDown(200);
+        }
+        setVal("athlete", $val);
+    });
+});
+</script>
+{% endblock %}
+{% block group_name %}
+    <a href="/sponsored-programs/">
+    Office of Sponsored Programs
+    </a>
+{% endblock %}
+{% block left_nav  %}
+<ul>
+    {% if not user.is_anonymous %}
+        {% ifusergroup SponsoredProgramsStaff %}
+        <li>
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+        </li>
+        {% endifusergroup %}
+        <li>
+            <a href="{% url 'auth_logout' %}?next={{request.path}}">Logout</a>
+        </li>
+        {% if user.is_superuser %}
+        <li>
+            <a href="{% url 'admin:index' %}">Administration</a>
+        </li>
+        {% endif %}
+    {% else %}
+        <li>
+            <a href="{% url 'auth_login' %}?next={{request.path}}">Sign in</a>
+        </li>
+    {% endif %}
+</ul>
+{% get_lw_content as nav blurbs 2243 %}
+{{nav.body}}
+{% endblock %}
+{% block content_head %}
+    <h1 id="page_title">
+        Intent to Pursue Funding
+    </h1>
+{% endblock %}
+{% block content %}
+<div>
+    {% if student %}
+    <div class="large-12 medium-12 small-12">
+        {% get_lw_content as student_directions blurbs 2007 %}
+        {{student_directions.body}}
+    </div>
+    <p>
+        <strong>NOTE:</strong>
+        If you encounter any problems with the forms, please contact
+        <a href="mailto:larry@carthage.edu">Library Information Systems</a>.
+    </p>
+    <h3>Do you plan to participate in NCAA Intercollegiate Athletics?</h3>
+    <form id="profile" class="form">
+    <ul class="nobull">
+        <li>
+            <label for="id_athlete_no">
+                <input id="id_athlete_no" type="radio" value="0"
+                    {% if manager.athlete == 0 %}
+                        checked="checked"
+                    {% endif %}
+                    class="sTypes" name="athlete" /> No
+            </label>
+        </li>
+        <li>
+            <label for="id_athlete_yes">
+                <input id="id_athlete_yes" type="radio" value="1"
+                    {% if manager.athlete == 1 %}
+                        checked="checked"
+                    {% endif %}
+                    class="sTypes" name="athlete" /> Yes
+            </label>
+        </li>
+        <li id="sports-container">
+            <h4>
+                Sports
+                <small>
+                    (use the Ctrl or Command key to select multiple sports)
+                </small>
+            </h4>
+            <select name="sports" class="selectpicker"
+                id="id_sports" size="5"
+                multiple="multiple" title="Choose your sport(s)&hellip;">
+                {% for s in sports %}
+                {% if not forloop.first %}
+                <option
+                {% if not s.0 %}
+                    disabled
+                {% else %} value="{{s.0}}"
+                    {% if s.0 in my_sports %}
+                        selected="selected"
+                    {% endif %}
+                {% endif %}
+                >
+                {{s.1|safe}}
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </li>
+    </ul>
+    </form>
+    <div id="student" class="clear slider-container">
+        <h2 class="clear">Online forms</h2>
+        <p>
+          <strong>Your Progress:</strong><br>
+          A green checkmark will appear in the second column below
+          when that form is complete.
+        </p>
+        <table class="table table-bordered table-hover">
+            <tr>
+                <td>
+                    <a class="ens-link" style="cursor: pointer; cursor: hand;">
+                        Emergency contact information
+                    </a>
+                </td>
+                <td class="djsani">
+                {% if manager.emergency_contact %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'insurance_form' 'student' %}">
+                        Health insurance information
+                    </a>
+                </td>
+                <td>
+                {% if manager.cc_student_health_insurance %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'medical_history_form' 'student' %}">
+                        General Medical History
+                    </a>
+                </td>
+                <td>
+                {% if manager.cc_student_medical_history %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            {% if student.residency_status == "Resident" %}
+            <tr class="slider-container" id="adult_student">
+                <td>
+                    {% if manager.cc_student_meni_waiver %}
+                        Meningococcal meningitis/Hepatitis B response
+                    {% else %}
+                        <a href="{% url 'waiver_form' 'student' 'meni' %}">
+                            Meningococcal meningitis/Hepatitis B response
+                        </a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if manager.cc_student_meni_waiver %}
+                    <i class="fa fa-check green"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </table>
+        <h2>Printable forms for Campus Nurse</h2>
+        <ul class="big-arrow-bullets">
+            <li>
+                <a href="//www.carthage.edu/live/files/830-pdf">
+                    Immunization history
+                </a>
+            </li>
+            <li>
+                <a href="//www.carthage.edu/live/files/831-pdf">
+                    Parent/Legal guardian consent form
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- /#student -->
+    <div id="athlete" class="clear slider-container">
+      <div class="large-12 medium-8 small-8">
+        {% get_lw_content as athlete_directions blurbs 2008 %}
+        {{athlete_directions.body}}
+        {% if not adult %}
+            {% get_lw_content as sicklecell blurbs 2226 %}
+            {{sicklecell.body}}
+        {% endif %}
+        {% if student.residency_status == "Resident" and not adult %}
+            <h3>
+                Meningococcal meningitis/Hepatitis B response and
+                Parent/Legal Guardian Consent Form
+            </h3>
+            {% get_lw_content as menihep blurbs 2013 %}
+            {{menihep.body}}
+        {% endif %}
+        {% if not adult %}
+            <h3>Assumption of Risk</h3>
+            {% get_lw_content as risk blurbs 2010 %}
+            {{risk.body}}
+        {% endif %}
+        <h2 class="clear">Online forms and Waivers</h2>
+        <p>
+          <strong>Your Progress:</strong><br>
+          A green checkmark will appear in the second column below
+          when that form is complete.
+        </p>
+        <table class="table table-bordered table-hover">
+            <tr>
+                <td>
+                    <a class="ens-link" style="cursor: pointer; cursor: hand;">
+                        Emergency contact information
+                    </a>
+                </td>
+                <td class="djsani">
+                {% if manager.emergency_contact %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'insurance_form' 'athlete' %}">
+                        Health insurance information
+                    </a>
+                </td>
+                <td>
+                {% if manager.cc_student_health_insurance %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {% if manager.cc_student_meni_waiver or not adult %}
+                        Meningococcal meningitis/Hepatitis B response
+                    {% else %}
+                        <a href="{% url 'waiver_form' 'student' 'meni' %}">
+                            Meningococcal meningitis/Hepatitis B response
+                        </a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if manager.cc_student_meni_waiver %}
+                    <i class="fa fa-check green"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'medical_history_form' 'student' %}">
+                        General Medical History
+                    </a>
+                </td>
+                <td>
+                {% if manager.cc_student_medical_history %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td> </tr> <tr> <td> <a href="{% url 'medical_history_form' 'athlete' %}">
+                        Athlete Medical History
+                    </a>
+                </td>
+                <td>
+                {% if manager.cc_athlete_medical_history %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'file_upload' 'physical-evaluation' %}">
+                    Pre-Participation Physical Evaluation Upload Form
+                    </a>
+                </td>
+                <td>
+                {% if manager.physical_evaluation_1 and manager.physical_evaluation_2 %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                {% if manager.medical_consent_agreement %}
+                    Medical Consent and Insurance Agreement Upload Form
+                {% else %}
+                    <a href="{% url 'file_upload' 'medical-consent-agreement' %}">
+                    Medical Consent and Insurance Agreement Upload Form
+                    </a>
+                {% endif %}
+                </td>
+                <td>
+                {% if manager.medical_consent_agreement %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                {% if manager.cc_athlete_privacy_waiver %}
+                <td>HIPAA and FERPA waiver</td>
+                <td><i class="fa fa-check green"></i></td>
+                {% else %}
+                <td>
+                    <a href="{% url 'waiver_form' 'athlete' 'privacy' %}">
+                        HIPAA and FERPA waiver
+                    </a>
+                </td>
+                <td></td>
+                {% endif %}
+            </tr>
+            <tr>
+                {% if manager.cc_athlete_reporting_waiver %}
+                <td>
+                    CCIW Injury and Illness Reporting Acknowledgement waiver
+                </td>
+                <td><i class="fa fa-check green"></i></td>
+                {% else %}
+                <td>
+                    <a href="{% url 'waiver_form' 'athlete' 'reporting' %}">
+                        CCIW Injury and Illness Reporting Acknowledgement waiver
+                    </a>
+                </td>
+                <td></td>
+                {% endif %}
+            </tr>
+            <tr>
+            {% if manager.cc_athlete_risk_waiver %}
+            <td>Assumption of risk waiver</td>
+            <td><i class="fa fa-check green"></i></td>
+            {% else %}
+            <td>
+                {% if adult %}
+                <a href="{% url 'waiver_form' 'athlete' 'risk' %}">
+                    Assumption of risk waiver
+                </a>
+                {% else %}
+                    Assumption of risk waiver
+                {% endif %}
+            </td>
+            <td></td>
+            {% endif %}
+            </tr>
+            <tr>
+                <td>
+                {% if not manager.cc_athlete_sicklecell_waiver or student.waive %}
+                    {% if adult %}
+                    <a href="{% url 'waiver_form' 'athlete' 'sicklecell' %}">
+                        Sickle cell trait testing waiver
+                    </a>
+                    {% else %}
+                        Sickle cell trait testing waiver
+                    {% endif %}
+                {% endif %}
+                {% if manager.cc_athlete_sicklecell_waiver and student.proof %}
+                    Sickle cell trait testing waiver
+                {% endif %}
+                </td>
+                <td>
+                {% if manager.cc_athlete_sicklecell_waiver %}
+                    <i class="fa fa-check green"></i>
+                {% endif %}
+                </td>
+            </tr>
+        </table>
+        {% get_lw_content as questions blurbs 2014 %}
+        {{questions.body}}
+      </div>
+      <!-- /.large .medium .small -->
+    </div>
+    <!-- /#athlete -->
+    {% else %}
+    <h2>We could not find your student record</h2>
+    <ul>
+        <li>Have you completed your registration?</li>
+        <li>
+            If you are living on campus,
+            have you completed the housing process?
+        </li>
+    </ul>
+    <p>
+        Please contact the
+        <a href="mailto:registrar@carthage.edu">Registrar's Office</a> for
+        registration questions or contact the
+        <a href="mailto:nfleming@carthage.edu">Dean of Students office</a>
+        for questions about your on-campus housing status.
+    </p>
+    {% endif %}
+</div>
+{% if student %}
+<div id="emergencyContactFiller">
+    {% include "emergency/modal.html" %}
+</div>
+{% endif %}
+{% endblock %}
+{% block urchin %}{% endblock %}

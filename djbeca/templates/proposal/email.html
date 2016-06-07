@@ -1,0 +1,29 @@
+{% autoescape off %}
+<h3>Intent to Pursue Funding</h3>
+<dl {{dl_detail}}>
+    <dt {{dl_dt}}>
+        First name
+    </dt>
+    <dd {{dl_dd}}>
+        {{data.first_name}}
+    </dd>
+    <dt {{dl_dt}}>
+        Middle name
+    </dt>
+    <dd {{dl_dd}}>
+        {{data.second_name|default:"&nbsp;"}}
+    </dd>
+    <dt {{dl_dt}}>
+        Last name
+    </dt>
+    <dd {{dl_dd}}>
+        {{data.last_name}}
+    </dd>
+    <dt {{dl_dt}}>
+        Email
+    </dt>
+    <dd {{dl_dd}}>
+        {{data.email}}
+    </dd>
+</dl>
+{% endautoescape %}

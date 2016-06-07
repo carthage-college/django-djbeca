@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}
+    Intent to Pursue Funding &mdash; Office of Sponsored Programs &mdash;
+    Carthage College
+{% endblock %}
+{% block content %}
+<div class="forms-container large-8 medium-10 small-12">
+    {% include "includes/required_text.html" %}
+    {% include "includes/errors_text.html" %}
+    <form method="post" action="." class="form" id="profile">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {% include "form_field.inc.html" %}
+        {% endfor %}
+        <fieldset class="blockLabels">
+            <ol>
+                {% for field in form.visible_fields %}
+                    {% include "form_field.inc.html" %}
+                {% endfor %}
+            </ol>
+        </fieldset>
+        {% include "form_submit.inc.html" %}
+    </form>
+</div>
+{% endblock %}
