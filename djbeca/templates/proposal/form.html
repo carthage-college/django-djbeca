@@ -1,7 +1,42 @@
-{% extends "base.html" %}
+{% extends "home.html" %}
 {% block title %}
     Intent to Pursue Funding &mdash; Office of Sponsored Programs &mdash;
     Carthage College
+{% endblock %}
+{% block extra_javascript %}
+    <script src="//www.carthage.edu/static/vendor/jquery/plugins/jHtmlArea/jHtmlArea-0.8.min.js"
+        type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $(function() {
+            $("#id_summary").htmlarea({
+                toolbar: [
+                    "html","bold", "italic", "underline", "superscript",
+                    "subscript", "|", "h1", "h2", "h3", "h4", "|", "indent",
+                    "outdent", "horizontalrule", "link", "unlink", "|",
+                    "orderedList", "unorderedList"
+                ]
+            });
+        });
+    </script>
+{% endblock %}
+{% block extra_style %}
+    <link href="//www.carthage.edu/static/vendor/jquery/plugins/jHtmlArea/jHtmlArea.css"
+        rel="stylesheet" type="text/css" />
+    <style type="text/css">
+    div.jHtmlArea .ToolBar {width: 470px !important; }
+    div.jHtmlArea .ToolBar ul li a.custom_disk_button
+    {
+        background: url(/static/forms/css/disk.png) no-repeat;
+        background-position: 0 0;
+    }
+    div.jHtmlArea {
+        width:500px !important;border: solid 1px #ccc; background: #efefef;
+    }
+    iframe {
+        width:500px !important;height:300px !important;background: #fff;
+        border: solid 1px #ccc;
+    }
+    </style>
 {% endblock %}
 {% block content %}
 <div class="forms-container large-8 medium-10 small-12">
@@ -12,6 +47,10 @@
         {% for field in form.hidden_fields %}
             {% include "form_field.inc.html" %}
         {% endfor %}
+        <p>
+            <strong>Signed in as:</strong>
+            {{user.last_name}}, {{user.first_name}}
+        </p>
         <fieldset class="blockLabels">
             <ol>
                 {% for field in form.visible_fields %}
