@@ -19,7 +19,7 @@ class ProposalAdmin(admin.ModelAdmin):
         return obj.user.first_name
 
     def last_name(self, obj):
-        return obj.user.profile.last_name
+        return obj.user.last_name
 
 
 admin.site.register(Proposal, ProposalAdmin)
