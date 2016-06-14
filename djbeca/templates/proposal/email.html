@@ -1,29 +1,33 @@
 {% autoescape off %}
-<h3>Intent to Pursue Funding</h3>
+<h3>Funding Proposal</h3>
 <dl {{dl_detail}}>
     <dt {{dl_dt}}>
         First name
     </dt>
     <dd {{dl_dd}}>
-        {{data.first_name}}
-    </dd>
-    <dt {{dl_dt}}>
-        Middle name
-    </dt>
-    <dd {{dl_dd}}>
-        {{data.second_name|default:"&nbsp;"}}
+        {{data.user.first_name}}
     </dd>
     <dt {{dl_dt}}>
         Last name
     </dt>
     <dd {{dl_dd}}>
-        {{data.last_name}}
+        {{data.user.last_name}}
     </dd>
     <dt {{dl_dt}}>
-        Email
+        Department
     </dt>
     <dd {{dl_dd}}>
-        {{data.email}}
+        {{data.department}}
     </dd>
 </dl>
+<h4>Title</h4>
+<p>{{data.title}}</p>
+<h4>Summary</h4>
+<div>
+{{data.summary}}
+</div>
+<h4>Do you have a funding source?</h4>
+{% if data.funding %}Yes{% else %}No{% endif %}
+<h4>Chairs</h4>
+{{data.chairs}}
 {% endautoescape %}
