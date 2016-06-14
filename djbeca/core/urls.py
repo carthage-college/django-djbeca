@@ -13,6 +13,10 @@ handler404 = 'djtools.views.errors.four_oh_four_error'
 handler500 = 'djtools.views.errors.server_error'
 
 urlpatterns = patterns('djbeca.core.views',
+    # Grappelli admin
+    url(
+        r'^grappelli/', include('grappelli.urls')
+    ),
     # django admin
     url(
         r'^admin/', include(admin.site.urls)
@@ -47,12 +51,17 @@ urlpatterns = patterns('djbeca.core.views',
     url(
         r'^proposal/success/$',
         TemplateView.as_view(
-            template_name='proposal/success.html'
+            template_name='proposal/done.html'
         ),
         name='proposal_success'
     ),
     url(
         r'^proposal/$',
         'index', name="proposal_form"
+    ),
+    # redirect home to proposal form
+    url(
+        r'^$',
+        RedirectView.as_view(url=reverse_lazy("proposal_form"))
     ),
 )
