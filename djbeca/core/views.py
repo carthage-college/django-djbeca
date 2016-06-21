@@ -24,7 +24,7 @@ def home(request):
 
     return render_to_response(
         "home.html",
-        {"proposals":proposals},
+        {"proposals":proposals,"home":True,},
         context_instance=RequestContext(request)
     )
 
