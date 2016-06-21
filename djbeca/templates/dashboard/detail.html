@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block extra_javascript %}
+<script>
+    $(function() {
+    });
+</script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Proposal Detail
+            </h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="font-size:1.2em;">
+                  <strong>Title:</strong>
+                  <a href="{% url 'admin:core_proposal_change' proposal.id %}">
+                    {{proposal.title}}
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                  </a>
+                  <br>
+                  <strong>Author:</strong>
+                  {{proposal.user.last_name}},
+                  {{proposal.user.first_name}}
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body" id="cheques-data-panel">
+                  <h3>Status</h3>
+                  <dl class="clear dl-horizontal">
+                    <dt>Funding?</dt>
+                    <dd>
+                      {% if proposal.funding %}
+                        <i class="fa fa-check green"></i>
+                      {% else %}
+                        <i class="fa fa-ban red"></i>
+                      {% endif %}
+                    </dd>
+                    <dt>Department Approved?</dt>
+                    <dd>
+                      {% if proposal.department_approved %}
+                        <i class="fa fa-check green"></i>
+                      {% else %}
+                        <i class="fa fa-ban red"></i>
+                      {% endif %}
+                    </dd>
+                    <dt>Division Approved?</dt>
+                    <dd>
+                      {% if proposal.division_approved %}
+                        <i class="fa fa-check green"></i>
+                      {% else %}
+                        <i class="fa fa-ban red"></i>
+                      {% endif %}
+                    </dd>
+                  </dl>
+                  <h3>Summary</h3>
+                  <div class="col-lg-8">
+                    {{proposal.summary}}
+                  </div>
+                  <h3 class="clear">Funding</h3>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+{% endblock content %}

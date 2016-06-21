@@ -1,83 +1,34 @@
-{% extends "djcher/accounts/login.html" %}
-{% load ifusergroup %}
-{% load livewhale_api %}
-{% block group_name %}
-    <a href="/sponsored-programs/">
-    Office of Sponsored Programs
-    </a>
-{% endblock %}
-{% block left_nav  %}
-<ul>
-    {% if not user.is_anonymous %}
-        {% ifusergroup SponsoredProgramsStaff %}
-        <li>
-            <a href="{% url 'dashboard_home' %}">Dashboard</a>
-        </li>
-        {% endifusergroup %}
-        <li>
-            <a href="{% url 'auth_logout' %}?next={{request.path}}">Logout</a>
-        </li>
-        {% if user.is_superuser %}
-        <li>
-            <a href="{% url 'admin:index' %}">Administration</a>
-        </li>
-        {% endif %}
-    {% else %}
-        <li>
-            <a href="{% url 'auth_login' %}?next={{request.path}}">Sign in</a>
-        </li>
-    {% endif %}
-</ul>
-{% get_lw_content as nav blurbs 2243 %}
-{{nav.body}}
-{% endblock %}
-{% block content_head %}
-    <h1 id="page_title">
-        Intent to Pursue Funding
-    </h1>
-{% endblock %}
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
 {% block content %}
-    {% if user.is_anonymous %}
-        <p>
-            Please use your Carthage username to log in.
-            Do not include @carthage.edu as part of your username.
-        </p>
-        {% if form.errors or errors %}
-            <p class="error">
-                Please enter a correct username and password.
-                Both fields are case-sensitive.
-                <br /><br />
-                Do not include @carthage.edu
-                as part of your username.
-                <br /><br />
-                NOTE: Your password expires every 6 months,
-                so if you have not used your Carthage account in over
-                6 months, you will have to
-                <a href="https://password.carthage.edu/" target="_blank">
-                    change your password
-                </a>.
-            </p>
-        {% endif %}
-        {% include "accounts/login_form.inc.html" %}
-    {% else %}
-        <h2>You are already logged in</h2>
-        <p>Where do  you want to go?</p>
-        <ul>
-            <li>
-                <a href="{% url 'home' %}">
-                    Forms Home
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'dashboard_home' %}">
-                    Dashboard
-                </a>
-            </li>
-            <li>
-                <a href="../logout/">
-                    Do you want to log out and log in as a new user?
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            {% if user.is_anonymous %}
+                {% if form.errors or errors %}
+                    <p class="bg-danger">
+                        <a class="close" data-dismiss="alert" href="#">×</a>
+                        Please enter a correct username and password.
+                        Both fields are case-sensitive.
+                    </p>
+                {% endif %}
+                {% include "accounts/login_form.inc.html" %}
+            {% else %}
+                <h2>You are already logged in</h2>
+                {% if next %}
+                    <p>
+                        <a href="{{next}}">
+                            Click here to continue on to your destination.
+                        </a>
+                    </p>
+                {% endif %}
+                <p>
+                    <a href="../logout/">
+                        Do you want to log out and log in as a new user?
                     </a>
-            </li>
-        </ul>
-    {% endif %}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

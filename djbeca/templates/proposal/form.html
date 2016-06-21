@@ -1,64 +1,68 @@
 {% extends "home.html" %}
+{% load livewhale_api %}
 {% block title %}
     Intent to Pursue Funding &mdash; Office of Sponsored Programs &mdash;
     Carthage College
 {% endblock %}
 {% block extra_javascript %}
-    <script src="//www.carthage.edu/static/vendor/jquery/plugins/jHtmlArea/jHtmlArea-0.8.min.js"
+    <script src="//www.carthage.edu/static/vendor/summernote/summernote.min.js"
         type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
         $(function() {
-            $("#id_summary").htmlarea({
-                toolbar: [
-                    "html","bold", "italic", "underline", "superscript",
-                    "subscript", "|", "h1", "h2", "h3", "h4", "|", "indent",
-                    "outdent", "horizontalrule", "link", "unlink", "|",
-                    "orderedList", "unorderedList"
-                ]
-            });
+            $('#id_summary').summernote({height: 300});
         });
     </script>
 {% endblock %}
 {% block extra_style %}
-    <link href="//www.carthage.edu/static/vendor/jquery/plugins/jHtmlArea/jHtmlArea.css"
+    {{block.super}}
+    <link href="//www.carthage.edu/static/vendor/summernote/summernote.css"
         rel="stylesheet" type="text/css" />
     <style type="text/css">
-    div.jHtmlArea .ToolBar {width: 470px !important; }
-    div.jHtmlArea .ToolBar ul li a.custom_disk_button
-    {
-        background: url(/static/forms/css/disk.png) no-repeat;
-        background-position: 0 0;
-    }
-    div.jHtmlArea {
-        width:500px !important;border: solid 1px #ccc; background: #efefef;
-    }
-    iframe {
-        width:500px !important;height:300px !important;background: #fff;
+    .note-editor{
+        width:500px;background: #fff;
         border: solid 1px #ccc;
     }
     </style>
 {% endblock %}
 {% block content %}
-<div class="forms-container large-8 medium-10 small-12">
-    {% include "includes/required_text.html" %}
-    {% include "includes/errors_text.html" %}
-    <form method="post" action="." class="form" id="profile">
-        {% csrf_token %}
-        {% for field in form.hidden_fields %}
-            {% include "form_field.inc.html" %}
-        {% endfor %}
-        <p>
-            <strong>Signed in as:</strong>
-            {{user.last_name}}, {{user.first_name}}
-        </p>
-        <fieldset class="blockLabels">
-            <ol>
-                {% for field in form.visible_fields %}
-                    {% include "form_field.inc.html" %}
-                {% endfor %}
-            </ol>
-        </fieldset>
-        {% include "form_submit.inc.html" %}
-    </form>
-</div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Intent to Pursue Funding Proposal
+            </h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="panel panel-default">
+                <!-- /.panel-heading -->
+                <div class="panel-body" id="proposals-data-panel">
+                    {% get_lw_content as intro blurbs 2246 %}
+                    {{intro.body}}
+                    {% include "includes/required_text.html" %}
+                    {% include "includes/errors_text.html" %}
+                    <form method="post" action="." class="form" id="profile">
+                        {% csrf_token %}
+                        {% for field in form.hidden_fields %}
+                            {% include "form_field.inc.html" %}
+                        {% endfor %}
+                        <fieldset class="blockLabels">
+                            <ol>
+                                {% for field in form.visible_fields %}
+                                    {% include "form_field.inc.html" %}
+                                {% endfor %}
+                            </ol>
+                        </fieldset>
+                        {% include "form_submit.inc.html" %}
+                    </form>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
 {% endblock %}

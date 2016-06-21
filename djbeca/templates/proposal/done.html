@@ -1,4 +1,6 @@
 {% extends "home.html" %}
+{% load livewhale_api %}
 {% block content %}
-    <h2>The View from no where</h2>
+{% get_lw_content as thanks blurbs 2245 %}
+{{thanks.body}}
 {% endblock %}

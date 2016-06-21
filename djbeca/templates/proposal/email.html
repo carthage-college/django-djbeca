@@ -28,6 +28,13 @@
 </div>
 <h4>Do you have a funding source?</h4>
 {% if data.funding %}Yes{% else %}No{% endif %}
+{% if django_debug %}
 <h4>Chairs</h4>
+{% endif %}
 {{data.chairs}}
+<p>
+    <a href="https://{% server_url%}{{data.get_update_url %}">
+        Update this Proposal
+    </a>
+</p>
 {% endautoescape %}

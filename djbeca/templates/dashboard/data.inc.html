@@ -1,0 +1,56 @@
+{% load ifusergroup %}
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover dataTable display proposals-data">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th style="text-align:center;">Funding</th>
+                <th style="text-align:center;">Department Approved</th>
+                <th style="text-align:center;">Division Approved</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in proposals %}
+          <tr>
+            <td>
+            {% ifusergroup 'Office of Sponsored Programs' 'Chairs and Deans' %}
+              <a href="{% url 'dashboard_proposal_detail' p.id %}">{{p.title}}</a>
+            {% else %}
+              <a href="{% url 'proposal_detail' p.id %}">{{p.title}}</a>
+            {% endifusergroup %}
+            </td>
+            <td style="text-align:center;">
+            {% if p.funding %}
+              <i class="fa fa-check green"></i>
+            {% else %}
+              <i class="fa fa-ban red"></i>
+            {% endif %}
+            </td>
+            <td style="text-align:center;">
+            {% if p.department_approved %}
+              <i class="fa fa-check green"></i>
+            {% else %}
+              <i class="fa fa-ban red"></i>
+            {% endif %}
+            </td>
+            <td style="text-align:center;">
+            {% if p.division_approved %}
+              <i class="fa fa-check green"></i>
+            {% else %}
+              <i class="fa fa-ban red"></i>
+            {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Title</th>
+                <th style="text-align:center;">Funding</th>
+                <th style="text-align:center;">Department Approved</th>
+                <th style="text-align:center;">Division Approved</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<!-- /.table-responsive -->

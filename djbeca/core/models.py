@@ -9,13 +9,7 @@ class Proposal(models.Model):
     Proposal to pursue funding
     """
 
-    user = models.ForeignKey(User)
-    updated_by = models.ForeignKey(
-        User,
-        verbose_name="Updated by",
-        related_name="proposal_updated_by",
-        editable=False, null=True, blank=True
-    )
+    user = models.ForeignKey(User, editable=False)
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
     )
@@ -36,7 +30,8 @@ class Proposal(models.Model):
         help_text="Check the box if you have found a funding source",
         default=False
     )
-    approved = models.BooleanField(default=False)
+    department_approved = models.BooleanField(default=False)
+    division_approved = models.BooleanField(default=False)
 
     class Meta:
         ordering  = ['-created_at']
@@ -51,8 +46,11 @@ class Proposal(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('proposal_detail', [str(self.id)])
+        return ('dashboard_proposal_detail', [str(self.id)])
 
+    @models.permalink
+    def get_update_url(self):
+        return ('admin:core_proposal_change', [str(self.id)])
 
 '''
 class Funding(models.Model):

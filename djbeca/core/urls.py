@@ -42,6 +42,9 @@ urlpatterns = patterns('djbeca.core.views',
         RedirectView.as_view(url=reverse_lazy("auth_login"))
     ),
     url(
+        r'^dashboard/', include("djbeca.dashboard.urls")
+    ),
+    url(
         r'^denied/$',
         TemplateView.as_view(
             template_name="denied.html"
@@ -55,13 +58,20 @@ urlpatterns = patterns('djbeca.core.views',
         ),
         name='proposal_success'
     ),
+    # detailed view
+    url(
+        r'^proposal/(?P<pid>\d+)/detail/$',
+        'proposal_detail', name="proposal_detail"
+    ),
+    url(
+        r'^proposal/(?P<pid>\d+)/update/$',
+        'proposal_form', name="proposal_update"
+    ),
     url(
         r'^proposal/$',
-        'index', name="proposal_form"
+        'proposal_form', name="proposal_form"
     ),
-    # redirect home to proposal form
     url(
-        r'^$',
-        RedirectView.as_view(url=reverse_lazy("proposal_form"))
+        r'^$', 'home', name="home"
     ),
 )
