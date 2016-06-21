@@ -13,9 +13,6 @@ from djzbar.utils.hr import department_divison_chairs
 from djzbar.decorators.auth import portal_auth_required
 from djtools.utils.mail import send_mail
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 @login_required
 def home(request):
@@ -93,4 +90,3 @@ def proposal_detail(request, pid):
         {"proposal":proposal},
         context_instance=RequestContext(request)
     )
-
