@@ -44,7 +44,6 @@ def proposal_form(request, pid=None):
 
             # division and departmental chairs
             chairs = department_divison_chairs(data.department)
-            data.chairs = chairs
             if len(chairs) > 0:
                 # temporarily assign department to full name
                 data.department = chairs[0][0]
@@ -53,6 +52,8 @@ def proposal_form(request, pid=None):
                     TO_LIST.append(chairs[0][4])
                     # Division chair's email
                     TO_LIST.append(chairs[0][8])
+                else:
+                    data.chairs = chairs
             else:
                 # staff do not have chairs
                 data.department = depts[0][1]

@@ -6,15 +6,21 @@ from djzbar.utils.hr import department
 from djbeca.core.models import Proposal
 
 class ProposalAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'title',)
+    list_display = (
+        'last_name', 'first_name', 'title','funding',
+        'department_approved','division_approved','email_approved'
+    )
     date_hierarchy = 'created_at'
     ordering = [
-        'user__last_name','user__first_name'
+        'user__last_name','user__first_name','funding',
+        'department_approved','division_approved','email_approved'
     ]
-    readonly_fields = ('user','title','department_name','summary_strip')
+    readonly_fields = (
+        'user','title','department_name','summary_strip','email_approved'
+    )
     fields = (
         'user','department_name','title','summary_strip','funding',
-        'department_approved','division_approved'
+        'department_approved','division_approved','email_approved'
     )
     search_fields = (
         'user__last_name','user__first_name','user__email','user__username'

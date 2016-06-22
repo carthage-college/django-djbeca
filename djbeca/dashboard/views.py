@@ -11,11 +11,7 @@ from djzbar.utils.hr import person_departments
 from djzbar.utils.hr import department_divison_chairs
 from djzbar.decorators.auth import portal_auth_required
 from djzbar.utils.informix import do_sql as do_esql
-from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
-
-import logging
-logger = logging.getLogger(__name__)
 
 
 def departments(cid):
@@ -43,7 +39,6 @@ def departments(cid):
         # department chair
         dean = False
         sql = "SELECT dept, txt as dept_txt from dept_table WHERE head_id={}".format(cid)
-        logger.debug("sql = {}".format(sql))
         objs = do_esql(sql).fetchall()
     for o in objs:
         depts[(o.dept)] = o.dept_txt

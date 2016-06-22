@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.db import models, connection
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 
 class Proposal(models.Model):
@@ -32,6 +33,7 @@ class Proposal(models.Model):
     )
     department_approved = models.BooleanField(default=False)
     division_approved = models.BooleanField(default=False)
+    email_approved = models.BooleanField(default=False)
 
     class Meta:
         ordering  = ['-created_at']
@@ -48,9 +50,10 @@ class Proposal(models.Model):
     def get_absolute_url(self):
         return ('dashboard_proposal_detail', [str(self.id)])
 
-    @models.permalink
     def get_update_url(self):
-        return ('admin:core_proposal_change', [str(self.id)])
+        return "https://{}{}".format(
+            settings.SERVER_URL, reverse('admin:core_proposal_change',args=(self.id,))
+        )
 
 '''
 class Funding(models.Model):

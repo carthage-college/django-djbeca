@@ -22,4 +22,7 @@ class ProposalForm(forms.ModelForm):
     class Meta:
         model = Proposal
         #fields = '__all__'
-        exclude = ('user','funding','department_approved','division_approved')
+        exclude = (
+            'user','funding',
+            'department_approved','division_approved','email_approved'
+        )
