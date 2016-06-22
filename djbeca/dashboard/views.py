@@ -19,29 +19,37 @@ logger = logging.getLogger(__name__)
 
 
 def departments(cid):
-    depts = []
-    # check for division dean
+    depts = {}
+    dean = False
     sql = """
         SELECT
-            dept_table.dept
+            dept_table.dept,
+            dept_table.txt as dept_txt,
+            div_table.txt as div_txt
         FROM
             dept_table
         INNER JOIN
             div_table ON dept_table.div = div_table.div
         WHERE
+            div_table.div not in ("NSSS")
+        AND
             div_table.head_id={}
     """.format(cid)
-    logger.debug("sql = {}".format(sql))
     objs = do_esql(sql).fetchall()
-    # if not, we have a department chair:
-    if not objs:
-        sql = "SELECT dept from dept_table WHERE head_id={}".format(cid)
+    if objs:
+        # division dean
+        dean = True
+    else:
+        # department chair
+        dean = False
+        sql = "SELECT dept, txt as dept_txt from dept_table WHERE head_id={}".format(cid)
         logger.debug("sql = {}".format(sql))
         objs = do_esql(sql).fetchall()
     for o in objs:
-        depts.append(o.dept)
-    logger.debug("depts = {}".format(depts))
-    return depts
+        depts[(o.dept)] = o.dept_txt
+        if dean:
+            dean = o.div_txt
+    return {"depts":depts, "div":dean}
 
 
 @portal_auth_required(
@@ -52,13 +60,22 @@ def proposal_list(request):
 
     if in_group(request.user,"Office of Sponsored Programs"):
         proposals = Proposal.objects.all()
+        depts = False
+        div = False
     else:
         depts = departments(request.user.id)
-        proposals = Proposal.objects.filter(department__in=depts)
+        div = depts["div"]
+        depts = depts["depts"]
+        proposals = Proposal.objects.filter(
+            department__in=[ key for key,val in depts.iteritems() ]
+        )
 
     return render_to_response(
-        "dashboard/home.html",
-        {"proposals":proposals},
+        "home.html",
+        {
+            "proposals":proposals,"home":False,
+            "depts":depts,"div":div
+        },
         context_instance=RequestContext(request)
     )
 
@@ -72,7 +89,7 @@ def proposal_detail(request, pid):
     proposal = Proposal.objects.get(id=pid)
 
     return render_to_response(
-        "dashboard/detail.html",
+        "detail.html",
         {"proposal":proposal},
         context_instance=RequestContext(request)
     )
