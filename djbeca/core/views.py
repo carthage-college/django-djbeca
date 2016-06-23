@@ -28,10 +28,7 @@ def home(request):
 
 @login_required
 def proposal_form(request, pid=None):
-    if settings.DEBUG:
-        TO_LIST = [settings.ADMINS[0][1],]
-    else:
-        TO_LIST = [settings.PROPOSAL_EMAIL,]
+    TO_LIST = [settings.PROPOSAL_EMAIL,]
     BCC = settings.MANAGERS
 
     depts = person_departments(request.user.id)
