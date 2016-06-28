@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse_lazy
 from djbeca.core.models import Proposal
 from djbeca.core.forms import ProposalForm
 
-from djzbar.utils.hr import chair_departments, person_departments
+from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import department_divison_chairs
 from djzbar.decorators.auth import portal_auth_required
 from djzbar.utils.informix import do_sql as do_esql
