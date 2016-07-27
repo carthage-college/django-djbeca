@@ -1,11 +1,17 @@
 {% autoescape off %}
 {% load livewhale_api %}
 {% if data.division_approved and data.department_approved %}
-    <h3>Proposal Approved!</h3>
+    <h3>Program Idea Approved!</h3>
     {% get_lw_content as approved blurbs 2249 %}
     {{approved.body}}
+{% else %}
+<p>
+    <a href="{{data.get_update_url}}">
+        Update this Program
+    </a>
+</p>
 {% endif %}
-<h3>Funding Proposal</h3>
+<h3>Program Idea</h3>
 <dl style="margin-bottom:5px">
     <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
         First name
@@ -28,19 +34,10 @@
 </dl>
 <h4>Title</h4>
 <p>{{data.title}}</p>
-<h4>Summary</h4>
-<div>
-{{data.summary}}
-</div>
 <h4>Do you have a funding source?</h4>
 {% if data.funding %}Yes{% else %}No{% endif %}
 {% if data.chairs %}
 <h4>Chairs</h4>
 {{data.chairs}}
 {% endif %}
-<p>
-    <a href="{{data.get_update_url}}">
-        Update this Proposal
-    </a>
-</p>
 {% endautoescape %}
