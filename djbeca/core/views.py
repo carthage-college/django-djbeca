@@ -56,8 +56,8 @@ def proposal_form(request, pid=None):
                 data.department = depts[0][1]
 
             # send the email
-            subject = "[OSP Proposal] {}: {}, {}".format(
-                data.title, data.user.last_name, data.user.first_name
+            subject = "[OSP Program Idea] {}, {}".format(
+                data.user.last_name, data.user.first_name
             )
             send_mail(
                 request, TO_LIST, subject, data.user.email,
