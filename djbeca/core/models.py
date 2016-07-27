@@ -21,10 +21,11 @@ class Proposal(models.Model):
         max_length=12
     )
     title = models.CharField(
-        "Proposal title", max_length=255
+        "Program title", max_length=255
     )
     summary = models.TextField(
-        "Proposal summary"
+        "Program summary",
+        help_text="Brief summary: ~500 characters"
     )
     funding = models.BooleanField(
         "Do you have a funding source?",
