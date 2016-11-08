@@ -8,19 +8,19 @@ from djbeca.core.models import Proposal
 class ProposalAdmin(admin.ModelAdmin):
     list_display = (
         'last_name', 'first_name', 'title','funding',
-        'department_approved','division_approved','email_approved'
+        'department_approved','division_approved','status','email_approved'
     )
     date_hierarchy = 'created_at'
     ordering = [
         'user__last_name','user__first_name','funding',
-        'department_approved','division_approved','email_approved'
+        'department_approved','division_approved','status','email_approved'
     ]
     readonly_fields = (
         'user','title','department_name','summary_strip','email_approved'
     )
     fields = (
         'user','department_name','title','summary_strip','funding',
-        'department_approved','division_approved','email_approved'
+        'department_approved','division_approved','status','email_approved'
     )
     search_fields = (
         'user__last_name','user__first_name','user__email','user__username'
@@ -49,9 +49,9 @@ class ProposalAdmin(admin.ModelAdmin):
         return obj.user.last_name
 
     def response_change(self, request, obj):
-        """
+        '''
         Redirect to dashboard after update
-        """
+        '''
         response = super(ProposalAdmin, self).response_change(request, obj)
         '''
         if (isinstance(response, HttpResponseRedirect) and

@@ -13,9 +13,6 @@ def proposal_pre_save(sender, **kwargs):
         if obj.department_approved and obj.division_approved:
             TO_LIST = [settings.PROPOSAL_EMAIL,]
             BCC = settings.MANAGERS
-            if obj.funding:
-                if not settings.DEBUG:
-                    TO_LIST.append(obj.use.email)
             # send the email
             subject = "[OSP Proposal][Update] {}: {}, {}".format(
                 obj.title, obj.user.last_name, obj.user.first_name

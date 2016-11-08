@@ -39,7 +39,11 @@ def proposal_form(request, pid=None):
             data.user = request.user
             data.save()
 
-            # division and departmental chairs
+            # send email to faculty as well
+            if not settings.DEBUG:
+                TO_LIST.append(data.user.email)
+
+            # send email to division dean and departmental chair
             chairs = department_divison_chairs(data.department)
             if len(chairs) > 0:
                 # temporarily assign department to full name
@@ -47,7 +51,7 @@ def proposal_form(request, pid=None):
                 if not settings.DEBUG:
                     # Department chair's email
                     TO_LIST.append(chairs[0][4])
-                    # Division chair's email
+                    # Division dean's email
                     TO_LIST.append(chairs[0][8])
                 else:
                     data.chairs = chairs
@@ -61,8 +65,17 @@ def proposal_form(request, pid=None):
             )
             send_mail(
                 request, TO_LIST, subject, data.user.email,
-                "proposal/email.html", data, BCC
+                "proposal/email_approve.html", data, BCC
             )
+            # send confirmation to individual submitting idea
+            subject = "[OSP Program Idea] {}".format(
+                data.title
+            )
+            send_mail(
+                request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
+                "proposal/email_confirmation.html", data, BCC
+            )
+
 
             return HttpResponseRedirect(
                 reverse_lazy("proposal_success")

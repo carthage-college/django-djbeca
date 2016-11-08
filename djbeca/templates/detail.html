@@ -12,6 +12,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
+              <form id="proposal-detail">
                 <div class="panel-heading" style="font-size:1.2em;">
                   <strong>Title:</strong>
                   <a href="{% url 'admin:core_proposal_change' proposal.id %}">
@@ -25,13 +26,18 @@
                 <!-- /.panel-heading -->
                 <div class="panel-body" id="cheques-data-panel">
                   <h3>Status</h3>
+                  <div class="alert alert-warning">
+                    <h4>Note:</h4>
+                    Click on the icons to toggle the status
+                  </div>
                   <dl class="clear dl-horizontal">
                     <dt>Funding?</dt>
                     <dd>
                       {% if proposal.funding %}
                         <i class="fa fa-check green"></i>
                       {% else %}
-                        <i class="fa fa-ban red"></i>
+                        <input type="checkbox" id="id_funding">
+                        <label for="id_funding"></label>
                       {% endif %}
                     </dd>
                     <dt>Department Approved?</dt>
@@ -39,12 +45,30 @@
                       {% if proposal.department_approved %}
                         <i class="fa fa-check green"></i>
                       {% else %}
-                        <i class="fa fa-ban red"></i>
+                        <input type="checkbox" id="id_department_approvded">
+                        <label for="id_department_approved"></label>
                       {% endif %}
                     </dd>
                     <dt>Division Approved?</dt>
                     <dd>
                       {% if proposal.division_approved %}
+                        <i class="fa fa-check green"></i>
+                      {% else %}
+                        <input type="checkbox" id="id_division_approvded">
+                        <label for="id_division_approved"></label>
+                      {% endif %}
+                    </dd>
+                    <dt>Approval Email Sent?</dt>
+                    <dd>
+                      {% if proposal.email_approved %}
+                        <i class="fa fa-check green"></i>
+                      {% else %}
+                        <i class="fa fa-ban red"></i>
+                      {% endif %}
+                    </dd>
+                    <dt>Will not pursue at this time</dt>
+                    <dd>
+                      {% if proposal.status %}
                         <i class="fa fa-check green"></i>
                       {% else %}
                         <i class="fa fa-ban red"></i>
@@ -58,6 +82,7 @@
                   <h3 class="clear">Funding</h3>
                 </div>
                 <!-- /.panel-body -->
+              </form>
             </div>
             <!-- /.panel -->
         </div>

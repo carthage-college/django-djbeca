@@ -20,6 +20,15 @@ li.ctrlHolder div ul li {display:inline; padding-right:3px;}
 .form ol li, .form ul li {
     list-style-type: none;
 }
+#proposal-detail label:before {
+color:#800; font-family: 'FontAwesome';content: "\f05e"; }
+
+#proposal-detail :checked + label:before {
+color:#080;font-family: 'FontAwesome';content: "\f00c"; }
+#proposal-detail input {display: none;}
+#proposal-detail h3 {margin-top:0;}
+#proposal-detail h4{ display:inline;}
+#proposal-detail .panel-body {padding-top:0;}
 dl dt {
     background-color: #ddf3f3;
     color: #003c4b;
@@ -46,7 +55,6 @@ position: relative;
 .input-group .form-control {
     width: 80%;
 }
-
 .blockOverlay{z-index:10000 !important;}
 .ui-widget-overlay{opacity:.5;}
 .ui-dialog{z-index:10010 !important;}

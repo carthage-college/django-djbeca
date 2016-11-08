@@ -1,0 +1,9 @@
+{% autoescape off %}
+{% load livewhale_api %}
+{% get_lw_content as confirmation blurbs 2404 %}
+{{confirmation.body}}
+<h4>Title</h4>
+<p>{{data.title}}</p>
+<h4>Summary</h4>
+<div>{{data.summary}}</div>
+{% endautoescape %}

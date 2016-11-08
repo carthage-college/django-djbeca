@@ -41,9 +41,11 @@ urlpatterns = patterns('djbeca.core.views',
         r'^accounts/$',
         RedirectView.as_view(url=reverse_lazy("auth_login"))
     ),
+    # dashboard
     url(
         r'^dashboard/', include("djbeca.dashboard.urls")
     ),
+    # redirect for portal decorator
     url(
         r'^denied/$',
         TemplateView.as_view(

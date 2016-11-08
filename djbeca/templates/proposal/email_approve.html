@@ -1,15 +1,17 @@
 {% autoescape off %}
 {% load livewhale_api %}
 {% if data.division_approved and data.department_approved %}
-    <h3>Program Idea Approved!</h3>
-    {% get_lw_content as approved blurbs 2249 %}
-    {{approved.body}}
+  <h3>Program Idea Approved!</h3>
+  {% get_lw_content as approved blurbs 2249 %}
+  {{approved.body}}
 {% else %}
-<p>
+  {% get_lw_content as approve blurbs 2405 %}
+  {{approve.body}}
+  <p>
     <a href="{{data.get_update_url}}">
         Update this Program
     </a>
-</p>
+  </p>
 {% endif %}
 <h3>Program Idea</h3>
 <dl style="margin-bottom:5px">
@@ -34,8 +36,6 @@
 </dl>
 <h4>Title</h4>
 <p>{{data.title}}</p>
-<h4>Do you have a funding source?</h4>
-{% if data.funding %}Yes{% else %}No{% endif %}
 {% if data.chairs %}
 <h4>Chairs</h4>
 {{data.chairs}}

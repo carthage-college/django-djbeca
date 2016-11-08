@@ -24,5 +24,6 @@ class ProposalForm(forms.ModelForm):
         #fields = '__all__'
         exclude = (
             'user','funding',
-            'department_approved','division_approved','email_approved'
+            'department_approved','division_approved','email_approved',
+            'status'
         )

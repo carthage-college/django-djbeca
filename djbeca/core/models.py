@@ -24,8 +24,12 @@ class Proposal(models.Model):
         "Program title", max_length=255
     )
     summary = models.TextField(
-        "Program summary",
-        help_text="Brief summary: ~500 characters"
+        "Program summary (~1000 characters)",
+        help_text="""
+            Provide a brief description of your proposed project
+            and how the proposed project addresses one or more
+            strategies/goals in Carthage’s strategic plan.
+        """
     )
     funding = models.BooleanField(
         "Do you have a funding source?",
@@ -34,6 +38,10 @@ class Proposal(models.Model):
     )
     department_approved = models.BooleanField(default=False)
     division_approved = models.BooleanField(default=False)
+    status = models.BooleanField(
+        "Will not pursue at this time",
+        default=False
+    )
     email_approved = models.BooleanField(default=False)
 
     class Meta:
