@@ -60,18 +60,20 @@ urlpatterns = patterns('djbeca.core.views',
         ),
         name='proposal_success'
     ),
-    # detailed view
+    # proposal form
+    url(
+        r'^proposal/$',
+        'proposal_form', name="proposal_form"
+    ),
+    # proposal detail
     url(
         r'^proposal/(?P<pid>\d+)/detail/$',
         'proposal_detail', name="proposal_detail"
     ),
+    # funding form
     url(
-        r'^proposal/(?P<pid>\d+)/update/$',
-        'proposal_form', name="proposal_update"
-    ),
-    url(
-        r'^proposal/$',
-        'proposal_form', name="proposal_form"
+        r'^funding/(?P<pid>\d+)/update/$',
+        'funding_form', name="funding_form"
     ),
     url(
         r'^$', 'home', name="home"

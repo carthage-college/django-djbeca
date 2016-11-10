@@ -5,7 +5,7 @@
         type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
         $(function() {
-            $('#id_summary').summernote({height: 300});
+            $('textarea').summernote({height: 200});
         });
     </script>
 {% endblock %}
@@ -17,6 +17,14 @@
     .note-editor{
         width:500px;background: #fff;
         border: solid 1px #ccc;
+    }
+    li.ctrlHolder div ul.ul-block li {
+        font-weight:bold;color:#8a1f11;display:block;
+        list-style-type:disc;
+    }
+    li.ctrlHolder div ul.ul-block li:before {
+        content: "• ";
+        color: #8a1ff1;
     }
     </style>
 {% endblock %}

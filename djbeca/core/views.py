@@ -6,7 +6,10 @@ from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 
 from djbeca.core.models import Proposal
+from djbeca.core.forms import FundingIdentifiedForm
+from djbeca.core.forms import FundingPursuedForm
 from djbeca.core.forms import ProposalForm
+from djbeca.core.forms import ProposalUpdateForm
 
 from djzbar.utils.hr import person_departments
 from djzbar.utils.hr import department_divison_chairs
@@ -27,7 +30,28 @@ def home(request):
 
 
 @login_required
-def proposal_form(request, pid=None):
+def funding_form(request, pid):
+
+    proposal = Proposal.objects.get(id=pid)
+    depts = person_departments(request.user.id)
+
+    form_proposal_update = ProposalUpdateForm(depts, instance=proposal)
+    form_funding_pursued = FundingPursuedForm()
+    form_funding_identified = FundingIdentifiedForm()
+
+    return render_to_response(
+        "funding/form.html",
+        {
+            "form_proposal": form_proposal_update,
+            "form_funding_identified": form_funding_identified,
+            "form_funding_pursued": form_funding_pursued,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def proposal_form(request):
     TO_LIST = [settings.PROPOSAL_EMAIL,]
     BCC = settings.MANAGERS
 
