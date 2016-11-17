@@ -1,0 +1,43 @@
+{% autoescape off %}
+{% load livewhale_api %}
+{% if data.division_approved and data.department_approved %}
+  <h3>Program Idea Approved!</h3>
+  {% get_lw_content as approved blurbs 2249 %}
+  {{approved.body}}
+{% else %}
+  {% get_lw_content as approve blurbs 2405 %}
+  {{approve.body}}
+  <p>
+    <a href="{{data.get_update_url}}">
+        Update this Program
+    </a>
+  </p>
+{% endif %}
+<h3>Program Idea</h3>
+<dl style="margin-bottom:5px">
+    <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
+        First name
+    </dt>
+    <dd style="margin:2px 0;padding:5px 0">
+        {{data.user.first_name}}
+    </dd>
+    <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
+        Last name
+    </dt>
+    <dd style="margin:2px 0;padding:5px 0">
+        {{data.user.last_name}}
+    </dd>
+    <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
+        Department
+    </dt>
+    <dd style="margin:2px 0;padding:5px 0">
+        {{data.department}}
+    </dd>
+</dl>
+<h4>Title</h4>
+<p>{{data.title}}</p>
+{% if data.chairs %}
+<h4>Chairs</h4>
+{{data.chairs}}
+{% endif %}
+{% endautoescape %}

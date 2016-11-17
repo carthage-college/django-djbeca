@@ -10,78 +10,21 @@ from djbeca.core.choices import *
 from djtools.fields import BINARY_CHOICES
 
 
-class Proposal(models.Model):
-    """
-    Proposal to pursue funding
-    """
-    user = models.ForeignKey(User, editable=False)
+class FundingPursued(models.Model):
+    '''
+    Pursuit of Funding source(s) for proposal
+    '''
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
     )
     updated_at = models.DateTimeField(
         "Date Updated", auto_now=True
     )
-    department = models.CharField(
-        max_length=12
-    )
-    title = models.CharField(
-        "Program title", max_length=255
-    )
-    summary = models.TextField(
-        "Program summary (~1000 characters)",
-        help_text="""
-            Provide a brief description of your proposed project
-            and how the proposed project addresses one or more
-            strategies/goals in Carthage’s strategic plan.
-        """
-    )
-    funding_status = models.CharField(
-        max_length=128,
-        choices=FUNDING_CHOICES
-    )
-    department_approved = models.BooleanField(default=False)
-    division_approved = models.BooleanField(default=False)
-    status = models.BooleanField(
-        "Will not pursue at this time",
-        default=False
-    )
-    email_approved = models.BooleanField(default=False)
-
-    class Meta:
-        ordering  = ['-created_at']
-        get_latest_by = 'created_at'
-        db_table = 'core_proposal'
-
-    def __unicode__(self):
-        '''
-        Default data for display
-        '''
-        return self.title
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('dashboard_proposal_detail', [str(self.id)])
-
-    def get_update_url(self):
-        return 'https://{}{}'.format(
-            settings.SERVER_URL,
-            reverse('admin:core_proposal_change',args=(self.id,))
-        )
-
-
-class FundingPursued(models.Model):
-    '''
-    Pursuit of Funding source(s) for proposal
-    '''
-    proposal = models.ForeignKey(
-        Proposal,
-        related_name="funding_pursued",
-    )
     budget_information = models.CharField(
         max_length=128
     )
-    amount_required = models.DecimalField(
-        max_digits=8, decimal_places=2,
+    amount_required = models.CharField(
+        max_length=16,
         help_text="In dollars"
     )
     project_duration = models.TextField(
@@ -101,9 +44,11 @@ class FundingIdentified(models.Model):
     '''
     Identified Funding source(s) for proposal
     '''
-    proposal = models.ForeignKey(
-        Proposal,
-        related_name="funding_identified",
+    created_at = models.DateTimeField(
+        "Date Created", auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        "Date Updated", auto_now=True
     )
     # Funding Identified
     classification = models.CharField(
@@ -155,8 +100,8 @@ class FundingIdentified(models.Model):
     # Proposal and Budget Information
     start_date = models.DateField("Project start date")
     end_date = models.DateField("Project end date")
-    amount_required = models.DecimalField(
-        max_digits=8, decimal_places=2,
+    amount_required = models.CharField(
+        max_length=16,
         help_text="In dollars"
     )
     match_required = models.CharField(
@@ -250,11 +195,9 @@ class FundingIdentified(models.Model):
         "If so, please provide details",
         null=True,blank=True
     )
-    major_equipment = models.CharField(
-        """
-            Will this proposal result in purchase of major equipment,
-            including computers and software, or renovations?
-        """,
+    major_equipment = models.CharField("""
+        Will this proposal result in purchase of major equipment,
+        including computers and software, or renovations?""",
         max_length=4,
         choices=BINARY_CHOICES,
     )
@@ -262,4 +205,73 @@ class FundingIdentified(models.Model):
         "If so, please provide details",
         null=True,blank=True
     )
+
+
+class Proposal(models.Model):
+    """
+    Proposal to pursue funding
+    """
+    user = models.ForeignKey(User, editable=False)
+    funding_pursued = models.OneToOneField(
+        FundingPursued,
+        on_delete=models.SET_NULL,
+        null=True,blank=True
+    )
+    funding_identified = models.OneToOneField(
+        FundingIdentified,
+        on_delete=models.SET_NULL,
+        null=True,blank=True
+    )
+    created_at = models.DateTimeField(
+        "Date Created", auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        "Date Updated", auto_now=True
+    )
+    department = models.CharField(
+        max_length=12
+    )
+    title = models.CharField(
+        "Program title", max_length=255
+    )
+    summary = models.TextField(
+        "Program summary (~1000 characters)",
+        help_text="""
+            Provide a brief description of your proposed project
+            and how the proposed project addresses one or more
+            strategies/goals in Carthage’s strategic plan.
+        """
+    )
+    funding_status = models.CharField(
+        max_length=128,
+        choices=FUNDING_CHOICES
+    )
+    department_approved = models.BooleanField(default=False)
+    division_approved = models.BooleanField(default=False)
+    status = models.BooleanField(
+        "Will not pursue at this time",
+        default=False
+    )
+    email_approved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering  = ['-created_at']
+        get_latest_by = 'created_at'
+        db_table = 'core_proposal'
+
+    def __unicode__(self):
+        '''
+        Default data for display
+        '''
+        return self.title
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('dashboard_proposal_detail', [str(self.id)])
+
+    def get_update_url(self):
+        return 'https://{}{}'.format(
+            settings.SERVER_URL,
+            reverse('admin:core_proposal_change',args=(self.id,))
+        )
 

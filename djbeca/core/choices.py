@@ -1,6 +1,6 @@
 FUNDING_CHOICES = (
-    ('Pursuit of Funding', 'I am pursuing funding'),
-    ('Funding Identified', 'I have identified funding'),
+    ('Pursuit of Funding', 'Pursuit of Funding'),
+    ('Funding Identified', 'Funding Identified'),
 )
 PROJECT_END_CHOICES = (
     ('Be completed', 'Be completed'),

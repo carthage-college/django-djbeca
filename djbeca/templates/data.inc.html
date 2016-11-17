@@ -4,6 +4,8 @@
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Submitted by</th>
+                <th>Date</th>
                 <th style="text-align:center;">Funding</th>
                 <th style="text-align:center;">Department Approved</th>
                 <th style="text-align:center;">Division Approved</th>
@@ -14,11 +16,15 @@
           <tr>
             <td>
             {% ifusergroup 'Office of Sponsored Programs' 'Chairs and Deans' %}
-              <a href="{% url 'dashboard_proposal_detail' p.id %}">{{p.title}}</a>
+              <a href="{% url 'funding_form' p.id %}">{{p.title}}</a>
             {% else %}
               <a href="{% url 'proposal_detail' p.id %}">{{p.title}}</a>
             {% endifusergroup %}
             </td>
+            <td>
+              {{p.user.last_name}}, {{p.user.first_name}}
+            </td>
+            <td>{{p.created_at}}</td>
             <td style="text-align:center;">
             {% if p.funding %}
               <i class="fa fa-check green"></i>

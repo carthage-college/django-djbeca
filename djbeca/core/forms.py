@@ -23,8 +23,8 @@ class FundingIdentifiedForm(forms.ModelForm):
         label="Please choose the time frame",
         choices=TIME_FRAME_CHOICES, widget=forms.RadioSelect(),
     )
-    amount_required = forms.DecimalField(
-        widget=forms.TextInput(attrs={'placeholder': '$'}),
+    amount_required = forms.CharField(
+        #widget=forms.TextInput(attrs={'placeholder': '$'}),
         help_text="In dollars"
     )
     support_facstaff = forms.TypedChoiceField(
@@ -43,12 +43,27 @@ class FundingIdentifiedForm(forms.ModelForm):
         label="Will Carthage room and board be needed?",
         choices=BINARY_CHOICES, widget=forms.RadioSelect(),
     )
+    course_release = forms.TypedChoiceField(
+        label="Will this proposal require course release or overload?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect(),
+    )
+    new_personnel = forms.TypedChoiceField(
+        label="Will this proposal require hiring of new personnel?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect(),
+    )
+    major_equipment = forms.TypedChoiceField(
+        label="""
+            Will this proposal result in purchase of major equipment,
+            including computers and software, or renovations?""",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect(),
+    )
 
     class Meta:
         model = FundingIdentified
         exclude = (
-            'proposal',
+            'created_at','updated_at'
         )
+        #fields = '__all__'
 
 
 class FundingPursuedForm(forms.ModelForm):
@@ -56,16 +71,17 @@ class FundingPursuedForm(forms.ModelForm):
         label="At the end of the project, it will",
         choices=PROJECT_END_CHOICES, widget=forms.RadioSelect()
     )
-    amount_required = forms.DecimalField(
-        widget=forms.TextInput(attrs={'placeholder': '$'}),
+    amount_required = forms.CharField(
+        #widget=forms.TextInput(attrs={'placeholder': '$'}),
         help_text="In dollars"
     )
 
     class Meta:
         model = FundingPursued
         exclude = (
-            'proposal',
+            'created_at','updated_at'
         )
+        #fields = '__all__'
 
 class ProposalForm(forms.ModelForm):
 
@@ -84,9 +100,9 @@ class ProposalForm(forms.ModelForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding',
+            'user','funding_pursued','funding_identified','funding_status',
             'department_approved','division_approved','email_approved',
-            'status'
+            'status','created_at','updated_at'
         )
 
 
@@ -99,8 +115,8 @@ class ProposalUpdateForm(ProposalForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user',
+            'user','funding_pursued','funding_identified',
             'department_approved','division_approved','email_approved',
-            'status'
+            'status','created_at','updated_at'
         )
 
