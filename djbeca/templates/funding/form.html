@@ -158,14 +158,17 @@
                       <div>
                         <fieldset class="blockLabels">
                           <legend>Proposal</legend>
-                          <h4>
-                            Submitted by:
-                            {{proposal.user.last_name}},
-                            {{proposal.user.first_name}}
-                          </h4>
-                          <h4>
-                            Date: {{proposal.created_at}}
-                          </h4>
+                          <dl style="margin-left:5px;">
+                            <dt>Submitted by</dt>
+                            <dd>
+                              {{proposal.user.last_name}},
+                              {{proposal.user.first_name}}
+                            </dd>
+                            <dt>Department</dt>
+                            <dd>{{proposal.department}}</dd>
+                            <dt>Date</dt>
+                            <dd>{{proposal.created_at}}</dd>
+                          </dl>
                           <ol>
                             {% for field in form_proposal.visible_fields %}
                               {% include "form_field.inc.html" %}
