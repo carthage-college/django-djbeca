@@ -21,53 +21,56 @@ from djtools.utils.users import in_group
 
 
 @portal_auth_required(
-    session_var="DJBECA_AUTH", redirect_url=reverse_lazy("access_denied")
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def home(request):
     user = request.user
+    group = in_group(user,'Office of Sponsored Programs')
     depts = False
     div = False
-    home = True
+    dc = None
     dean_chair = department_division_chairs(
         '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
     )
-    if in_group(user,"Office of Sponsored Programs"):
+    if group:
         proposals = Proposal.objects.all()
     elif dean_chair:
         chair_depts = chair_departments(user.id)
+        dc = chair_depts[1]
         div = chair_depts[2]
-        depts = chair_depts[0]
+        depts = chair_depts[0]['depts']
         proposals = Proposal.objects.filter(
-            department__in=[ key for key,val in depts['depts'].iteritems() ]
+            department__in=[ key for key,val in depts.iteritems() ]
         )
-        home = False
     else:
         proposals = Proposal.objects.filter(user=user)
 
     return render_to_response(
-        "home.html",
+        'home.html',
         {
-            "proposals":proposals,"home":home,
-            "depts":depts,"div":div
+            'proposals':proposals,'dean_chair':dean_chair,
+            'group':group,'dc':dc,'depts':depts,'div':div
         },
         context_instance=RequestContext(request)
     )
 
 
 @portal_auth_required(
-    session_var="DJBECA_AUTH", redirect_url=reverse_lazy("access_denied")
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def funding_form(request, pid):
-
+    user = request.user
     proposal = get_object_or_404(Proposal, id=pid)
-    depts = person_departments(request.user.id)
+    dean_chair = department_division_chairs(
+        '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
+    )
 
     if request.method=='POST':
         form_proposal_update = ProposalUpdateForm(
-            depts, request.POST, instance=proposal
+            request.POST, instance=proposal
         )
         form_funding_pursued = FundingPursuedForm(
-            request.POST, prefix="ffp", instance=proposal.funding_pursued
+            request.POST, prefix='ffp', instance=proposal.funding_pursued
         )
         form_funding_identified = FundingIdentifiedForm(
             request.POST, instance=proposal.funding_identified
@@ -81,7 +84,7 @@ def funding_form(request, pid):
                 form_funding = form_funding_identified
             if form_funding.is_valid():
                 funding = form_funding.save()
-                if proposal.funding_status == "Pursuit of Funding":
+                if proposal.funding_status == 'Pursuit of Funding':
                     proposal.funding_pursued = funding
                 else:
                     proposal.funding_identified = funding
@@ -109,7 +112,7 @@ def funding_form(request, pid):
                     reverse_lazy("funding_success")
                 )
     else:
-        form_proposal_update = ProposalUpdateForm(depts, instance=proposal)
+        form_proposal_update = ProposalUpdateForm(instance=proposal)
         form_funding_pursued = FundingPursuedForm(
             prefix="ffp", instance=proposal.funding_pursued
         )
@@ -120,17 +123,17 @@ def funding_form(request, pid):
     return render_to_response(
         "funding/form.html",
         {
-            "proposal":proposal,
-            "form_proposal": form_proposal_update,
-            "form_funding_identified": form_funding_identified,
-            "form_funding_pursued": form_funding_pursued,
+            'dean_chair':dean_chair, 'proposal':proposal,
+            'form_proposal': form_proposal_update,
+            'form_funding_identified': form_funding_identified,
+            'form_funding_pursued': form_funding_pursued,
         },
         context_instance=RequestContext(request)
     )
 
 
 @portal_auth_required(
-    session_var="DJBECA_AUTH", redirect_url=reverse_lazy("access_denied")
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def proposal_form(request):
     TO_LIST = [settings.PROPOSAL_EMAIL,]
@@ -167,7 +170,7 @@ def proposal_form(request):
             )
             send_mail(
                 request, TO_LIST, subject, data.user.email,
-                "proposal/email_approve.html", data, BCC
+                'proposal/email_approve.html', data, BCC
             )
             # send confirmation to individual submitting idea
             subject = "[OSP Program Idea] {}".format(
@@ -175,24 +178,24 @@ def proposal_form(request):
             )
             send_mail(
                 request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
-                "proposal/email_confirmation.html", data, BCC
+                'proposal/email_confirmation.html', data, BCC
             )
 
 
             return HttpResponseRedirect(
-                reverse_lazy("proposal_success")
+                reverse_lazy('proposal_success')
             )
     else:
         form = ProposalForm(depts)
     return render_to_response(
-        "proposal/form.html",
-        {"form": form,},
+        'proposal/form.html',
+        {'form': form,},
         context_instance=RequestContext(request)
     )
 
 
 @portal_auth_required(
-    session_var="DJBECA_AUTH", redirect_url=reverse_lazy("access_denied")
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def proposal_detail(request, pid):
 
@@ -201,7 +204,7 @@ def proposal_detail(request, pid):
         raise Http404
 
     return render_to_response(
-        "detail.html",
+        'detail.html',
         {"proposal":proposal},
         context_instance=RequestContext(request)
     )
