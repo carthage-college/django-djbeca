@@ -8,7 +8,6 @@ import os
 # Debug
 DEBUG = True
 #DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 INFORMIX_DEBUG = "debug"
 ADMINS = (
     ('', ''),
@@ -84,23 +83,36 @@ MIDDLEWARE_CLASSES = (
 )
 
 # template stuff
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), 'templates'),
-    "/data2/django_templates/djkorra/",
-    "/data2/django_templates/djcher/",
-    "/data2/django_templates/",
-)
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "djtools.context_processors.sitevars",
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.request",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.media",
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.dirname(__file__), 'templates'),
+            "/data2/django_templates/djkorra/",
+            "/data2/django_templates/djcher/",
+            "/data2/django_templates/",
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': DEBUG,
+            'context_processors': [
+                "djtools.context_processors.sitevars",
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.media',
+                'django.core.context_processors.request',
+                'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+                #'allauth specific context processors',
+                #'allauth.account.context_processors.account',
+                #'allauth.socialaccount.context_processors.socialaccount',
+            ],
+            #'loaders': [
+            #    # insert your TEMPLATE_LOADERS here
+            #]
+        },
+    },
+]
 # caching
 CACHES = {
     'default': {
