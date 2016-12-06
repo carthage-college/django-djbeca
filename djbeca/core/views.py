@@ -6,9 +6,8 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse_lazy
 
-from djbeca.core.models import FundingIdentified, FundingPursued, Proposal
-from djbeca.core.forms import FundingIdentifiedForm
-from djbeca.core.forms import FundingPursuedForm
+from djbeca.core.models import Funding, Proposal
+from djbeca.core.forms import FundingForm
 from djbeca.core.forms import ProposalForm
 from djbeca.core.forms import ProposalUpdateForm
 from djzbar.utils.hr import chair_departments
@@ -69,55 +68,41 @@ def funding_form(request, pid):
         form_proposal_update = ProposalUpdateForm(
             request.POST, instance=proposal
         )
-        form_funding_pursued = FundingPursuedForm(
-            request.POST, prefix='ffp', instance=proposal.funding_pursued
-        )
-        form_funding_identified = FundingIdentifiedForm(
-            request.POST, instance=proposal.funding_identified
+        form_funding = FundingForm(
+            request.POST, instance=proposal.funding
         )
 
-        if form_proposal_update.is_valid():
+        if form_proposal_update.is_valid() and form_funding.is_valid():
             proposal = form_proposal_update.save(commit=False)
-            if proposal.funding_status == 'Pursuit of Funding':
-                form_funding = form_funding_pursued
-            else:
-                form_funding = form_funding_identified
-            if form_funding.is_valid():
-                funding = form_funding.save()
-                if proposal.funding_status == 'Pursuit of Funding':
-                    proposal.funding_pursued = funding
-                else:
-                    proposal.funding_identified = funding
-                proposal.save()
+            funding = form_funding.save()
+            proposal.funding = funding
+            proposal.save()
 
-                '''
-                # send the email
-                subject = "[OSP Program Idea] {}, {}".format(
-                    data.user.last_name, data.user.first_name
-                )
-                send_mail(
-                    request, TO_LIST, subject, data.user.email,
-                    "proposal/email_approve.html", data, BCC
-                )
-                # send confirmation to individual submitting idea
-                subject = "[OSP Program Idea] {}".format(
-                    data.title
-                )
-                send_mail(
-                    request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
-                    "proposal/email_confirmation.html", data, BCC
-                )
-                '''
-                return HttpResponseRedirect(
-                    reverse_lazy("funding_success")
-                )
+            '''
+            # send the email
+            subject = "[OSP Program Idea] {}, {}".format(
+                data.user.last_name, data.user.first_name
+            )
+            send_mail(
+                request, TO_LIST, subject, data.user.email,
+                "proposal/email_approve.html", data, BCC
+            )
+            # send confirmation to individual submitting idea
+            subject = "[OSP Program Idea] {}".format(
+                data.title
+            )
+            send_mail(
+                request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
+                "proposal/email_confirmation.html", data, BCC
+            )
+            '''
+            return HttpResponseRedirect(
+                reverse_lazy("funding_success")
+            )
     else:
         form_proposal_update = ProposalUpdateForm(instance=proposal)
-        form_funding_pursued = FundingPursuedForm(
-            prefix="ffp", instance=proposal.funding_pursued
-        )
-        form_funding_identified = FundingIdentifiedForm(
-            instance=proposal.funding_identified
+        form_funding= FundingForm(
+            instance=proposal.funding
         )
 
     return render_to_response(
@@ -125,8 +110,7 @@ def funding_form(request, pid):
         {
             'dean_chair':dean_chair, 'proposal':proposal,
             'form_proposal': form_proposal_update,
-            'form_funding_identified': form_funding_identified,
-            'form_funding_pursued': form_funding_pursued,
+            'form_funding': form_funding
         },
         context_instance=RequestContext(request)
     )
@@ -200,7 +184,13 @@ def proposal_form(request):
 def proposal_detail(request, pid):
 
     proposal = Proposal.objects.get(id=pid)
-    if proposal.user != request.user:
+    user = request.user
+    group = in_group(user,'Office of Sponsored Programs')
+    dean_chair = department_division_chairs(
+        '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
+    )
+
+    if proposal.user != request.user and not group and not dean_chair:
         raise Http404
 
     return render_to_response(

@@ -10,39 +10,9 @@ from djbeca.core.choices import *
 from djtools.fields import BINARY_CHOICES
 
 
-class FundingPursued(models.Model):
+class Funding(models.Model):
     '''
-    Pursuit of Funding source(s) for proposal
-    '''
-    created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
-    )
-    updated_at = models.DateTimeField(
-        "Date Updated", auto_now=True
-    )
-    budget_information = models.CharField(
-        max_length=128
-    )
-    amount_required = models.CharField(
-        max_length=16,
-        help_text="In dollars"
-    )
-    project_duration = models.TextField(
-        help_text="""
-            What is your funding time line?
-            How soon will you require funding? (~500 characters)
-        """
-    )
-    project_end = models.CharField(
-        "At the end of the project, it will",
-        max_length=128,
-        choices=PROJECT_END_CHOICES,
-    )
-
-
-class FundingIdentified(models.Model):
-    '''
-    Identified Funding source(s) for proposal
+    Intent to Submit Funding
     '''
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
@@ -50,7 +20,7 @@ class FundingIdentified(models.Model):
     updated_at = models.DateTimeField(
         "Date Updated", auto_now=True
     )
-    # Funding Identified
+    # core
     classification = models.CharField(
         "Would this proposal classify Carthage as a",
         max_length=128,
@@ -169,6 +139,7 @@ class FundingIdentified(models.Model):
         null=True,blank=True
     )
     room_board = models.CharField(
+        # might be able to merge these two into one
         "Will Carthage room and board be needed?",
         max_length=4,
         choices=BINARY_CHOICES,
@@ -209,16 +180,11 @@ class FundingIdentified(models.Model):
 
 class Proposal(models.Model):
     """
-    Proposal to pursue funding
+    Grant idea proposal
     """
     user = models.ForeignKey(User, editable=False)
-    funding_pursued = models.OneToOneField(
-        FundingPursued,
-        on_delete=models.SET_NULL,
-        null=True,blank=True
-    )
-    funding_identified = models.OneToOneField(
-        FundingIdentified,
+    funding = models.OneToOneField(
+        Funding,
         on_delete=models.SET_NULL,
         null=True,blank=True
     )
@@ -236,12 +202,20 @@ class Proposal(models.Model):
     )
     summary = models.TextField(
         "Program summary (~1000 characters)",
+        help_text="Provide a brief description of your grant idea"
+    )
+    members = models.TextField(
+        "List all who may be involved (~500 characters)",
         help_text="""
-            Provide a brief description of your proposed project
-            and how the proposed project addresses one or more
-            strategies/goals in Carthage’s strategic plan.
+            e.g., specific Carthage members or non-Carthage members,
+            and/or students
         """
     )
+    expenses = models.TextField(
+        "Describe the types of expenses you will need (~1000 characters)",
+        help_text="ex: stipends, any materials & supplies, travel, etc."
+    )
+
     funding_status = models.CharField(
         max_length=128,
         choices=FUNDING_CHOICES

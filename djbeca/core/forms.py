@@ -2,15 +2,14 @@
 
 from django import forms
 
-from djbeca.core.models import FundingIdentified, FundingPursued
-from djbeca.core.models import Proposal
+from djbeca.core.models import Funding, Proposal
 
 from djbeca.core.choices import *
 
 from djtools.fields import BINARY_CHOICES
 
 
-class FundingIdentifiedForm(forms.ModelForm):
+class FundingForm(forms.ModelForm):
     classification = forms.TypedChoiceField(
         label="This proposal will classify Carthage as a",
         choices=CLASSIFICATION_CHOICES, widget=forms.RadioSelect(),
@@ -59,29 +58,11 @@ class FundingIdentifiedForm(forms.ModelForm):
     )
 
     class Meta:
-        model = FundingIdentified
+        model = Funding
         exclude = (
             'created_at','updated_at'
         )
-        #fields = '__all__'
 
-
-class FundingPursuedForm(forms.ModelForm):
-    project_end = forms.TypedChoiceField(
-        label="At the end of the project, it will",
-        choices=PROJECT_END_CHOICES, widget=forms.RadioSelect()
-    )
-    amount_required = forms.CharField(
-        #widget=forms.TextInput(attrs={'placeholder': '$'}),
-        help_text="In dollars"
-    )
-
-    class Meta:
-        model = FundingPursued
-        exclude = (
-            'created_at','updated_at'
-        )
-        #fields = '__all__'
 
 class ProposalForm(forms.ModelForm):
 
@@ -100,7 +81,7 @@ class ProposalForm(forms.ModelForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding_pursued','funding_identified','funding_status',
+            'user','funding','funding_status','title',
             'department_approved','division_approved','email_approved',
             'status','created_at','updated_at'
         )
@@ -108,14 +89,10 @@ class ProposalForm(forms.ModelForm):
 
 class ProposalUpdateForm(forms.ModelForm):
 
-    funding_status = forms.TypedChoiceField(
-        choices=FUNDING_CHOICES, widget=forms.RadioSelect()
-    )
-
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding_pursued','funding_identified','department',
+            'user','funding_status','funding','department','members','expenses',
             'department_approved','division_approved','email_approved',
             'status','created_at','updated_at'
         )

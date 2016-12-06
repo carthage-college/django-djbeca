@@ -20,35 +20,13 @@
         }
     }
 
-    // show/hide secondary forms depending on the value of "funding status"
-    {% if form_proposal.funding_status.value == 'Funding Identified' %}
-    $('#funding-identified').slideDown();
-    $('#funding-pursued').slideUp();
-    {% else %}{% if form_proposal.funding_status.value == 'Pursuit of Funding' %}
-    $('#funding-pursued').slideDown();
-    $('#funding-identified').slideUp();
-    {% else %}
-    $('#funding-identified').slideUp();
-    $('#funding-pursued').slideUp();
-    {% endif %}{% endif %}
-    // Funding status
-    $('input[name=funding_status]').click(function(){
-      if ($(this).val() == 'Pursuit of Funding') {
-        $('#funding-pursued').slideDown('slow');
-        $('#funding-identified').slideUp('slow');
-      } else {
-        $('#funding-identified').slideDown('slow');
-        $('#funding-pursued').slideUp('slow');
-      }
-    });
-
     // Hide dependent fields that will appear when user makes a decision
 
     // Does this proposal partner with another institution?
     var $partner_institution = $('#id_partner_institution').closest('li');
     var $co_partner_institution = $('#id_co_partner_institution').closest('li');
     var $partner_institution_contact = $('#id_partner_institution_contact').closest('li');
-    {% if form_funding_identified.partner.value != 'Yes' %}
+    {% if form_funding.partner.value != 'Yes' %}
     $partner_institution.slideUp();
     $co_partner_institution.slideUp();
     $partner_institution_contact.slideUp();
@@ -62,7 +40,7 @@
     })
     // Cost Match Requirement
     var $match_description = $('#id_match_description').closest('li');
-    {% if form_funding_identified.match_required.value != 'Yes' %}
+    {% if form_funding.match_required.value != 'Yes' %}
     $match_description.slideUp();
     {% endif %}
     $('input[name=match_required]').click(function(){
@@ -70,7 +48,7 @@
     });
     // Will funds support faculty/staff devoted to project?
     var $support_facstaff_info = $('#id_support_facstaff_info').closest('li');
-    {% if form_funding_identified.support_facstaff.value != 'Yes' %}
+    {% if form_funding.support_facstaff.value != 'Yes' %}
     $support_facstaff_info.slideUp();
     {% endif %}
     $('input[name=support_facstaff]').click(function(){
@@ -81,7 +59,7 @@
     var $undergraduates_number = $('#id_undergraduates_number').closest('li');
     var $room_board = $('#id_room_board').closest('li');
     var $room_board_number = $('#id_room_board_number').closest('li');
-    {% if form_funding_identified.undergraduates.value != 'Yes' %}
+    {% if form_funding.undergraduates.value != 'Yes' %}
     $undergraduates_carthage.slideUp();
     $undergraduates_number.slideUp();
     $room_board.slideUp();
@@ -96,7 +74,7 @@
     });
     // Will this proposal require course release or overload?
     var $course_release_details = $('#id_course_release_details').closest('li');
-    {% if form_funding_identified.course_release.value != 'Yes' %}
+    {% if form_funding.course_release.value != 'Yes' %}
     $course_release_details.slideUp();
     {% endif %}
     $('input[name=course_release]').click(function(){
@@ -104,7 +82,7 @@
     });
     // Will this proposal require hiring of new personnel?
     var $new_personnel_details = $('#id_new_personnel_details').closest('li');
-    {% if form_funding_identified.new_personnel.value != 'Yes' %}
+    {% if form_funding.new_personnel.value != 'Yes' %}
     $new_personnel_details.slideUp();
     {% endif %}
     $('input[name=new_personnel]').click(function(){
@@ -113,7 +91,7 @@
     // Will this proposal result in purchase of major equipment,
     // including computers and software, or renovations?
     var $major_equipment_details = $('#id_major_equipment_details').closest('li');
-    {% if form_funding_identified.major_equipment.value != 'Yes' %}
+    {% if form_funding.major_equipment.value != 'Yes' %}
     $major_equipment_details.slideUp();
     {% endif %}
     $('input[name=major_equipment]').click(function(){
@@ -151,6 +129,8 @@
             <div class="panel panel-default">
                 <!-- /.panel-heading -->
                 <div class="panel-body" id="proposals-data-panel">
+                    {% get_lw_content as intro blurbs 2433 %}
+                    {{intro.body}}
                     {% include "includes/required_text.html" %}
                     {% include "includes/errors_text.html" %}
                     <form method="post" action="." class="form" id="profile">
@@ -176,21 +156,11 @@
                           </ol>
                         </fieldset>
                       </div>
-                      <div id="funding-pursued">
+                      <div id="funding">
                         <fieldset class="blockLabels">
-                          <legend>I am pursuing funding</legend>
+                          <legend>Funding</legend>
                           <ol>
-                            {% for field in form_funding_pursued.visible_fields %}
-                              {% include "form_field.inc.html" %}
-                            {% endfor %}
-                          </ol>
-                        </fieldset>
-                      </div>
-                      <div id="funding-identified">
-                        <fieldset class="blockLabels" id="funding-identified">
-                          <legend>Funding Identified</legend>
-                          <ol>
-                            {% for field in form_funding_identified.visible_fields %}
+                            {% for field in form_funding.visible_fields %}
                               {% if field.name == "sponsor_agency_name" %}
                                 </ol></fieldset>
                                 <fieldset class="blockLabels">
