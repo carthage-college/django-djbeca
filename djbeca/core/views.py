@@ -197,7 +197,7 @@ def proposal_form(request):
 def proposal_detail(request, pid):
 
     proposal = Proposal.objects.get(id=pid)
-    if proposal.user != request.user:
+    if not request.user.is_superuser and proposal.user != request.user:
         raise Http404
 
     return render_to_response(
