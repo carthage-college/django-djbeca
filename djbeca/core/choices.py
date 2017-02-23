@@ -14,6 +14,15 @@ TIME_FRAME_CHOICES = (
     ('One Year','One Year'),
     ('Multi-Year','Multi-Year'),
 )
+PROJECT_TYPE_CHOICES = (
+    ('Instructional','Instructional'),
+    ('Academic Support','Academic Support'),
+    ('Outreach/Public Service','Outreach/Public Service'),
+    ('Research','Research'),
+    ('Basic Scientific Research','Basic Scientific Research'),
+    ('Applied Scientific Research','Applied Scientific Research'),
+    ('Other','Other'),
+)
 SPONSOR_TYPE_CHOICES = (
     ('Federal','Federal'),
     ('Foundation','Foundation'),

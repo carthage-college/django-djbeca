@@ -41,10 +41,6 @@ urlpatterns = patterns('djbeca.core.views',
         r'^accounts/$',
         RedirectView.as_view(url=reverse_lazy("auth_login"))
     ),
-    # dashboard
-    #url(
-    #    r'^dashboard/', include("djbeca.dashboard.urls")
-    #),
     # redirect for portal decorator
     url(
         r'^denied/$',
@@ -54,32 +50,37 @@ urlpatterns = patterns('djbeca.core.views',
     ),
     # proposal form
     url(
+        r'^proposal/$',
+        'proposal_form', name="proposal_form"
+    ),
+    url(
         r'^proposal/success/$',
         TemplateView.as_view(
             template_name='proposal/done.html'
         ),
         name='proposal_success'
     ),
-    url(
-        r'^proposal/$',
-        'proposal_form', name="proposal_form"
-    ),
     # proposal detail
     url(
         r'^proposal/(?P<pid>\d+)/detail/$',
         'proposal_detail', name="proposal_detail"
     ),
-    # funding form
+    # proposal_update
+    #url(
+        #r'^proposal/(?P<pid>\d+)/update/$',
+        #'proposal_update', name="proposal_update"
+    #),
+    # approval form
+    #url(
+        #r'^proposal/(?P<pid>\d+)/approval/$',
+        #'proposal_approval', name="proposal_approval"
+    #),
     url(
-        r'^funding/success/$',
+        r'^proposal/approval/success/$',
         TemplateView.as_view(
-            template_name='funding/done.html'
+            template_name='funding/approval/done.html'
         ),
-        name='funding_success'
-    ),
-    url(
-        r'^funding/(?P<pid>\d+)/update/$',
-        'funding_form', name="funding_form"
+        name='proposal_approval_success'
     ),
     # home
     url(
