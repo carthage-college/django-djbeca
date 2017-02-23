@@ -142,24 +142,18 @@ class ProposalForm(forms.ModelForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding_status',
-            'created_at','updated_at',
+            'user','funding','funding_status','title',
             'department_approved','division_approved','email_approved',
             'provost_approved','status','created_at','updated_at'
         )
 
 
-class ProposalUpdateForm(ProposalForm):
-
-    funding_status = forms.TypedChoiceField(
-        choices=FUNDING_CHOICES, widget=forms.RadioSelect()
-    )
+class ProposalUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding_pursued','funding_identified',
-            'created_at','updated_at',
+            'user','funding_status','funding','department','members','expenses',
             'department_approved','division_approved','email_approved',
             'status','created_at','updated_at'
         )

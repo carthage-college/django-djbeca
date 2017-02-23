@@ -3,18 +3,19 @@
     <div class="row">
         <div class="col-lg-12">
             <h1>
-                {% if home %}{{user.first_name}}'s
-                {% else %}
-                  {% if not depts %}
-                    All
+                {% if not dean_chair %}
+                  {% if not group %}
+                    {{user.first_name}}'s
                   {% else %}
-                    {% if div %}
-                      {{div}}
-                    {% else %}
-                      {% for k,v in depts.items %}
-                        {{v}}{% if not forloop.last %},{% endif %}
-                      {% endfor %}
-                    {% endif %}
+                    All
+                  {% endif %}
+                {% else %}
+                  {% if dc == "dean" %}
+                    {{div}}
+                  {% else %}
+                    {% for k,v in depts.items %}
+                      {{v.dept_name}}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
                   {% endif %}
                 {% endif %}
                 Proposals

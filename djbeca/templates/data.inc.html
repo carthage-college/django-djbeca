@@ -15,22 +15,24 @@
         {% for p in proposals %}
           <tr>
             <td>
-            {% ifusergroup 'Office of Sponsored Programs' 'Chairs and Deans' %}
+            {% if dc or group %}
               <a href="{% url 'funding_form' p.id %}">{{p.title}}</a>
             {% else %}
               <a href="{% url 'proposal_detail' p.id %}">{{p.title}}</a>
-            {% endifusergroup %}
+            {% endif %}
             </td>
             <td>
               {{p.user.last_name}}, {{p.user.first_name}}
             </td>
             <td>{{p.created_at}}</td>
             <td style="text-align:center;">
-            {% if p.funding %}
-              <i class="fa fa-check green"></i>
+            {% if p.funding_status == "Funding Identified" %}
+              <i class="fa fa-check green" title="Funding Identified"></i>
+            {% else %}{% if p.funding_status == "Funding Pursued" %}
+              <i class="fa fa-binoculars" title="Funding Pursued"></i>
             {% else %}
-              <i class="fa fa-ban red"></i>
-            {% endif %}
+              <i class="fa fa-ban red" title="Funding Pursued"></i>
+            {% endif %}{% endif %}
             </td>
             <td style="text-align:center;">
             {% if p.department_approved %}

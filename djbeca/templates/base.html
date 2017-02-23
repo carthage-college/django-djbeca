@@ -138,11 +138,13 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 <div class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav" id="side-menu">
-            {% ifusergroup 'Office of Sponsored Programs' %}{% else %}
             <li>
                 <a href="{% url 'home' %}">
                     <i class="fa fa-home fa-fw"></i>
-                    My Proposals
+                    {% ifusergroup 'Office of Sponsored Programs' %}All{% else %}
+                    {% if dean_chair %}All{% else %}My{% endif %}
+                    {% endifusergroup %}
+                    Proposals
                 </a>
             </li>
             <li>
@@ -151,7 +153,6 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
                     Submit Proposal
                 </a>
             </li>
-            {% endifusergroup %}
             {% if user.is_superuser %}
             <li>
                 <a href="{% url 'admin:index' %}">
