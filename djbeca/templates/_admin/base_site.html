@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% load i18n grp_tags %}
+
+{% block title %}{{ title }} | {% get_site_title %}{% endblock %}
+{% block extrahead %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"
+    type="text/javascript"></script>
+<script>
+$(function() {
+{% if not user.is_superuser %}
+    $(".grp-delete-link").remove();
+    $("input[name='_addanother']").remove();
+{% endif %}
+});
+</script>
+{% endblock %}
+
+{% block branding %}
+    {# Use the div#grp-branding for branding elements, e.g. a logo #}
+    {# <div id="grp-branding"></div> #}
+{% endblock %}
+
+{% block userlinks %}
+<!-- Username -->
+<li class="grp-user-options-container grp-collapse grp-closed {% if request.session.original_user %}grp-switch-user-is-target{% endif %}">
+    <a href="javascript://" class="user-options-handler grp-collapse-handler {% if request.session.original_user %}grp-switch-user-is-target{% else %}grp-switch-user-is-original{% endif %}">{% firstof user.get_short_name user.get_username %}</a>
+    <ul class="grp-user-options">
+        <!-- Logout -->
+        <li><a href="{% url 'admin:logout' %}" class="grp-logout">{% trans 'Log out' %}</a></li>
+        <!-- Switch -->
+        {% switch_user_dropdown %}
+    </ul>
+</li>
+{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block context-navigation %}{% endblock %}
