@@ -7,20 +7,20 @@ from djbeca.core.models import Proposal
 
 class ProposalAdmin(admin.ModelAdmin):
     list_display = (
-        'last_name', 'first_name', 'title','funding_status',
-        'department_approved','division_approved','status','email_approved'
+        'last_name', 'first_name', 'title',
+        'department_approved','division_approved','status','provost_approved'
     )
     date_hierarchy = 'created_at'
     ordering = [
-        'user__last_name','user__first_name','funding_status',
-        'department_approved','division_approved','status','email_approved'
+        'user__last_name','user__first_name',
+        'department_approved','division_approved','status','provost_approved'
     ]
     readonly_fields = (
-        'user','title','department_name','summary_strip','email_approved'
+        'user','title','department_name','summary_strip','provost_approved'
     )
     fields = (
-        'user','department_name','title','summary_strip','funding_status',
-        'department_approved','division_approved','status','email_approved'
+        'user','department_name','title','summary_strip',
+        'department_approved','division_approved','status','provost_approved'
     )
     search_fields = (
         'user__last_name','user__first_name','user__email','user__username'

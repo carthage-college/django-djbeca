@@ -62,7 +62,7 @@ def proposal_form(request):
 
     depts = person_departments(request.user.id)
     if request.method=='POST':
-        form = ProposalForm(depts, request.POST)
+        form = ProposalForm(depts, request.POST, request.FILES)
         if form.is_valid():
             data = form.save(commit=False)
             data.user = request.user

@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from djbeca.core.models import Proposal
 from djtools.utils.mail import send_mail
 
-
+'''
 @receiver(pre_save, sender=Proposal)
 def proposal_pre_save(sender, **kwargs):
     obj = kwargs['instance']
@@ -23,4 +23,4 @@ def proposal_pre_save(sender, **kwargs):
             )
             if sent:
                 obj.email_approved = True
-
+'''

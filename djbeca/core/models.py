@@ -75,7 +75,8 @@ class Proposal(models.Model):
     grant_agency_program_url = models.CharField(
         verbose_name="Grant Agency and Program Solicitation URL",
         max_length=768,
-        null=True,blank=True
+        null=True,blank=True,
+        help_text="If available."
     )
     project_type = models.CharField(
         max_length=128,
@@ -91,7 +92,7 @@ class Proposal(models.Model):
     )
     budget = models.FileField(
         upload_to=upload_to_path,
-        validators=[MimetypeValidator('application/pdf')],
+        #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format"
     )

@@ -31,17 +31,6 @@
             }
         }
     }
-    // show/hide secondary forms depending on the value of "funding status"
-    {% if form_proposal.funding_status.value == 'Funding Identified' %}
-    $('#funding-identified').slideDown();
-    $('#funding-pursued').slideUp();
-    {% else %}{% if form_proposal.funding_status.value == 'Pursuit of Funding' %}
-    $('#funding-pursued').slideDown();
-    $('#funding-identified').slideUp();
-    {% else %}
-    $('#funding-identified').slideUp();
-    $('#funding-pursued').slideUp();
-    {% endif %}{% endif %}
     // Funding status
     $('input[name=funding_status]').click(function(){
       if ($(this).val() == 'Pursuit of Funding') {
@@ -61,7 +50,7 @@
     var $partner_institution_contact = $('#id_partner_institution_contact').closest('li');
     $partner_institution.addClass("details");
     $partner_institution_contact.addClass("details");
-    {% if form_funding_identified.partner.value != 'Yes' %}
+    {% if form.partner_lead.value != 'Yes' %}
     $partner_institution.slideUp();
     $partner_institution_contact.slideUp();
     {% endif %}
@@ -76,7 +65,7 @@
     var $course_release = $('#id_course_release').closest('li');
     var $course_release_details = $('#id_course_release_details').closest('li');
     $course_release_details.addClass("details");
-    {% if form_funding_identified.course_release.value != 'Yes' %}
+    {% if form.course_release.value != 'Yes' %}
     $course_release_details.slideUp();
     {% endif %}
     $('input[name=course_release]').click(function(){
@@ -89,7 +78,7 @@
     var $sponsor_participation = $('#id_sponsor_participation').closest('li');
     $partner_participation.addClass("details");
     $sponsor_participation.addClass("details");
-    {% if form_funding_identified.grant_submission_requirement.value != 'Yes' %}
+    {% if form.grant_submission_requirement.value != 'Yes' %}
     $partner_participation.slideUp();
     $sponsor_participation.slideUp();
     {% endif %}
@@ -104,7 +93,7 @@
     var $additional_space = $('#id_additional_space').closest('li');
     var $additional_space_details = $('#id_additional_space_details').closest('li');
     $additional_space_details.addClass("details");
-    {% if form_funding_identified.additional_space.value != 'Yes' %}
+    {% if form.additional_space.value != 'Yes' %}
     $additional_space_details.slideUp();
     {% endif %}
     $('input[name=additional_space]').click(function(){
@@ -117,7 +106,7 @@
     var $technology_support = $('#id_technology_support').closest('li');
     var $technology_support_details = $('#id_technology_support_details').closest('li');
     $technology_support_details.addClass("details");
-    {% if form_funding_identified.technology_support.value != 'Yes' %}
+    {% if form.technology_support.value != 'Yes' %}
     $technology_support_details.slideUp();
     {% endif %}
     $('input[name=technology_support]').click(function(){
@@ -131,7 +120,7 @@
     var $human_review_approved = $('#id_human_review_approved_date').closest('li');
     $human_review_submitted.addClass("details");
     $human_review_approved.addClass("details");
-    {% if form_funding_identified.human_subjects.value != 'Yes' %}
+    {% if form.human_subjects.value != 'Yes' %}
     $human_review_submitted.slideUp();
     $human_review_approved.slideUp();
     {% endif %}
@@ -147,7 +136,7 @@
     var $other_participants = $('#id_other_participants').closest('li');
     var $other_participants_details = $('#id_other_participants_details').closest('li');
     $other_participants_details.addClass("details");
-    {% if form_funding_identified.other_participants.value != 'Yes' %}
+    {% if form.other_participants.value != 'Yes' %}
     $other_participants_details.slideUp();
     {% endif %}
     $('input[name=other_participants]').click(function(){
@@ -161,7 +150,7 @@
     var $animal_protocol_approved = $('#id_animal_protocol_approved_date').closest('li');
     $animal_protocol_submitted.addClass("details");
     $animal_protocol_approved.addClass("details");
-    {% if form_funding_identified.animal_subjects.value != 'Yes' %}
+    {% if form.animal_subjects.value != 'Yes' %}
     $animal_protocol_submitted.slideUp();
     $animal_protocol_approved.slideUp();
     {% endif %}
@@ -177,7 +166,7 @@
     var $new_personnel_details = $('#id_new_personnel_details').closest('li');
     $new_personnel_details.addClass("details");
     $new_personnel_details.addClass("details");
-    {% if form_funding_identified.new_personnel.value != 'Yes' %}
+    {% if form.new_personnel.value != 'Yes' %}
     $new_personnel_details.slideUp();
     {% endif %}
     $('input[name=new_personnel]').click(function(){
@@ -188,7 +177,7 @@
     var $major_equipment = $('#id_major_equipment').closest('li');
     var $major_equipment_details = $('#id_major_equipment_details').closest('li');
     $major_equipment_details.addClass("details");
-    {% if form_funding_identified.major_equipment.value != 'Yes' %}
+    {% if form.major_equipment.value != 'Yes' %}
     $major_equipment_details.slideUp();
     {% endif %}
     $('input[name=major_equipment]').click(function(){
@@ -248,7 +237,8 @@
         {#intro.body#}
         {% include "includes/required_text.html" %}
         {% include "includes/errors_text.html" %}
-        <form method="post" action="." class="form" id="profile">
+        <form method="post" enctype="multipart/form-data" action="."
+          class="form" id="profile">
         {% csrf_token %}
         {% for field in form.hidden_fields %}
           {% include "form_field.inc.html" %}
