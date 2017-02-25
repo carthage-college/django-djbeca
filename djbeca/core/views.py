@@ -131,7 +131,7 @@ def proposal_detail(request, pid):
         raise Http404
 
     return render_to_response(
-        'detail.html',
-        {"proposal":proposal},
+        'proposal/detail.html',
+        {'proposal':proposal,'group':group,},
         context_instance=RequestContext(request)
     )

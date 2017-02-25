@@ -142,9 +142,8 @@ class ProposalForm(forms.ModelForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding','funding_status','title',
-            'department_approved','division_approved','email_approved',
-            'provost_approved','status','created_at','updated_at'
+            'user','created_at','updated_at',
+            'department_approved','division_approved','provost_approved'
         )
 
 
@@ -153,8 +152,6 @@ class ProposalUpdateForm(forms.ModelForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user','funding_status','funding','department','members','expenses',
-            'department_approved','division_approved','email_approved',
-            'status','created_at','updated_at'
+            'user','created_at','updated_at','department',
+            'department_approved','division_approved','provost_approved'
         )
-

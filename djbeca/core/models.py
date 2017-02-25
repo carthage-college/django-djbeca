@@ -27,10 +27,6 @@ class Proposal(models.Model):
     department_approved = models.BooleanField(default=False)
     division_approved = models.BooleanField(default=False)
     provost_approved = models.BooleanField(default=False)
-    status = models.BooleanField(
-        "Approved",
-        default=False
-    )
     # overview
     department = models.CharField(
         max_length=12
@@ -140,9 +136,7 @@ class Proposal(models.Model):
         null=True,blank=True
     )
     major_equipment = models.CharField(
-        """
-            Result in the purchase of major equipment?
-        """,
+        "Result in the purchase of major equipment?",
         max_length=4,
         choices=BINARY_CHOICES,
     )
@@ -262,8 +256,8 @@ class Proposal(models.Model):
     def get_update_url(self):
         return 'https://{}{}'.format(
             settings.SERVER_URL,
-            #reverse('admin:core_proposal_change',args=(self.id,))
-            reverse('proposal_update',args=(self.id,))
+            reverse('admin:core_proposal_change',args=(self.id,))
+            #reverse('proposal_update',args=(self.id,))
         )
 
     def get_slug(self):
