@@ -40,11 +40,9 @@ class ProposalForm(forms.ModelForm):
     )
     start_date = forms.DateField(
         label = "Project start date",
-        help_text = "(MM/DD/YYYY)"
     )
     end_date = forms.DateField(
         label = "Project end date",
-        help_text = "(MM/DD/YYYY)"
     )
     # Institutional Impact
     course_release = forms.TypedChoiceField(
