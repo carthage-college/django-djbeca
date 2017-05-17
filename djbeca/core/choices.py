@@ -15,13 +15,11 @@ TIME_FRAME_CHOICES = (
     ('Multi-Year','Multi-Year'),
 )
 PROJECT_TYPE_CHOICES = (
-    ('Instructional','Instructional'),
     ('Academic Support','Academic Support'),
+    ('Institutional','Institutional'),
+    ('Instructional','Instructional'),
     ('Outreach/Public Service','Outreach/Public Service'),
     ('Research','Research'),
-    ('Basic Scientific Research','Basic Scientific Research'),
-    ('Applied Scientific Research','Applied Scientific Research'),
-    ('Other','Other'),
 )
 SPONSOR_TYPE_CHOICES = (
     ('Federal','Federal'),
@@ -35,4 +33,56 @@ TERM_CHOICES = (
     ('Academic Year','Academic Year'),
     ('Both','Both'),
 )
+
+PROPOSAL_TYPE_CHOICES = (
+    (
+        'New: never submitted this proposal to this agency before',
+        'New: never submitted this proposal to this agency before'
+    ),
+    (
+        '''
+            Revised Per Funder Request: update of submitted proposal,
+            because funder requested changes
+        ''',
+        '''
+            Revised Per Funder Request: update of submitted proposal,
+            because funder requested changes
+        '''
+    ),
+    (
+        '''
+            Re-Submission: submitted proposal in prior round of funding,
+            re-submitting proposal for new round
+        ''',
+        '''
+            Re-Submission: submitted proposal in prior round of funding,
+            re-submitting proposal for new round
+        '''
+    ),
+    ('Other','Other')
+)
+
+FUNDING_SOURCE_CHOICES = (
+    ('Federal','Federal'),
+    ('Foundation','Foundation'),
+    ('State','State'),
+    ('Corporation','Corporation'),
+    ('Other','Other'),
+)
+
+PROPOSAL_SUBMISSION_ENTITY_CHOICES = ()
+PROPOSAL_SUBMISSION_METHOD_CHOICES = ()
+
+INDIRECT_COST_RATE_CHOICES = (
+    (
+        'Carthage College Federally Negotiated Indirect Rate',
+        'Carthage College Federally Negotiated Indirect Rate'
+    ),
+    (
+        'Funding Agency will not allow Indirect Costs',
+        'Funding Agency will not allow Indirect Costs'
+    ),
+    ('Other','Other'),
+)
+
 #    ('',''),
