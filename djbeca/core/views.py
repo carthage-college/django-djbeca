@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse_lazy
@@ -43,13 +43,12 @@ def home(request):
     else:
         proposals = Proposal.objects.filter(user=user)
 
-    return render_to_response(
-        'home.html',
+    return render(
+        request, 'home.html',
         {
             'proposals':proposals,'dean_chair':dean_chair,
             'group':group,'dc':dc,'depts':depts,'div':div
-        },
-        context_instance=RequestContext(request)
+        }
     )
 
 
@@ -108,10 +107,8 @@ def proposal_form(request):
             )
     else:
         form = ProposalForm(depts)
-    return render_to_response(
-        'proposal/form.html',
-        {'form': form,},
-        context_instance=RequestContext(request)
+    return render(
+        request, 'proposal/form.html', {'form': form,}
     )
 
 
@@ -130,8 +127,7 @@ def proposal_detail(request, pid):
     if proposal.user != request.user and not group and not dean_chair:
         raise Http404
 
-    return render_to_response(
-        'proposal/detail.html',
-        {'proposal':proposal,'group':group,},
-        context_instance=RequestContext(request)
+    return render(
+        request, 'proposal/detail.html',
+        {'proposal':proposal,'group':group,}
     )
