@@ -10,7 +10,7 @@ from djtools.utils.mail import send_mail
 def proposal_pre_save(sender, **kwargs):
     obj = kwargs['instance']
     if not obj.email_approved:
-        if obj.department_approved and obj.division_approved:
+        if obj.vice_president_approved and obj.division_approved:
             TO_LIST = [settings.PROPOSAL_EMAIL,]
             BCC = settings.MANAGERS
             # send the email

@@ -27,7 +27,7 @@ class Proposal(models.Model):
     )
     user = models.ForeignKey(User, editable=False)
     # status
-    department_approved = models.BooleanField(default=False)
+    vice_president_approved = models.BooleanField(default=False)
     division_approved = models.BooleanField(default=False)
     provost_approved = models.BooleanField(default=False)
     # Basic Proposal Elements
@@ -60,7 +60,7 @@ class Proposal(models.Model):
         max_length=128,
     )
     grant_agency_url = models.CharField(
-        verbose_name="Grant Agency Solicitation URL",
+        verbose_name="Solicitation Website",
         max_length=768,
     )
     grant_deadline_date = models.DateField(
@@ -68,7 +68,7 @@ class Proposal(models.Model):
     )
     grant_deadline_time = models.TimeField(
         "Proposal Deadline Time",
-        help_text="(Format HH:MM am/pm)"
+        #input_formats=('%I:%H %p',)
     )
     proposal_submission_entity = models.CharField(
         "Who is required to submit the final submission?",
@@ -117,15 +117,14 @@ class Proposal(models.Model):
         choices=BINARY_CHOICES,
         null=True,blank=True
     )
-    # NOTE: if 'No', GenericContact() FK relationship.
-    # Name, Institution, email
-    partner_institution = models.CharField(
-        "Name of Partner Institution(s)",
+    # NOTE: if 'No', provide the following
+    lead_institution_name = models.CharField(
+        "Name of lead institution",
         max_length=128,
         null=True,blank=True
     )
-    partner_institution_contact = models.TextField(
-        "Partner Institution(s) contact information",
+    lead_institution_contact = models.TextField(
+        "Lead institution contact information",
         help_text = "Sponsored Programs Office (or equivalent)",
         null=True,blank=True
     )
@@ -147,7 +146,7 @@ class Proposal(models.Model):
             strategies/goals in Carthage’s strategic plan.
         """
     )
-    # Project Funding/ Budget Overview
+    # Project Funding / Budget Overview
     time_frame = models.CharField(
         "Is this one year funding or multi-year?",
         max_length=128,
@@ -182,7 +181,7 @@ class Proposal(models.Model):
         '''
         Default data for display
         '''
-        return self.title
+        return "{} ({})".format(self.title, self.id)
 
     @models.permalink
     def get_absolute_url(self):
@@ -214,6 +213,11 @@ class ProposalImpact(models.Model):
         Proposal, editable=False,
         related_name='project_impact'
     )
+
+    # status
+    vice_president_approved = models.BooleanField(default=False)
+    division_approved = models.BooleanField(default=False)
+    provost_approved = models.BooleanField(default=False)
 
     # Project Impact
     # NOTE: "Describe your project goal/s"
@@ -309,7 +313,7 @@ class ProposalBudget(models.Model):
     document = models.FileField(
         "Completed budget",
         upload_to=upload_to_path,
-        validators=[MimetypeValidator('application/pdf')],
+        #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format"
     )
@@ -383,6 +387,18 @@ class ProposalBudget(models.Model):
         return 'proposal-budget/'
 
 
+class ProposalApprover(models.Model):
+    '''
+    Additional folks who need to approve a proposal
+    '''
+    proposal = models.ForeignKey(
+        Proposal,
+        editable=False,
+        related_name='proposal_approver'
+    )
+    user = models.ForeignKey(User, editable=False)
+
+
 class GenericContact(models.Model):
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
@@ -405,7 +421,7 @@ class GenericContact(models.Model):
         max_length=128,
         null=True, blank=True
     )
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     class Meta:
         ordering = ['institution']

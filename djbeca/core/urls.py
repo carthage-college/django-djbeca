@@ -50,7 +50,8 @@ urlpatterns = [
             template_name='denied.html'
         ), name='access_denied'
     ),
-    # proposal form
+
+    # Proposal: form A
     url(
         r'^proposal/$',
         views.proposal_form, name='proposal_form'
@@ -62,28 +63,52 @@ urlpatterns = [
         ),
         name='proposal_success'
     ),
-    # proposal detail
+    # Proposal: detail
     url(
         r'^proposal/(?P<pid>\d+)/detail/$',
         views.proposal_detail, name='proposal_detail'
     ),
-    # proposal_update
+    # Proposal: update
+    url(
+        r'^proposal/(?P<pid>\d+)/update/$',
+        views.proposal_form, name='proposal_update'
+    ),
+
+    # Impact: form A
     #url(
-        #r'^proposal/(?P<pid>\d+)/update/$',
-        #views.proposal_update, name='proposal_update'
+        #r'^impact/$',
+        #views.impact_form, name='impact_form'
     #),
+    #url(
+        #r'^impact/success/$',
+        #TemplateView.as_view(
+            #template_name='impact/done.html'
+        #),
+        #name='impact_success'
+    #),
+    # Impact: detail
+    #url(
+        #r'^impact/(?P<pid>\d+)/detail/$',
+        #views.impact_detail, name='impact_detail'
+    #),
+    # Impact: update
+    #url(
+        #r'^impact/(?P<pid>\d+)/update/$',
+        #views.impact_update, name='impact_update'
+    #),
+
     # approval form
     #url(
         #r'^proposal/(?P<pid>\d+)/approval/$',
         #views.proposal_approval, name='proposal_approval'
     #),
-    url(
-        r'^proposal/approval/success/$',
-        TemplateView.as_view(
-            template_name='funding/approval/done.html'
-        ),
-        name='proposal_approval_success'
-    ),
+    #url(
+        #r'^proposal/approval/success/$',
+        #TemplateView.as_view(
+            #template_name='funding/approval/done.html'
+        #),
+        #name='proposal_approval_success'
+    #),
     # home
     url(
         r'^$', views.home, name='home'

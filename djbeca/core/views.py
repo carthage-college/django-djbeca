@@ -33,17 +33,17 @@ def home(request):
         '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
     )
     if group:
-        proposals = Proposal.objects.using('djbeca').all()
+        proposals = Proposal.objects.all()
     elif dean_chair:
         chair_depts = chair_departments(user.id)
         dc = chair_depts[1]
         div = chair_depts[2]
         depts = chair_depts[0]['depts']
-        proposals = Proposal.objects.using('djbeca').filter(
+        proposals = Proposal.objects.filter(
             department__in=[ key for key,val in depts.iteritems() ]
         )
     else:
-        proposals = Proposal.objects.using('djbeca').filter(user=user)
+        proposals = Proposal.objects.filter(user=user)
 
     return render(
         request, 'home.html',
@@ -86,9 +86,9 @@ def proposal_form(request, pid=None):
             request.POST, prefix='investi'
         )
         if form.is_valid():
-            data = form.save(using='djbeca', commit=False)
+            data = form.save(commit=False)
             data.user = request.user
-            data.save(using='djbeca')
+            data.save()
 
             form_institu.is_valid()
             form_investi.is_valid()
@@ -96,9 +96,9 @@ def proposal_form(request, pid=None):
             # delete the old objects because it's just easier this way
             if proposal:
                 if investigators:
-                    investigators.delete(using='djbeca')
+                    investigators.delete()
                 if institutions:
-                    institutions.delete(using='djbeca')
+                    institutions.delete()
             # obtain our new set of contacts
             institutions = form_institu.cleaned_data
             investigators = form_investi.cleaned_data
@@ -107,14 +107,14 @@ def proposal_form(request, pid=None):
                     proposal=data,
                     institution=institutions['institution_{}'.format(i)]
                 )
-                institute.save(using='djbeca')
+                institute.save()
                 institute.tags.add('Other Institution')
                 investigator = GenericContact(
                     proposal=data,
                     name=investigators['name_{}'.format(i)],
                     institution=investigators['institution_{}'.format(i)],
                 )
-                investigator.save(using='djbeca')
+                investigator.save()
                 investigator.tags.add('Co-Principal Investigators')
 
             '''

@@ -6,9 +6,11 @@ from djbeca.core.models import Proposal
 from djbeca.core.choices import *
 
 from djtools.fields import BINARY_CHOICES
+from djtools.fields.time import KungfuTimeField
 
 from localflavor.us.forms import USPhoneNumberField
 
+valid_time_formats = ['%P', '%H:%M%A', '%H:%M %A', '%H:%M%a', '%H:%M %a']
 
 class ProposalForm(forms.ModelForm):
 
@@ -19,31 +21,94 @@ class ProposalForm(forms.ModelForm):
             choices = department_choices
         self.fields['department'].choices = department_choices
 
+    # Basic Proposal Elements
+    proposal_submission_entity = forms.TypedChoiceField(
+        label = "Who is required to submit the final submission?",
+        choices=PROPOSAL_SUBMISSION_ENTITY_CHOICES,
+        widget=forms.RadioSelect()
+    )
+    proposal_submission_method = forms.TypedChoiceField(
+        label = "How is the proposal to be submitted?",
+        choices=PROPOSAL_SUBMISSION_METHOD_CHOICES,
+        widget=forms.RadioSelect()
+    )
+    #grant_deadline_time = KungfuTimeField(
+    #    label="Proposal deadline time"
+    #)
+    grant_deadline_time = forms.TimeField(
+        label="Proposal deadline time",
+        #widget=TimeInput(format='%I:%H %p')
+    )
+    # Investigator Information
+    # NOTE: we have name, email, ID from user profile data
+    phone = USPhoneNumberField()
     department = forms.ChoiceField(
         label="Department",
         choices=()
     )
-    phone = USPhoneNumberField()
-    partner_lead = forms.TypedChoiceField(
-        label="Is Carthage the lead Institution?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    # NOTE: "Co-Principal Investigators & Associated Institution"
+    # are GenericContact() Foreign Key relationships.
+    # Name, Instituion fields [limit 5]
+    partner_institutions = forms.TypedChoiceField(
+        label = "Are other institutions involved?",
+        choices=BINARY_CHOICES,
+        widget=forms.RadioSelect()
     )
-    partner_institution = forms.CharField(
-        label = "Name of Partner Institution(s)",
-        required = False
+    # NOTE: "List all institutions involved"
+    # are GenericContact() FK relationships.
+    # Name field [limit 5]
+    lead_institution = forms.TypedChoiceField(
+        label = "Is Carthage College the lead institution on this project?",
+        choices=BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+        required=False
     )
-    partner_institution_contact = forms.CharField(
-        label = "Partner Institution(s) contact information",
-        help_text = "Sponsored Programs Office (or equivalent)",
-        required = False,
-        widget=forms.Textarea
-    )
+    # Project Overview
     start_date = forms.DateField(
         label = "Project start date",
     )
     end_date = forms.DateField(
         label = "Project end date",
     )
+
+    # Project Funding/ Budget Overview
+    time_frame = forms.TypedChoiceField(
+        label = "Is this one year funding or multi-year?",
+        choices=TIME_FRAME_CHOICES,
+        widget=forms.RadioSelect()
+    )
+
+    class Meta:
+        model = Proposal
+        exclude = (
+            'user','created_at','updated_at',
+            'vice_president_approved','division_approved','provost_approved'
+        )
+
+
+class InstitutionsForm(forms.Form):
+    institution_1 = forms.CharField(required=False)
+    institution_2 = forms.CharField(required=False)
+    institution_3 = forms.CharField(required=False)
+    institution_4 = forms.CharField(required=False)
+    institution_5 = forms.CharField(required=False)
+
+
+class InvestigatorsForm(forms.Form):
+    name_1 = forms.CharField(required=False)
+    name_2 = forms.CharField(required=False)
+    name_3 = forms.CharField(required=False)
+    name_4 = forms.CharField(required=False)
+    name_5 = forms.CharField(required=False)
+    institution_1 = forms.CharField(required=False)
+    institution_2 = forms.CharField(required=False)
+    institution_3 = forms.CharField(required=False)
+    institution_4 = forms.CharField(required=False)
+    institution_5 = forms.CharField(required=False)
+
+
+    '''
+
     # Institutional Impact
     course_release = forms.TypedChoiceField(
         label = "Require course release or overload?",
@@ -136,13 +201,7 @@ class ProposalForm(forms.ModelForm):
         label = "Date IACUC Protocol Approved",
         required=False
     )
-
-    class Meta:
-        model = Proposal
-        exclude = (
-            'user','created_at','updated_at',
-            'department_approved','division_approved','provost_approved'
-        )
+    '''
 
 
 class ProposalUpdateForm(forms.ModelForm):
@@ -151,5 +210,5 @@ class ProposalUpdateForm(forms.ModelForm):
         model = Proposal
         exclude = (
             'user','created_at','updated_at','department',
-            'department_approved','division_approved','provost_approved'
+            'vice_president_approved','division_approved','provost_approved'
         )
