@@ -70,8 +70,18 @@ FUNDING_SOURCE_CHOICES = (
     ('Other','Other'),
 )
 
-PROPOSAL_SUBMISSION_ENTITY_CHOICES = ()
-PROPOSAL_SUBMISSION_METHOD_CHOICES = ()
+PROPOSAL_SUBMISSION_ENTITY_CHOICES = (
+    ('PI','PI'),
+    ('OSP','OSP'),
+    ('Other','Other'),
+)
+
+PROPOSAL_SUBMISSION_METHOD_CHOICES = (
+    ('Email','Email'),
+    ('Mail','Mail'),
+    ('Third Party Website','Third Party Website'),
+    ('Other','Other'),
+)
 
 INDIRECT_COST_RATE_CHOICES = (
     (
