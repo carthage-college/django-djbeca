@@ -3,7 +3,16 @@
     <table class="table table-striped table-bordered table-hover dataTable display proposals-data">
         <thead>
             <tr>
-                <th>Title</th>
+                <th>
+                  Title
+                  <i class="fa fa-eye" title="View Proposal"></i>
+                </th>
+                <th>
+                  Step I
+                </th>
+                <th>
+                  Step II
+                </th>
                 <th>Submitted by</th>
                 <th>Date</th>
                 <th style="text-align:center;">Funding</th>
@@ -15,11 +24,17 @@
         {% for p in proposals %}
           <tr>
             <td>
-            {% if dc or group %}
-              <a href="{% url 'funding_form' p.id %}">{{p.title}}</a>
-            {% else %}
               <a href="{% url 'proposal_detail' p.id %}">{{p.title}}</a>
-            {% endif %}
+            </td>
+            <td style="text-align:center;">
+              <a href="{% url 'proposal_update' p.id %}">
+                  <i class="fa fa-pencil-square-o" title="Update Step I"></i>
+              </a>
+            </td>
+            <td style="text-align:center;">
+              <a href="{# url 'impact_form' p.id #}">
+                  <i class="fa fa-pencil-square-o" title="Update Step II"></i>
+              </a>
             </td>
             <td>
               {{p.user.last_name}}, {{p.user.first_name}}

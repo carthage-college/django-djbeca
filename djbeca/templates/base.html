@@ -9,7 +9,8 @@
 <link href="//www.carthage.edu/themes/shared/css/forms.css"
     rel="stylesheet" type="text/css" />
 <style>
-.container h4 {margin-top: 20px;}
+h4, .h4 {margin-top: 20px; font-weight: 700; }
+h5, .h5 { color: #141823; }
 form ol {padding-left:0;}
 li.ctrlHolder div ul li {display:inline; padding-right:3px;}
 .bg-danger {
@@ -37,6 +38,7 @@ dl dt {
 }
 .dl-horizontal dt {
     width: 200px;
+    text-align: left;
 }
 dl dd {
     margin: 2px 0 2px 5px;
@@ -49,6 +51,7 @@ dl dd {
 }
 .red {color:#800;}
 .green {color:#080;}
+.detail {font-weight:bold;text-decoration:underline;padding-top:12px;}
 div.DTTT {
 float: right;
 margin-bottom: 1em;
@@ -195,6 +198,10 @@ $(function() {
   $('#acceso').click(function(e) {
     e.preventDefault();
     $('div#form-olvidado').toggle('500');
+  });
+  $('#print').click(function() {
+    window.print();
+    return false;
   });
 });
 </script>

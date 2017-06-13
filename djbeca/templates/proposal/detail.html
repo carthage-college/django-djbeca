@@ -4,6 +4,7 @@
         <div class="col-lg-12">
             <h1 class="page-header">
                 Proposal Detail
+                <a href="#" id="print"><i class="fa fa-print green"></i></a>
             </h1>
         </div>
         <!-- /.col-lg-12 -->
@@ -12,322 +13,182 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-              <form id="proposal-detail">
-                <div class="panel-heading" style="font-size:1.2em;">
-                  <strong>Title:</strong>
-                  {% if group %}
-                  <a href="{% url 'admin:core_proposal_change' proposal.id %}">
-                    {{proposal.title}}
-                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-                  {% else %}
-                    {{proposal.title}}
-                  {% endif %}
-                  <br>
-                  <strong>Author:</strong>
-                  <a href="mailto:{{proposal.user.email}}">
-                    {{proposal.user.last_name}},
-                    {{proposal.user.first_name}}
-                  </a>
-                  <strong>[{{proposal.department}}]</strong>
-                  <a href="tel:{{proposal.phonel}}">{{proposal.phone}}</a>
-                </div>
-                <!-- /.panel-heading -->
-                <div class="panel-body" id="cheques-data-panel">
-                  <h3>Dates</h3>
-                  <dl class="clear dl-horizontal">
-                    <dt>Created At</dt>
-                    <dd>{{proposal.created_at}}</dd>
-                    <dt>Updated At</dt>
-                    <dd>{{proposal.updated_at}}</dd>
-                    <dt>Start Date</dt>
-                    <dd>{{proposal.start_date}}</dd>
-                    <dt>End date</dt>
-                    <dd>{{proposal.end_date}}</dd>
-                  </dl>
-                  <h3>Status</h3>
-                  <dl class="clear dl-horizontal">
-                    <dt>Department Approved</dt>
-                    <dd>
+                <div class="panel-body">
+                  <h3 class="detail">
+                    Basic Proposal Elements
+                  </h3>
+                  <div class="col-lg-8">
+                    <h4>What type of proposal submission is this?</h4>
+                    <h5>{{proposal.proposal_type}}</h5>
+                    {% if proposal.proposal_type_other %}
+                    <h4>If 'Other', please provide details</h4>
+                    <h5>{{proposal.proposal_type_other}}</h5>
+                    {% endif %}
+                    <h4>Grant Agency and Program Name</h4>
+                    <h5>{{proposal.grant_agency_name}}</h5>
+                    <h4>What type of funding source is the granting agency?</h4>
+                    <h5>{{proposal.grant_agency_funding_source}}</h5>
+                    {% if proposal.grant_agency_funding_other %}
+                    <h4>If 'Other', please provide details</h4>
+                    <h5>{{proposal.grant_agency_funding_other}}</h5>
+                    {% endif %}
+                    <h4>Name of Grant / Specific Funding Opportunity</h4>
+                    <h5>{{proposal.grant_name}}</h5>
+                    <h4>Solicitation Website</h4>
+                    <h5>{{proposal.grant_agency_url}}</h5>
+                    <h4>Proposal Deadline Date/Time</h4>
+                    <h5>
+                      {{proposal.grant_deadline_date}}
+                      {{proposal.grant_deadline_time}}
+                    </h5>
+                    <h4>Who is required to submit the final submission?</h4>
+                    <h5>{{proposal.proposal_submission_entity}}</h5>
+                    {% if proposal.proposal_submission_entity_other %}
+                    <h4>If 'Other', please list names</h4>
+                    <h5>{{proposal.proposal_submission_entity_other}}</h5>
+                    {% endif %}
+                    <h4>How is the proposal to be submitted?</h4>
+                    <h5>{{proposal.proposal_submission_method}}</h5>
+                    {% if proposal.proposal_submission_method_other %}
+                    <h4>If 'Other', please provide details</h4>
+                    <h5>{{proposal.proposal_submission_method_other}}</h5>
+                    {% endif %}
+                  </div>
+                  <h3 class="clear detail">
+                    Investigator Information
+                  </h3>
+                  <div class="col-lg-8">
+                    <dl class="clear dl-horizontal">
+                      <dt>Author</dt>
+                      <dd>
+                        <a href="mailto:{{proposal.user.email}}">
+                          {{proposal.user.last_name}},
+                          {{proposal.user.first_name}}
+                        </a>
+                      </dd>
+                      <dt>Phone</dt>
+                      <dd>
+                        <a href="tel:{{proposal.phonel}}">{{proposal.phone}}</a>
+                      </dd>
+                      <dt>Department</dt>
+                      <dd>
+                        {{proposal.department}}
+                      </dd>
+                    </dl>
+                    <h4>Are other institutions involved?</h4>
+                    <h5>{{proposal.partner_institutions}}</h5>
+                    {% if proposal.partner_institutions == 'Yes' %}
+                      <h4>All Institutions Involved</h4>
+                      <ul>
+                      {% for inst in institutions %}
+                        <li>{{inst.institution}}</li>
+                      {% endfor %}
+                      </ul>
+                    {% endif %}
+                    <h4>
+                      Is Carthage College the lead institution on this project?
+                    </h4>
+                    <h5>{{proposal.lead_institution}}</h5>
+                    {% if proposal.lead_institution == 'No' %}
+                      <h4>Lead Institution Name</h4>
+                      <h5>{{proposal.lead_institution_name}}</h5>
+                      <h4>Lead Institution Contact</h4>
+                      <div>
+                        {{proposal.lead_institution_contact}}
+                      </div>
+                    {% endif %}
+                    <h4>
+                      Co-Principal Investigators & Associated Institution
+                    </h4>
+                    <ul>
+                      {% for cp in co_principals %}
+                        <li>{{cp.name}}&mdash;{{cp.institution}}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <h3 class="clear detail">
+                    Project Overview
+                  </h3>
+                  <div class="col-lg-8">
+                    <h4>Title</h4>
+                    <h5>{{proposal.title}}</h5>
+                    <h4>
+                      Dates
+                    </h4>
+                    <dl class="clear dl-horizontal">
+                      <dt>Start Date</dt>
+                      <dd>{{proposal.start_date}}</dd>
+                      <dt>End date</dt>
+                      <dd>{{proposal.end_date}}</dd>
+                    </dl>
+                    <h4>
+                      Project Type
+                    </h4>
+                    <h5>
+                      {{proposal.project_type}}
+                    </h5>
+                    <h4>
+                      Summary
+                    </h4>
+                    <div>{{proposal.summary}}</div>
+                    <h4>
+                      Is this one year funding or multi-year?
+                    </h4>
+                    <h5>
+                      {{proposal.time_frame}}
+                    </h5>
+                    <h4>
+                      Total Budget Request
+                    </h4>
+                    <h5>
+                      {{proposal.budget_total}}
+                    </h5>
+                    <h4>
+                      List the total amount of funding you intend
+                      to request through this proposal
+                    </h4>
+                    <h5>
+                      {{proposal.funding_total}}
+                    </h5>
+                    <h4>
+                      Funding Plan
+                    </h4>
+                    <div>{{proposal.funding_plan}}</div>
+
+
+                    <h4>
+                      Status
+                    </h4>
+                    <dl class="clear dl-horizontal">
+                      <dt>Department Approved</dt>
+                      <dd>
                       {% if proposal.department_approved %}
                         <i class="fa fa-check green"></i>
                       {% else %}
-                        <input type="checkbox" id="id_department_approvded">
-                        <label for="id_department_approved"></label>
+                        <i class="fa fa-ban red"></i>
                       {% endif %}
-                    </dd>
-                    <dt>Division Approved</dt>
-                    <dd>
+                      </dd>
+                      <dt>Division Approved</dt>
+                      <dd>
                       {% if proposal.division_approved %}
                         <i class="fa fa-check green"></i>
                       {% else %}
-                        <input type="checkbox" id="id_division_approvded">
-                        <label for="id_division_approved"></label>
+                        <i class="fa fa-ban red"></i>
                       {% endif %}
-                    </dd>
-                    <dt>Provost Approved</dt>
-                    <dd>
+                      </dd>
+                      <dt>Provost Approved</dt>
+                      <dd>
                       {% if proposal.provost_approved %}
                         <i class="fa fa-check green"></i>
                       {% else %}
-                        <input type="checkbox" id="id_provost_approved">
-                        <label for="id_provost_approved"></label>
+                        <i class="fa fa-ban red"></i>
                       {% endif %}
-                    </dd>
-                  </dl>
-                  <h3>Overview</h3>
-                  <div class="col-lg-8">
-                    <h4>Project Type</h4>
-                    <h5>{{proposal.project_type}}</h5>
-                  </div>
-                  <div class="col-lg-8">
-                    <h4>Summary</h4>
-                    {{proposal.summary}}
-                  </div>
-                  {% if proposal.co_investigators %}
-                  <div class="col-lg-8">
-                    <h4>Co-Investigators</h4>
-                    {{proposal.co_investigators}}
-                  </div>
-                  {% endif %}
-                  <div class="col-lg-8">
-                    {% if proposal.partner_lead == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>Is Carthage the lead institution?</h4>
-                      <h5>Partner Institution(s)</h5>
-                      {{proposal.partner_institution}}
-                      <h5>Partner Institution(s) Contact Information</h5>
-                      {{proposal.partner_institution_contact}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>Is Carthage the lead institution?</h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    <h4>Grant Agency and Program</h4>
-                    <p>
-                      {% if proposal.grant_agency_program_url %}
-                        <a href="{{proposal.grant_agency_program_url}}">
-                        {{proposal.grant_agency_program_name}}
-                        </a>
-                      {% else %}
-                        {{proposal.grant_agency_program_name}}
-                      {% endif %}
-                    </p>
-                  </div>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    <h4>
-                      <a href="{{proposal.budget.url}}">Budget</a>
-                    </h4>
-                  </div>
-                  <h3 class="clear">Institutional Impact</h3>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    <h4 class="clear" style="font-weight:600;color:#8A1F11;">
-                      Will this proposal...
-                    </h4>
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.course_release == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>Require course release or overload?</h4>
-                      {{proposal.course_release_details}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>Require course release or overload?</h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.grant_submission_requirement == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>
-                        Satisfy the grant submission requirement for the
-                        time/effort for each Carthage individual involved?
-                      </h4>
-                      <h5>
-                        Partner Institution will devote
-                        <u class="green">{{proposal.partner_participation}}%</u>
-                        of the total academic year effort to the project.
-                      </h5>
-                      <h5>
-                        Sponsor will be charged
-                        <u class="green">{{proposal.sponsor_participation}}%</u>
-                        of the above Partner Institution's effort.
-                      </h5>
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>
-                        Satisfy the grant submission requirement for time/effort
-                        for each Carthage individual involved?
-                      </h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.new_personnel == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>Require new hires other than students?</h4>
-                      {{proposal.new_personnel_details}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>Require new hires other than students?</h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.major_equipment == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>Result in the purchase of major equipment?</h4>
-                      {{proposal.major_equipment_details}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>Result in the purchase of major equipment?</h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.additional_space == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>
-                        Require additional office, lab or other facilities or
-                        room modifications?
-                      </h4>
-                      {{proposal.additional_space_details}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>
-                        Require additional office, lab or other facilities or
-                        room modifications?
-                      </h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.technology_support == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>
-                        Involve technology use that will require extensive
-                        support from Technology Services?
-                      </h4>
-                      {{proposal.technology_support_details}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>
-                        Involve technology use that will require extensive
-                        support from Technology Services?
-                      </h4>
-                    {% endif %}
-                  </div>
-                  <h3 class="clear">Compliance Requirements</h3>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    <h4 class="clear" style="font-weight:600;color:#8A1F11;">
-                      Will this proposal...
-                    </h4>
-                  </div>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    {% if proposal.students == "Yes" %}
-                      <i class="fa fa-check green"></i>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                    {% endif %}
-                    <h4>Invole the use of students?</h4>
-                  </div>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    {% if proposal.patent_confidential == "Yes" %}
-                      <i class="fa fa-check green"></i>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                    {% endif %}
-                    <h4>
-                      Involve work that may result in a patent or involve
-                      proprietary or confidential information?
-                    </h4>
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.human_subjects == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>Use human subjects?</h4>
-                      <h5>Date Human Subjects Review Form Submitted</h5>
-                      {{proposal.human_review_submitted_date}}
-                      <h5>Date Human Subjects Review Form Approved</h5>
-                      {{proposal.human_review_approved_date}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>Use human subjects?</h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.other_participants == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>
-                        Involve participation and/or subcontrators with other
-                        institutions/organizations?
-                      </h4>
-                      {{proposal.other_participants_details}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>
-                        Involve participation and/or subcontrators with other
-                        institutions/organizations?
-                      </h4>
-                    {% endif %}
-                  </div>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    {% if proposal.hazzards == "Yes" %}
-                      <i class="fa fa-check green"></i>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                    {% endif %}
-                    <h4>
-                      Involve the use of chemical/physical hazards
-                      (including toxic or hazardous chemicals,
-                      radioactive material, biohazards, pathogens,
-                      toxins, recombinant DNA, oncogenic viruses, tumor cells,
-                      etc.)?
-                    </h4>
-                  </div>
-                  <div class="col-lg-8" style="margin-bottom:9px;">
-                    {% if proposal.international_collaboration == "Yes" %}
-                      <i class="fa fa-check green"></i>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                    {% endif %}
-                    <h4>
-                      Involve international travel, collaboration, export,
-                      international student participation?
-                    </h4>
-                  </div>
-                  <div class="col-lg-8">
-                    {% if proposal.animal_subjects == "Yes" %}
-                      <div class="dependents">
-                      <i class="fa fa-check green"></i>
-                      <h4>Use animal subjects?</h4>
-                      <h5>Date IACUC Protocol Submitted</h5>
-                      {{proposal.animal_protocol_submitted_date}}
-                      <h5>Date IACUC Protocol Approved</h5>
-                      {{proposal.animal_protocol_approved_date}}
-                      </div>
-                    {% else %}
-                      <i class="fa fa-times red"></i>
-                      <h4>Use human subjects?</h4>
-                    {% endif %}
+                      </dd>
+                    </dl>
                   </div>
                   <!-- fin -->
                 </div>
                 <!-- /.panel-body -->
-              </form>
             </div>
             <!-- /.panel -->
         </div>

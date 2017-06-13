@@ -5,6 +5,8 @@
   type="text/javascript" charset="utf-8"></script>
 <script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
   type="text/javascript" charset="utf-8"></script>
+<script src="//www.carthage.edu/static/vendor/jquery/plugins/ptTimeSelect/src/jquery.ptTimeSelect.js"
+    type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
     $('textarea').summernote({height: 200});
@@ -16,10 +18,11 @@
     $(".warning > select").addClass("error");
     $(".warning > textarea").addClass("error");
     $(".required > ul").parent().parent().find('h3').addClass("required");
-    function binarySwitch(val, domids, trigger) {
-        // binary switch to show/hide fields that depend on the value
-        // of the previous question
-        if (val == 'Yes') {
+
+    // binary switch to show/hide fields that depend on the value
+    // of the previous question
+    function binarySwitch(val, bswitch, domids, trigger) {
+        if (val == bswitch) {
             for (index = 0; index < domids.length; ++index) {
                 domids[index].slideDown();
                 trigger.addClass("details");
@@ -31,158 +34,132 @@
             }
         }
     }
-    // Funding status
-    $('input[name=funding_status]').click(function(){
-      if ($(this).val() == 'Pursuit of Funding') {
-        $('#funding-pursued').slideDown('slow');
-        $('#funding-identified').slideUp('slow');
-      } else {
-        $('#funding-identified').slideDown('slow');
-        $('#funding-pursued').slideUp('slow');
+
+    // What type of proposal submission is this?
+    var $proposal_type = $('#id_proposal_type').closest('li');
+    var $proposal_type_other = $('#id_proposal_type_other').closest('li');
+    {% if form.proposal_type.value != 'Other' %}
+    $proposal_type_other.slideUp();
+    {% endif %}
+    $('#id_proposal_type').on('change', function (e){
+      var domArray = [
+        $proposal_type_other
+      ]
+      binarySwitch(this.value, 'Other', domArray, $proposal_type_other);
+      if (this.value == 'Other') {
+        $('#id_proposal_type_other').addClass('required');
+      }else{
+        $('#id_proposal_type_other').removeClass('required');
       }
-    });
-
-    // Hide dependent fields that will appear when user makes a decision
-
-    // Does this proposal partner with another institution?
-    var $partner_lead = $('#id_partner_lead').closest('li');
-    var $partner_institution = $('#id_partner_institution').closest('li');
-    var $partner_institution_contact = $('#id_partner_institution_contact').closest('li');
-    $partner_institution.addClass("details");
-    $partner_institution_contact.addClass("details");
-    {% if form.partner_lead.value != 'Yes' %}
-    $partner_institution.slideUp();
-    $partner_institution_contact.slideUp();
-    {% endif %}
-    $('input[name=partner_lead]').click(function(){
-      var domArray = [
-        $partner_institution,
-        $partner_institution_contact
-      ]
-      binarySwitch($(this).val(), domArray, $partner_lead);
     })
-    // Will this proposal require course release or overload?
-    var $course_release = $('#id_course_release').closest('li');
-    var $course_release_details = $('#id_course_release_details').closest('li');
-    $course_release_details.addClass("details");
-    {% if form.course_release.value != 'Yes' %}
-    $course_release_details.slideUp();
+
+    // What type of funding source is the granting agency?
+    var $grant_agency_funding_source = $('#id_grant_agency_funding_source').closest('li');
+    var $grant_agency_funding_other = $('#id_grant_agency_funding_other').closest('li');
+    {% if form.grant_agency_funding_source.value != 'Other' %}
+    $grant_agency_funding_other.slideUp();
     {% endif %}
-    $('input[name=course_release]').click(function(){
-      binarySwitch($(this).val(), [$course_release_details], $course_release);
-    });
-    // Satisfy the grant submission requirement for time/effort
-    // for each Carthage individual involved?
-    var $grant_submission_requirement = $('#id_grant_submission_requirement').closest('li');
-    var $partner_participation = $('#id_partner_participation').closest('li');
-    var $sponsor_participation = $('#id_sponsor_participation').closest('li');
-    $partner_participation.addClass("details");
-    $sponsor_participation.addClass("details");
-    {% if form.grant_submission_requirement.value != 'Yes' %}
-    $partner_participation.slideUp();
-    $sponsor_participation.slideUp();
-    {% endif %}
-    $('input[name=grant_submission_requirement]').click(function(){
+    $('#id_grant_agency_funding_source').on('change', function (e){
       var domArray = [
-        $partner_participation,
-        $sponsor_participation
+        $grant_agency_funding_other
       ]
-      binarySwitch($(this).val(), domArray, $grant_submission_requirement);
-    });
-    // Require additional office, lab or other facilities or room modifications?
-    var $additional_space = $('#id_additional_space').closest('li');
-    var $additional_space_details = $('#id_additional_space_details').closest('li');
-    $additional_space_details.addClass("details");
-    {% if form.additional_space.value != 'Yes' %}
-    $additional_space_details.slideUp();
+      binarySwitch(this.value, 'Other', domArray, $grant_agency_funding_other);
+      if (this.value == 'Other') {
+        $('#id_grant_agency_funding_other').addClass('required');
+      }else{
+        $('#id_grant_agency_funding_other').removeClass('required');
+      }
+    })
+
+    // Who is required to submit the final submission?
+    var $proposal_submission_entity = $('#id_proposal_submission_entity').closest('li');
+    var $proposal_submission_entity_other = $('#id_proposal_submission_entity_other').closest('li');
+    {% if form.proposal_submission_entity.value != 'Other' %}
+    $proposal_submission_entity_other.slideUp();
     {% endif %}
-    $('input[name=additional_space]').click(function(){
-      binarySwitch(
-        $(this).val(), [$additional_space_details], $additional_space
-      );
-    });
-    // Involve technology use that will require extensive support
-    // from Technology Services?
-    var $technology_support = $('#id_technology_support').closest('li');
-    var $technology_support_details = $('#id_technology_support_details').closest('li');
-    $technology_support_details.addClass("details");
-    {% if form.technology_support.value != 'Yes' %}
-    $technology_support_details.slideUp();
-    {% endif %}
-    $('input[name=technology_support]').click(function(){
-      binarySwitch(
-        $(this).val(), [$technology_support_details], $technology_support
-      );
-    });
-    // Use human subjects?
-    var $human_subjects = $('#id_human_subjects').closest('li');
-    var $human_review_submitted = $('#id_human_review_submitted_date').closest('li');
-    var $human_review_approved = $('#id_human_review_approved_date').closest('li');
-    $human_review_submitted.addClass("details");
-    $human_review_approved.addClass("details");
-    {% if form.human_subjects.value != 'Yes' %}
-    $human_review_submitted.slideUp();
-    $human_review_approved.slideUp();
-    {% endif %}
-    $('input[name=human_subjects]').click(function(){
+    $('input[name=proposal_submission_entity]').click(function(){
       var domArray = [
-        $human_review_submitted,
-        $human_review_approved
+        $proposal_submission_entity_other
       ]
-      binarySwitch($(this).val(), domArray, $human_subjects);
-    });
-    // Involve participation and/or subcontrators with
-    // other institutions/organizations?
-    var $other_participants = $('#id_other_participants').closest('li');
-    var $other_participants_details = $('#id_other_participants_details').closest('li');
-    $other_participants_details.addClass("details");
-    {% if form.other_participants.value != 'Yes' %}
-    $other_participants_details.slideUp();
+      binarySwitch($(this).val(), 'Other', domArray, $proposal_submission_entity_other);
+      if (this.value == 'Other') {
+        $('#id_proposal_submission_entity_other').addClass('required');
+      }else{
+        $('#id_proposal_submission_entity_other').removeClass('required');
+      }
+    })
+
+    // How is the proposal to be submitted?
+    var $proposal_submission_method = $('#id_proposal_submission_method').closest('li');
+    var $proposal_submission_method_other = $('#id_proposal_submission_method_other').closest('li');
+    {% if form.proposal_submission_method.value != 'Other' %}
+    $proposal_submission_method_other.slideUp();
     {% endif %}
-    $('input[name=other_participants]').click(function(){
-      binarySwitch(
-        $(this).val(), [$other_participants_details],$other_participants
-      );
-    });
-    // Use animal subjects?
-    var $animal_subjects = $('#id_animal_subjects').closest('li');
-    var $animal_protocol_submitted = $('#id_animal_protocol_submitted_date').closest('li');
-    var $animal_protocol_approved = $('#id_animal_protocol_approved_date').closest('li');
-    $animal_protocol_submitted.addClass("details");
-    $animal_protocol_approved.addClass("details");
-    {% if form.animal_subjects.value != 'Yes' %}
-    $animal_protocol_submitted.slideUp();
-    $animal_protocol_approved.slideUp();
-    {% endif %}
-    $('input[name=animal_subjects]').click(function(){
+    $('input[name=proposal_submission_method]').click(function(){
       var domArray = [
-        $animal_protocol_submitted,
-        $animal_protocol_approved
+        $proposal_submission_method_other
       ]
-      binarySwitch($(this).val(), domArray, $animal_subjects);
-    });
-    // Will this proposal require hiring of new personnel?
-    var $new_personnel = $('#id_new_personnel').closest('li');
-    var $new_personnel_details = $('#id_new_personnel_details').closest('li');
-    $new_personnel_details.addClass("details");
-    $new_personnel_details.addClass("details");
-    {% if form.new_personnel.value != 'Yes' %}
-    $new_personnel_details.slideUp();
+      binarySwitch($(this).val(), 'Other', domArray, $proposal_submission_method_other);
+      if (this.value == 'Other') {
+        $('#id_proposal_submission_method_other').addClass('required');
+      }else{
+        $('#id_proposal_submission_method_other').removeClass('required');
+      }
+    })
+
+    // Are other institutions involved?
+    var $partner_institutions = $('#id_partner_institutions').closest('li');
+    var $lead_institution = $('#id_lead_institution').closest('li');
+    var $institutions_involved = $('#institutions-involved');
+    // if 'yes' and not lead
+    var $lead_institution_name = $('#id_lead_institution_name').closest('li');
+    var $lead_institution_contact = $('#id_lead_institution_contact').closest('li');
+    $lead_institution.addClass("details");
+    {% if form.partner_institutions.value != 'Yes' %}
+    $lead_institution.slideUp();
+    $institutions_involved.slideUp()
     {% endif %}
-    $('input[name=new_personnel]').click(function(){
-      binarySwitch($(this).val(), [$new_personnel_details], $new_personnel);
-    });
-    // Will this proposal result in purchase of major equipment,
-    // including computers and software, or renovations?
-    var $major_equipment = $('#id_major_equipment').closest('li');
-    var $major_equipment_details = $('#id_major_equipment_details').closest('li');
-    $major_equipment_details.addClass("details");
-    {% if form.major_equipment.value != 'Yes' %}
-    $major_equipment_details.slideUp();
+    $('input[name=partner_institutions]').click(function(){
+      var domArray = [
+        $lead_institution
+      ]
+      binarySwitch($(this).val(), 'Yes', domArray, $partner_institutions);
+      if ($(this).val() == 'No'){
+        $('input[name=lead_institution]').prop('checked', false);
+        $lead_institution_name.slideUp();
+        $lead_institution_contact.slideUp();
+        $institutions_involved.slideUp()
+        $lead_institution.find('h3').removeClass('required');
+      }else{
+        $institutions_involved.slideDown()
+        $lead_institution.find('h3').addClass('required');
+      }
+    })
+
+    // Is Carthage College the lead institution on this project?
+    $lead_institution.addClass("details");
+    $lead_institution_name.addClass("details");
+    $lead_institution_contact.addClass("details");
+    {% if form.lead_institution.value != 'No' %}
+    $lead_institution_name.slideUp();
+    $lead_institution_contact.slideUp();
     {% endif %}
-    $('input[name=major_equipment]').click(function(){
-      binarySwitch($(this).val(), [$major_equipment_details], $major_equipment);
-    });
+    $('input[name=lead_institution]').click(function(){
+      var domArray = [
+        $lead_institution_name,
+        $lead_institution_contact
+      ]
+      binarySwitch($(this).val(), 'No', domArray, $lead_institution_name);
+      if ($(this).val() == 'No'){
+        $('#id_lead_institution_name').addClass('required');
+        $('#id_lead_institution_contact').addClass('required');
+        $lead_institution_contact.find('h3').addClass('required');
+      }else{
+        $('#id_lead_institution_name').removeClass('required');
+        $lead_institution_contact.find('h3').removeClass('required');
+      }
+    })
+
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -192,6 +169,8 @@
         buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
     });
+    // jquery timepicker
+    $('#id_grant_deadline_time').ptTimeSelect();
   });
 </script>
 {% endblock %}
@@ -201,7 +180,12 @@
         rel="stylesheet" type="text/css" />
     <link href="//www.carthage.edu/static/vendor/summernote/summernote.css"
         rel="stylesheet" type="text/css" />
+    <link href="//www.carthage.edu/static/vendor/jquery/plugins/ptTimeSelect/src/jquery.ptTimeSelect.css"
+        rel="stylesheet" type="text/css" />
     <style type="text/css">
+    #ptTimeSelectCntr {color: #303030;background: #ebebeb;
+    font: .74em Arial, Verdana, sans-serif;text-align: center;
+    line-height: 1.6em;margin: 2.5em 0;}
     .note-editor{
         width:500px;background: #fff;
         border: solid 1px #ccc;
@@ -233,8 +217,8 @@
     <div class="panel panel-default">
       <!-- /.panel-heading -->
       <div class="panel-body" id="proposals-data-panel">
-        {# get_lw_content as intro blurbs 2246 #}
-        {#intro.body#}
+        {% get_lw_content as intro blurbs 2246 %}
+        {{intro.body}}
         {% include "includes/required_text.html" %}
         {% include "includes/errors_text.html" %}
         <form method="post" enctype="multipart/form-data" action="."
@@ -244,30 +228,74 @@
           {% include "form_field.inc.html" %}
         {% endfor %}
         <fieldset class="blockLabels">
-          <legend>Investigator(s) Information</legend>
+          <legend>Basic Proposal Elements</legend>
           <ol>
           {% for field in form.visible_fields %}
+            {% if field.name == "phone" %}
+              </ol>
+              </fieldset>
+              <fieldset class="blockLabels">
+                <legend>Investigator Information</legend>
+                <ol>
+            {% endif %}
+            {% if field.name == "lead_institution" %}
+            <li class="form-group ctrlHolder details" id="institutions-involved">
+              <div class="col-md-4">
+                <h3>List all institutions involved</h3>
+                <input type="text" name="institu-institution_1" class="large"
+                  value="{{form_institu.institution_1.value|default_if_none:""}}">
+                <input type="text" name="institu-institution_2" class="large"
+                  value="{{form_institu.institution_2.value|default_if_none:""}}">
+                <input type="text" name="institu-institution_3" class="large"
+                  value="{{form_institu.institution_3.value|default_if_none:""}}">
+                <input type="text" name="institu-institution_4" class="large"
+                  value="{{form_institu.institution_4.value|default_if_none:""}}">
+                <input type="text" name="institu-institution_5" class="large"
+                  value="{{form_institu.institution_5.value|default_if_none:""}}">
+              </div>
+            </li>
+            {% endif %}
             {% if field.name == "title" %}
               </ol>
               </fieldset>
               <fieldset class="blockLabels">
+                <legend>
+                    Co-Principal Investigators & Associated Institution
+                </legend>
+                <ol class="col-md-8">
+                <li>
+                <div class="col-md-3">
+                  <h3>Name</h3>
+                  <input type="text" name="investi-name_1" class="medium"
+                    value="{{form_investi.name_1.value|default_if_none:""}}">
+                  <input type="text" name="investi-name_2" class="medium"
+                    value="{{form_investi.name_2.value|default_if_none:""}}">
+                  <input type="text" name="investi-name_3" class="medium"
+                    value="{{form_investi.name_3.value|default_if_none:""}}">
+                  <input type="text" name="investi-name_4" class="medium"
+                    value="{{form_investi.name_4.value|default_if_none:""}}">
+                  <input type="text" name="investi-name_5" class="medium"
+                    value="{{form_investi.name_5.value|default_if_none:""}}">
+                </div>
+                <div class="col-md-1">&nbsp;</div>
+                <div class="col-md-4">
+                  <h3>Institution</h3>
+                  <input type="text" name="investi-institution_1" class="large"
+                    value="{{form_investi.institution_1.value|default_if_none:""}}">
+                  <input type="text" name="investi-institution_2" class="large"
+                    value="{{form_investi.institution_2.value|default_if_none:""}}">
+                  <input type="text" name="investi-institution_3" class="large"
+                    value="{{form_investi.institution_3.value|default_if_none:""}}">
+                  <input type="text" name="investi-institution_4" class="large"
+                    value="{{form_investi.institution_4.value|default_if_none:""}}">
+                  <input type="text" name="investi-institution_5" class="large"
+                    value="{{form_investi.institution_5.value|default_if_none:""}}">
+                </div>
+                </li>
+                </ol>
+              </fieldset>
+              <fieldset class="blockLabels">
                 <legend>Proposal Overview</legend>
-                <ol>
-            {% endif %}
-            {% if field.name == "course_release" %}
-              </ol>
-              </fieldset>
-              <fieldset class="blockLabels">
-                <legend>Institutional Impacts</legend>
-                <h3 style="font-weight:600;color:#8A1F11;">Will this proposal...</h3>
-                <ol>
-            {% endif %}
-            {% if field.name == "students" %}
-              </ol>
-              </fieldset>
-              <fieldset class="blockLabels">
-                <legend>Compliance Requirements</legend>
-                <h3 style="font-weight:600;color:#8A1F11;">Will this proposal...</h3>
                 <ol>
             {% endif %}
             {% include "form_field.inc.html" %}
