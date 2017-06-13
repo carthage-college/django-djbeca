@@ -3,17 +3,18 @@ from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 
 from djzbar.utils.hr import department
-from djbeca.core.models import Proposal
+from djbeca.core.models import GenericContact, Proposal
 
 class ProposalAdmin(admin.ModelAdmin):
     list_display = (
         'last_name', 'first_name', 'title',
-        'department_approved','division_approved','provost_approved'
+        'vice_president_approved','division_approved','provost_approved',
+        'created_at','updated_at'
     )
     date_hierarchy = 'created_at'
     ordering = [
         'user__last_name','user__first_name',
-        'department_approved','division_approved','provost_approved'
+        'vice_president_approved','division_approved','provost_approved'
     ]
     '''
     readonly_fields = (
@@ -21,7 +22,7 @@ class ProposalAdmin(admin.ModelAdmin):
     )
     fields = (
         'user','department_name','title','summary_strip',
-        'department_approved','division_approved','provost_approved'
+        'vice_president_approved','division_approved','provost_approved'
     )
     '''
     search_fields = (
@@ -66,4 +67,12 @@ class ProposalAdmin(admin.ModelAdmin):
         return response
     """
 
+
+class GenericContactAdmin(admin.ModelAdmin):
+    list_per_page = 500
+    raw_id_fields = ("proposal",)
+    date_hierarchy = 'created_at'
+    list_display = ('name','email','institution','created_at','proposal')
+
+admin.site.register(GenericContact, GenericContactAdmin)
 admin.site.register(Proposal, ProposalAdmin)
