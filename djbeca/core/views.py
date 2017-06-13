@@ -6,11 +6,13 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse_lazy
 
-from djbeca.core.models import Proposal
+from djbeca.core.models import GenericContact, Proposal
 from djbeca.core.forms import ProposalForm
-from djbeca.core.forms import ProposalUpdateForm
-from djzbar.utils.hr import chair_departments
+from djbeca.core.forms import InstitutionsForm
+from djbeca.core.forms import InvestigatorsForm
+from djbeca.core.forms import ProposalForm
 
+from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import person_departments
 from djzbar.utils.hr import department_division_chairs
 from djzbar.decorators.auth import portal_auth_required
@@ -31,17 +33,17 @@ def home(request):
         '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
     )
     if group:
-        proposals = Proposal.objects.all()
+        proposals = Proposal.objects.using('djbeca').all()
     elif dean_chair:
         chair_depts = chair_departments(user.id)
         dc = chair_depts[1]
         div = chair_depts[2]
         depts = chair_depts[0]['depts']
-        proposals = Proposal.objects.filter(
+        proposals = Proposal.objects.using('djbeca').filter(
             department__in=[ key for key,val in depts.iteritems() ]
         )
     else:
-        proposals = Proposal.objects.filter(user=user)
+        proposals = Proposal.objects.using('djbeca').filter(user=user)
 
     return render(
         request, 'home.html',
@@ -55,18 +57,67 @@ def home(request):
 @portal_auth_required(
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
-def proposal_form(request):
+def proposal_form(request, pid=None):
     TO_LIST = [settings.PROPOSAL_EMAIL,]
     BCC = settings.MANAGERS
 
+    institu = None
+    investi = None
+    proposal = None
+
+    if pid:
+        proposal = get_object_or_404(Proposal, id=pid)
+        investigators = proposal.generic_contact.filter(
+            tags__name='Co-Principal Investigators'
+        )
+        institutions = proposal.generic_contact.filter(
+            tags__name='Other Institution'
+        )
+
     depts = person_departments(request.user.id)
     if request.method=='POST':
-        form = ProposalForm(depts, request.POST, request.FILES)
+        form = ProposalForm(
+            depts, request.POST, request.FILES, instance=proposal
+        )
+        form_institu = InstitutionsForm(
+            request.POST, prefix='institu'
+        )
+        form_investi = InvestigatorsForm(
+            request.POST, prefix='investi'
+        )
         if form.is_valid():
-            data = form.save(commit=False)
+            data = form.save(using='djbeca', commit=False)
             data.user = request.user
-            data.save()
+            data.save(using='djbeca')
 
+            form_institu.is_valid()
+            form_investi.is_valid()
+
+            # delete the old objects because it's just easier this way
+            if proposal:
+                if investigators:
+                    investigators.delete(using='djbeca')
+                if institutions:
+                    institutions.delete(using='djbeca')
+            # obtain our new set of contacts
+            institutions = form_institu.cleaned_data
+            investigators = form_investi.cleaned_data
+            for i in list(range(1,6)):
+                institute = GenericContact(
+                    proposal=data,
+                    institution=institutions['institution_{}'.format(i)]
+                )
+                institute.save(using='djbeca')
+                institute.tags.add('Other Institution')
+                investigator = GenericContact(
+                    proposal=data,
+                    name=investigators['name_{}'.format(i)],
+                    institution=investigators['institution_{}'.format(i)],
+                )
+                investigator.save(using='djbeca')
+                investigator.tags.add('Co-Principal Investigators')
+
+            '''
             # send email to division dean and departmental chair
             where = 'PT.pcn_03 = "{}"'.format(data.department)
             chairs = department_division_chairs(where)
@@ -100,15 +151,35 @@ def proposal_form(request):
                 request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
                 'proposal/email_confirmation.html', data, BCC
             )
-
+            '''
 
             return HttpResponseRedirect(
                 reverse_lazy('proposal_success')
             )
     else:
-        form = ProposalForm(depts)
+        form = ProposalForm(depts, instance=proposal)
+
+        if proposal:
+            investi = {}
+            x = 1
+            for i in investigators:
+                investi['institution_'+ str(x)] = i.institution
+                investi['name_'+ str(x)] = i.name
+                x += 1
+            institu = {}
+            x = 1
+            for i in institutions:
+                institu['institution_'+ str(x)] = i.institution
+                x += 1
+
+        form_institu = InstitutionsForm(initial=institu, prefix='institu')
+        form_investi = InvestigatorsForm(initial=investi, prefix='investi')
     return render(
-        request, 'proposal/form.html', {'form': form,}
+        request, 'proposal/form.html', {
+            'form': form,
+            'form_institu': form_institu,
+            'form_investi': form_investi
+        }
     )
 
 
@@ -117,17 +188,25 @@ def proposal_form(request):
 )
 def proposal_detail(request, pid):
 
-    proposal = Proposal.objects.get(id=pid)
+    proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
     group = in_group(user,'Office of Sponsored Programs')
     dean_chair = department_division_chairs(
         '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
     )
-
+    co_principals = proposal.generic_contact.filter(
+        tags__name='Co-Principal Investigators'
+    )
+    institutions = proposal.generic_contact.filter(
+        tags__name='Other Institution'
+    )
     if proposal.user != request.user and not group and not dean_chair:
-        raise Http404
+        if not request.user.is_superuser:
+            raise Http404
 
     return render(
-        request, 'proposal/detail.html',
-        {'proposal':proposal,'group':group,}
+        request, 'proposal/detail.html', {
+            'proposal':proposal,'group':group,'co_principals':co_principals,
+            'institutions':institutions
+        }
     )
