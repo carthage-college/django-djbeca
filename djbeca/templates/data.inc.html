@@ -5,62 +5,98 @@
             <tr>
                 <th>
                   Title
-                  <i class="fa fa-eye" title="View Proposal"></i>
+                  <i class="fa fa-eye green" title="View Proposal"
+                    aria-hidden="true"></i>
+                </th>
+                <th>Step I</th>
+                <th>Step II</th>
+                <th>
+                  Submitted by
+                  {% ifusergroup 'Sponsored Programs' %}
+                  <i class="fa fa-envelope-o green" aria-hidden="true"
+                    title="Send email to proposal owner"></i>
+                  {% endifusergroup %}
                 </th>
                 <th>
-                  Step I
+                  Department
+                  {% ifusergroup 'Sponsored Programs' %}
+                  <i class="fa fa-thumbs-o-up green" aria-hidden="true"
+                    title="Add Approver to this proposal"></i>
+                  {% endifusergroup %}
                 </th>
-                <th>
-                  Step II
-                </th>
-                <th>Submitted by</th>
-                <th>Date</th>
-                <th style="text-align:center;">Funding</th>
-                <th style="text-align:center;">Department Approved</th>
-                <th style="text-align:center;">Division Approved</th>
+                <th>Date submitted</th>
+                <th style="text-align:center;">Division</th>
+                <th style="text-align:center;">Others</th>
+                <th style="text-align:center;">Provost</th>
             </tr>
         </thead>
         <tbody>
         {% for p in proposals %}
           <tr>
             <td>
-              <a href="{% url 'proposal_detail' p.id %}">{{p.title}}</a>
+              <a href="{% url 'proposal_detail' p.id %}"
+                title="View proposal">{{p.title}}</a>
             </td>
             <td style="text-align:center;">
+            {% if p.division_approved %}
               <a href="{% url 'proposal_update' p.id %}">
-                  <i class="fa fa-pencil-square-o" title="Update Step I"></i>
+                  <i class="fa fa-pencil-square-o" title="Update Step I"
+                    aria-hidden="true"></i>
               </a>
-            </td>
-            <td style="text-align:center;">
-              <a href="{# url 'impact_form' p.id #}">
-                  <i class="fa fa-pencil-square-o" title="Update Step II"></i>
-              </a>
-            </td>
-            <td>
-              {{p.user.last_name}}, {{p.user.first_name}}
-            </td>
-            <td>{{p.created_at}}</td>
-            <td style="text-align:center;">
-            {% if p.funding_status == "Funding Identified" %}
-              <i class="fa fa-check green" title="Funding Identified"></i>
-            {% else %}{% if p.funding_status == "Funding Pursued" %}
-              <i class="fa fa-binoculars" title="Funding Pursued"></i>
             {% else %}
-              <i class="fa fa-ban red" title="Funding Pursued"></i>
-            {% endif %}{% endif %}
-            </td>
-            <td style="text-align:center;">
-            {% if p.department_approved %}
-              <i class="fa fa-check green"></i>
-            {% else %}
-              <i class="fa fa-ban red"></i>
+              <i class="fa fa-times red" aria-hidden="true"></i>
             {% endif %}
             </td>
             <td style="text-align:center;">
             {% if p.division_approved %}
-              <i class="fa fa-check green"></i>
+              <a href="{# url 'impact_form' p.id #}">
+                  <i class="fa fa-pencil-square-o" title="Update Step II"
+                    aria-hidden="true"></i>
+              </a>
             {% else %}
-              <i class="fa fa-ban red"></i>
+              <i class="fa fa-times red" aria-hidden="true"></i>
+            {% endif %}
+            </td>
+            <td>
+              {% ifusergroup 'Sponsored Programs' %}
+              <a href="#" title="Send email to proposal owner">
+                {{p.user.last_name}}, {{p.user.first_name}}
+              </a>
+              {% else %}
+              {{p.user.last_name}}, {{p.user.first_name}}
+              {% endifusergroup %}
+            </td>
+            <td>
+              {% ifusergroup 'Sponsored Programs' %}
+              <a href="#" title="Add Approver to this proposal">
+                {{p.department}}
+              </a>
+              {% else %}
+                {{p.department}}
+              {% endifusergroup %}
+            </td>
+            <td>{{p.created_at}}</td>
+            <td style="text-align:center;">
+            {% if p.approvers %}{% if p.approvers_approved %}
+              <i class="fa fa-check green" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-times red" aria-hidden="true"></i>
+            {% endif %}{% else %}
+              <i class="fa fa-ban"></i>
+            {% endif %}
+            </td>
+            <td style="text-align:center;">
+            {% if p.division_approved %}
+              <i class="fa fa-check green" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-times red" aria-hidden="true"></i>
+            {% endif %}
+            </td>
+            <td style="text-align:center;">
+            {% if p.provost_approved %}
+              <i class="fa fa-check green" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-times red" aria-hidden="true"></i>
             {% endif %}
             </td>
           </tr>
@@ -68,10 +104,31 @@
         </tbody>
         <tfoot>
             <tr>
-                <th>Title</th>
-                <th style="text-align:center;">Funding</th>
-                <th style="text-align:center;">Department Approved</th>
-                <th style="text-align:center;">Division Approved</th>
+                <th>
+                  Title
+                  <i class="fa fa-eye green" title="View Proposal"
+                    aria-hidden="true"></i>
+                </th>
+                <th>Step I</th>
+                <th>Step II</th>
+                <th>
+                  Submitted by
+                  {% ifusergroup 'Sponsored Programs' %}
+                  <i class="fa fa-envelope-o green" aria-hidden="true"
+                    title="Send email to proposal owner"></i>
+                  {% endifusergroup %}
+                </th>
+                <th>
+                  Department
+                  {% ifusergroup 'Sponsored Programs' %}
+                  <i class="fa fa-thumbs-o-up green" aria-hidden="true"
+                    title="Add Approver to this proposal"></i>
+                  {% endifusergroup %}
+                </th>
+                <th>Date submitted</th>
+                <th style="text-align:center;">Division</th>
+                <th style="text-align:center;">Others</th>
+                <th style="text-align:center;">Provost</th>
             </tr>
         </tfoot>
     </table>

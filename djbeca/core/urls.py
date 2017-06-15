@@ -73,44 +73,44 @@ urlpatterns = [
         r'^proposal/(?P<pid>\d+)/update/$',
         views.proposal_form, name='proposal_update'
     ),
-
-    # Impact: form A
-    #url(
-        #r'^impact/$',
-        #views.impact_form, name='impact_form'
-    #),
-    #url(
-        #r'^impact/success/$',
-        #TemplateView.as_view(
-            #template_name='impact/done.html'
-        #),
-        #name='impact_success'
-    #),
-    # Impact: detail
-    #url(
-        #r'^impact/(?P<pid>\d+)/detail/$',
-        #views.impact_detail, name='impact_detail'
-    #),
-    # Impact: update
-    #url(
-        #r'^impact/(?P<pid>\d+)/update/$',
-        #views.impact_update, name='impact_update'
-    #),
-
-    # approval form
-    #url(
-        #r'^proposal/(?P<pid>\d+)/approval/$',
-        #views.proposal_approval, name='proposal_approval'
-    #),
-    #url(
-        #r'^proposal/approval/success/$',
-        #TemplateView.as_view(
-            #template_name='funding/approval/done.html'
-        #),
-        #name='proposal_approval_success'
-    #),
-    # home
     url(
         r'^$', views.home, name='home'
-    ),
+    )
 ]
+"""
+    # Impact: form A
+    url(
+        r'^impact/$',
+        views.impact_form, name='impact_form'
+    ),
+    url(
+        r'^impact/success/$',
+        TemplateView.as_view(
+            template_name='impact/done.html'
+        ),
+        name='impact_success'
+    ),
+    # Impact: detail
+    url(
+        r'^impact/(?P<pid>\d+)/detail/$',
+        views.impact_detail, name='impact_detail'
+    ),
+    # Impact: update
+    url(
+        r'^impact/(?P<pid>\d+)/update/$',
+        views.impact_update, name='impact_update'
+    ),
+    # approval form
+    url(
+        r'^proposal/(?P<pid>\d+)/approval/$',
+        views.proposal_approval, name='proposal_approval'
+    ),
+    url(
+        r'^proposal/approval/success/$',
+        TemplateView.as_view(
+            template_name='funding/approval/done.html'
+        ),
+        name='proposal_approval_success'
+    ),
+    # home
+"""

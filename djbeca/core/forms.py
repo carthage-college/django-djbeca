@@ -82,7 +82,7 @@ class ProposalForm(forms.ModelForm):
         model = Proposal
         exclude = (
             'user','created_at','updated_at',
-            'vice_president_approved','division_approved','provost_approved'
+            'level2_approved','level1_approved'
         )
 
 
@@ -210,5 +210,5 @@ class ProposalUpdateForm(forms.ModelForm):
         model = Proposal
         exclude = (
             'user','created_at','updated_at','department',
-            'vice_president_approved','division_approved','provost_approved'
+            'level2_approved','level1_approved'
         )

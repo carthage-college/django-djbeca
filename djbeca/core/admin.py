@@ -3,26 +3,27 @@ from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 
 from djzbar.utils.hr import department
-from djbeca.core.models import GenericContact, Proposal
+from djbeca.core.models import GenericContact, Proposal, ProposalApprover
 
 class ProposalAdmin(admin.ModelAdmin):
     list_display = (
         'last_name', 'first_name', 'title',
-        'vice_president_approved','division_approved','provost_approved',
+        'level2_approved','level1_approved',
         'created_at','updated_at'
     )
     date_hierarchy = 'created_at'
     ordering = [
         'user__last_name','user__first_name',
-        'vice_president_approved','division_approved','provost_approved'
+        'level2_approved','level1_approved'
     ]
     '''
     readonly_fields = (
-        'user','title','department_name','summary_strip','provost_approved'
+        'user','title','department_name','summary_strip',
+        'level2_approved','level1_approved'
     )
     fields = (
         'user','department_name','title','summary_strip',
-        'vice_president_approved','division_approved','provost_approved'
+        'level2_approved','level1_approved'
     )
     '''
     search_fields = (
@@ -70,9 +71,17 @@ class ProposalAdmin(admin.ModelAdmin):
 
 class GenericContactAdmin(admin.ModelAdmin):
     list_per_page = 500
-    raw_id_fields = ("proposal",)
+    raw_id_fields = ('proposal',)
     date_hierarchy = 'created_at'
     list_display = ('name','email','institution','created_at','proposal')
 
+
+class ProposalApproverAdmin(admin.ModelAdmin):
+    list_per_page = 500
+    raw_id_fields = ('proposal','user')
+    list_display = ('title','last_name','first_name','email')
+
+
 admin.site.register(GenericContact, GenericContactAdmin)
+admin.site.register(ProposalApprover, ProposalApproverAdmin)
 admin.site.register(Proposal, ProposalAdmin)

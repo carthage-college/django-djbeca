@@ -16,9 +16,12 @@ from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import person_departments
 from djzbar.utils.hr import department_division_chairs
 from djzbar.decorators.auth import portal_auth_required
+from djzbar.utils.informix import do_sql
+
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 
+from directory.core import FACSTAFF_ALPHA
 
 @portal_auth_required(
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
@@ -73,7 +76,6 @@ def proposal_form(request, pid=None):
         institutions = proposal.generic_contact.filter(
             tags__name='Other Institution'
         )
-
     depts = person_departments(request.user.id)
     if request.method=='POST':
         form = ProposalForm(
@@ -210,3 +212,27 @@ def proposal_detail(request, pid):
             'institutions':institutions
         }
     )
+
+
+@portal_auth_required(
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
+)
+def approver_manager(request, pid):
+    group = in_group(user,'Office of Sponsored Programs')
+    if not group:
+        return HttpResponseRedirect(
+            reverse_lazy('home')
+        )
+    else:
+        if request.method=='POST':
+            pass
+        else:
+            facstaff = do_sql(FACSTAFF_ALPHA)
+            proposal = get_object_or_404(Proposal, id=pid)
+
+    return render(
+        request, 'proposal/approvers.html', {
+            'facstaff':facstaff, 'proposal':proposal,
+        }
+    )
+

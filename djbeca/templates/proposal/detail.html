@@ -1,10 +1,17 @@
 {% extends "base.html" %}
+{% load ifusergroup %}
 {% block content %}
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
                 Proposal Detail
                 <a href="#" id="print"><i class="fa fa-print green"></i></a>
+                {% ifusergroup 'Sponsored Programs' %}|
+                <a href="#">
+                  <i class="fa fa-envelope green" aria-hidden="true"
+                    title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i
+                </a>
+                {% endifusergroup %}
             </h1>
         </div>
         <!-- /.col-lg-12 -->
@@ -160,9 +167,9 @@
                       Status
                     </h4>
                     <dl class="clear dl-horizontal">
-                      <dt>Department Approved</dt>
+                      <dt>Approvers Approved</dt>
                       <dd>
-                      {% if proposal.department_approved %}
+                      {% if proposal.approvers_approved %}
                         <i class="fa fa-check green"></i>
                       {% else %}
                         <i class="fa fa-ban red"></i>

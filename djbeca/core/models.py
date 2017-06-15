@@ -27,9 +27,8 @@ class Proposal(models.Model):
     )
     user = models.ForeignKey(User, editable=False)
     # status
-    vice_president_approved = models.BooleanField(default=False)
-    division_approved = models.BooleanField(default=False)
-    provost_approved = models.BooleanField(default=False)
+    level2_approved = models.BooleanField(default=False) # division dean
+    level1_approved = models.BooleanField(default=False) # provost
     # Basic Proposal Elements
     proposal_type = models.CharField(
         "What type of proposal submission is this?",
@@ -211,13 +210,12 @@ class ProposalImpact(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal, editable=False,
-        related_name='project_impact'
+        related_name='proprosal_impact'
     )
 
     # status
-    vice_president_approved = models.BooleanField(default=False)
-    division_approved = models.BooleanField(default=False)
-    provost_approved = models.BooleanField(default=False)
+    level2_approved = models.BooleanField(default=False) # division dean
+    level1_approved = models.BooleanField(default=False) # provost
 
     # Project Impact
     # NOTE: "Describe your project goal/s"
@@ -307,7 +305,7 @@ class ProposalBudget(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal, editable=False,
-        related_name='project_budget'
+        related_name='proposal_budget'
     )
     # core
     document = models.FileField(
@@ -391,12 +389,30 @@ class ProposalApprover(models.Model):
     '''
     Additional folks who need to approve a proposal
     '''
+    user = models.ForeignKey(
+        User,
+        related_name='approver_user'
+    )
     proposal = models.ForeignKey(
         Proposal,
-        editable=False,
-        related_name='proposal_approver'
+        related_name='approver'
     )
-    user = models.ForeignKey(User, editable=False)
+    approved = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'core_proposal_approver'
+
+    def first_name(self):
+        return self.user.first_name
+
+    def last_name(self):
+        return self.user.last_name
+
+    def email(self):
+        return self.user.email
+
+    def title(self):
+        return self.proposal.title
 
 
 class GenericContact(models.Model):
@@ -443,7 +459,7 @@ class ProposalGoal(models.Model):
     proposal_impact = models.ForeignKey(
         ProposalImpact,
         editable=False,
-        related_name='proposal_impact_goal'
+        related_name='proposal_goal'
     )
     name = models.CharField(
         max_length=128,
