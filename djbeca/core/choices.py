@@ -34,6 +34,13 @@ TERM_CHOICES = (
     ('Both','Both'),
 )
 
+PROJECT_STEPS_CHOICES = (
+    ('','----------'),
+    ('1','Step I'),
+    ('2','Step II'),
+    ('3','Steps I and II')
+)
+
 PROPOSAL_TYPE_CHOICES = (
     (
         'New: never submitted this proposal to this agency before',

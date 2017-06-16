@@ -1,205 +1,213 @@
 {% extends "base.html" %}
 {% load ifusergroup %}
 {% block content %}
-    <div class="row">
-        <div class="col-lg-12">
-            <h1 class="page-header">
-                Proposal Detail
-                <a href="#" id="print"><i class="fa fa-print green"></i></a>
-                {% ifusergroup 'Sponsored Programs' %}|
-                <a href="#">
-                  <i class="fa fa-envelope green" aria-hidden="true"
-                    title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i
-                </a>
-                {% endifusergroup %}
-            </h1>
-        </div>
-        <!-- /.col-lg-12 -->
-    </div>
-    <!-- /.row -->
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                  <h3 class="detail">
-                    Basic Proposal Elements
-                  </h3>
-                  <div class="col-lg-8">
-                    <h4>What type of proposal submission is this?</h4>
-                    <h5>{{proposal.proposal_type}}</h5>
-                    {% if proposal.proposal_type_other %}
-                    <h4>If 'Other', please provide details</h4>
-                    <h5>{{proposal.proposal_type_other}}</h5>
-                    {% endif %}
-                    <h4>Grant Agency and Program Name</h4>
-                    <h5>{{proposal.grant_agency_name}}</h5>
-                    <h4>What type of funding source is the granting agency?</h4>
-                    <h5>{{proposal.grant_agency_funding_source}}</h5>
-                    {% if proposal.grant_agency_funding_other %}
-                    <h4>If 'Other', please provide details</h4>
-                    <h5>{{proposal.grant_agency_funding_other}}</h5>
-                    {% endif %}
-                    <h4>Name of Grant / Specific Funding Opportunity</h4>
-                    <h5>{{proposal.grant_name}}</h5>
-                    <h4>Solicitation Website</h4>
-                    <h5>{{proposal.grant_agency_url}}</h5>
-                    <h4>Proposal Deadline Date/Time</h4>
-                    <h5>
-                      {{proposal.grant_deadline_date}}
-                      {{proposal.grant_deadline_time}}
-                    </h5>
-                    <h4>Who is required to submit the final submission?</h4>
-                    <h5>{{proposal.proposal_submission_entity}}</h5>
-                    {% if proposal.proposal_submission_entity_other %}
-                    <h4>If 'Other', please list names</h4>
-                    <h5>{{proposal.proposal_submission_entity_other}}</h5>
-                    {% endif %}
-                    <h4>How is the proposal to be submitted?</h4>
-                    <h5>{{proposal.proposal_submission_method}}</h5>
-                    {% if proposal.proposal_submission_method_other %}
-                    <h4>If 'Other', please provide details</h4>
-                    <h5>{{proposal.proposal_submission_method_other}}</h5>
-                    {% endif %}
-                  </div>
-                  <h3 class="clear detail">
-                    Investigator Information
-                  </h3>
-                  <div class="col-lg-8">
-                    <dl class="clear dl-horizontal">
-                      <dt>Author</dt>
-                      <dd>
-                        <a href="mailto:{{proposal.user.email}}">
-                          {{proposal.user.last_name}},
-                          {{proposal.user.first_name}}
-                        </a>
-                      </dd>
-                      <dt>Phone</dt>
-                      <dd>
-                        <a href="tel:{{proposal.phonel}}">{{proposal.phone}}</a>
-                      </dd>
-                      <dt>Department</dt>
-                      <dd>
-                        {{proposal.department}}
-                      </dd>
-                    </dl>
-                    <h4>Are other institutions involved?</h4>
-                    <h5>{{proposal.partner_institutions}}</h5>
-                    {% if proposal.partner_institutions == 'Yes' %}
-                      <h4>All Institutions Involved</h4>
-                      <ul>
-                      {% for inst in institutions %}
-                        <li>{{inst.institution}}</li>
-                      {% endfor %}
-                      </ul>
-                    {% endif %}
-                    <h4>
-                      Is Carthage College the lead institution on this project?
-                    </h4>
-                    <h5>{{proposal.lead_institution}}</h5>
-                    {% if proposal.lead_institution == 'No' %}
-                      <h4>Lead Institution Name</h4>
-                      <h5>{{proposal.lead_institution_name}}</h5>
-                      <h4>Lead Institution Contact</h4>
-                      <div>
-                        {{proposal.lead_institution_contact}}
-                      </div>
-                    {% endif %}
-                    <h4>
-                      Co-Principal Investigators & Associated Institution
-                    </h4>
-                    <ul>
-                      {% for cp in co_principals %}
-                        <li>{{cp.name}}&mdash;{{cp.institution}}</li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <h3 class="clear detail">
-                    Project Overview
-                  </h3>
-                  <div class="col-lg-8">
-                    <h4>Title</h4>
-                    <h5>{{proposal.title}}</h5>
-                    <h4>
-                      Dates
-                    </h4>
-                    <dl class="clear dl-horizontal">
-                      <dt>Start Date</dt>
-                      <dd>{{proposal.start_date}}</dd>
-                      <dt>End date</dt>
-                      <dd>{{proposal.end_date}}</dd>
-                    </dl>
-                    <h4>
-                      Project Type
-                    </h4>
-                    <h5>
-                      {{proposal.project_type}}
-                    </h5>
-                    <h4>
-                      Summary
-                    </h4>
-                    <div>{{proposal.summary}}</div>
-                    <h4>
-                      Is this one year funding or multi-year?
-                    </h4>
-                    <h5>
-                      {{proposal.time_frame}}
-                    </h5>
-                    <h4>
-                      Total Budget Request
-                    </h4>
-                    <h5>
-                      {{proposal.budget_total}}
-                    </h5>
-                    <h4>
-                      List the total amount of funding you intend
-                      to request through this proposal
-                    </h4>
-                    <h5>
-                      {{proposal.funding_total}}
-                    </h5>
-                    <h4>
-                      Funding Plan
-                    </h4>
-                    <div>{{proposal.funding_plan}}</div>
+<div class="row">
+  <div class="col-lg-12">
+    <h1 class="page-header">
+      Proposal Detail
+      <a href="#" id="print" title="Print to paper or PDF">
+        <i class="fa fa-print green" aria-hidden="true"></i></a>
+      {% ifusergroup 'Sponsored Programs' %}|
+      <a href="{% url 'proposal_approver' proposal.id %}"
+        title="Add Approver to this proposal">
+        <i class="fa fa-thumbs-o-up green" aria-hidden="true"
+          title="Add Approver to this proposal"></i></a> |
+      <a href="#">
+        <i class="fa fa-envelope green" aria-hidden="true"
+          title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i>
+      </a>
+      {% endifusergroup %}
+    </h1>
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h3 class="detail">
+          Basic Proposal Elements
+        </h3>
+        <h4>What type of proposal submission is this?</h4>
+        <h5>{{proposal.proposal_type}}</h5>
+        {% if proposal.proposal_type_other %}
+        <h4>If 'Other', please provide details</h4>
+        <h5>{{proposal.proposal_type_other}}</h5>
+        {% endif %}
+        <h4>Grant Agency and Program Name</h4>
+        <h5>{{proposal.grant_agency_name}}</h5>
+        <h4>What type of funding source is the granting agency?</h4>
+        <h5>{{proposal.grant_agency_funding_source}}</h5>
+        {% if proposal.grant_agency_funding_other %}
+        <h4>If 'Other', please provide details</h4>
+        <h5>{{proposal.grant_agency_funding_other}}</h5>
+        {% endif %}
+        <h4>Name of Grant / Specific Funding Opportunity</h4>
+        <h5>{{proposal.grant_name}}</h5>
+        <h4>Solicitation Website</h4>
+        <h5>{{proposal.grant_agency_url}}</h5>
+        <h4>Proposal Deadline Date/Time</h4>
+        <h5>
+          {{proposal.grant_deadline_date}}
+          {{proposal.grant_deadline_time}}
+        </h5>
+        <h4>Who is required to submit the final submission?</h4>
+        <h5>{{proposal.proposal_submission_entity}}</h5>
+        {% if proposal.proposal_submission_entity_other %}
+        <h4>If 'Other', please list names</h4>
+        <h5>{{proposal.proposal_submission_entity_other}}</h5>
+        {% endif %}
+        <h4>How is the proposal to be submitted?</h4>
+        <h5>{{proposal.proposal_submission_method}}</h5>
+        {% if proposal.proposal_submission_method_other %}
+        <h4>If 'Other', please provide details</h4>
+        <h5>{{proposal.proposal_submission_method_other}}</h5>
+        {% endif %}
+        <h3 class="clear detail">
+          Investigator Information
+        </h3>
+        <dl class="clear dl-horizontal">
+          <dt>Author</dt>
+          <dd>
+            <a href="mailto:{{proposal.user.email}}">
+              {{proposal.user.last_name}},
+              {{proposal.user.first_name}}
+            </a>
+          </dd>
+          <dt>Phone</dt>
+          <dd>
+            <a href="tel:{{proposal.phonel}}">{{proposal.phone}}</a>
+          </dd>
+          <dt>Department</dt>
+          <dd>
+            {{proposal.department}}
+          </dd>
+        </dl>
+        <h4>Are other institutions involved?</h4>
+        <h5>{{proposal.partner_institutions}}</h5>
+        {% if proposal.partner_institutions == 'Yes' %}
+          <h4>All Institutions Involved</h4>
+          <ul>
+          {% for inst in institutions %}
+            <li>{{inst.institution}}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+        <h4>
+          Is Carthage College the lead institution on this project?
+        </h4>
+        <h5>{{proposal.lead_institution}}</h5>
+        {% if proposal.lead_institution == 'No' %}
+          <h4>Lead Institution Name</h4>
+          <h5>{{proposal.lead_institution_name}}</h5>
+          <h4>Lead Institution Contact</h4>
+          <div>
+            {{proposal.lead_institution_contact}}
+          </div>
+        {% endif %}
+      <h4>
+        Co-Principal Investigators & Associated Institution
+      </h4>
+      <ul>
+        {% for cp in co_principals %}
+          <li>{{cp.name}}&mdash;{{cp.institution}}</li>
+        {% endfor %}
+      </ul>
+      <h3 class="clear detail">
+        Project Overview
+      </h3>
+        <h4>Title</h4>
+        <h5>{{proposal.title}}</h5>
+        <h4>
+          Dates
+        </h4>
+        <dl class="clear dl-horizontal">
+          <dt>Start Date</dt>
+          <dd>{{proposal.start_date}}</dd>
+          <dt>End date</dt>
+          <dd>{{proposal.end_date}}</dd>
+        </dl>
+        <h4>
+          Project Type
+        </h4>
+        <h5>
+          {{proposal.project_type}}
+        </h5>
+        <h4>
+          Summary
+        </h4>
+        <div>{{proposal.summary}}</div>
+        <h4>
+          Is this one year funding or multi-year?
+        </h4>
+        <h5>
+          {{proposal.time_frame}}
+        </h5>
+        <h4>
+          Total Budget Request
+        </h4>
+        <h5>
+          {{proposal.budget_total}}
+        </h5>
+        <h4>
+          List the total amount of funding you intend
+          to request through this proposal
+        </h4>
+        <h5>
+          {{proposal.funding_total}}
+        </h5>
+        <h4>
+          Funding Plan
+        </h4>
+        <div>{{proposal.funding_plan}}</div>
+        <h4>
+          Status
+        </h4>
 
+        <h5 class="detail">
+          Approvers
+        </h5>
+        <!-- fin -->
+        <ol>
+        {% for a in proposal.approver.all %}
+          {{a.user.last_name}}, {{a.user.first_name}}
+        {% endfor %}
+        </ol>
 
-                    <h4>
-                      Status
-                    </h4>
-                    <dl class="clear dl-horizontal">
-                      <dt>Approvers Approved</dt>
-                      <dd>
-                      {% if proposal.approvers_approved %}
-                        <i class="fa fa-check green"></i>
-                      {% else %}
-                        <i class="fa fa-ban red"></i>
-                      {% endif %}
-                      </dd>
-                      <dt>Division Approved</dt>
-                      <dd>
-                      {% if proposal.division_approved %}
-                        <i class="fa fa-check green"></i>
-                      {% else %}
-                        <i class="fa fa-ban red"></i>
-                      {% endif %}
-                      </dd>
-                      <dt>Provost Approved</dt>
-                      <dd>
-                      {% if proposal.provost_approved %}
-                        <i class="fa fa-check green"></i>
-                      {% else %}
-                        <i class="fa fa-ban red"></i>
-                      {% endif %}
-                      </dd>
-                    </dl>
-                  </div>
-                  <!-- fin -->
-                </div>
-                <!-- /.panel-body -->
-            </div>
-            <!-- /.panel -->
-        </div>
-        <!-- /.col-lg-12 -->
+        <dl class="clear dl-horizontal">
+          <dt>Approvers</dt>
+          <dd>
+          {% if proposal.approvers_approved %}
+            <i class="fa fa-check green"></i>
+          {% else %}
+            <i class="fa fa-ban red"></i>
+          {% endif %}
+          </dd>
+          <dt>Division</dt>
+          <dd>
+          {% if proposal.division_approved %}
+            <i class="fa fa-check green"></i>
+          {% else %}
+            <i class="fa fa-ban red"></i>
+          {% endif %}
+          </dd>
+          <dt>Provost</dt>
+          <dd>
+          {% if proposal.provost_approved %}
+            <i class="fa fa-check green"></i>
+          {% else %}
+            <i class="fa fa-ban red"></i>
+          {% endif %}
+          </dd>
+        </dl>
+        <!-- fin -->
+      </div>
+      <!-- /.panel-body -->
     </div>
-    <!-- /.row -->
+    <!-- /.panel -->
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
 {% endblock content %}

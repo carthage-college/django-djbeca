@@ -397,6 +397,11 @@ class ProposalApprover(models.Model):
         Proposal,
         related_name='approver'
     )
+    steps = models.CharField(
+        max_length=4,
+        default='0',
+        choices=PROJECT_STEPS_CHOICES
+    )
     approved = models.BooleanField(default=False)
 
     class Meta:

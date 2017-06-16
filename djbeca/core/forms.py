@@ -2,15 +2,20 @@
 
 from django import forms
 
-from djbeca.core.models import Proposal
+from djbeca.core.models import Proposal, ProposalApprover
 from djbeca.core.choices import *
 
 from djtools.fields import BINARY_CHOICES
 from djtools.fields.time import KungfuTimeField
 
+from directory.core import FACSTAFF_ALPHA
+
+from djzbar.utils.informix import do_sql
+
 from localflavor.us.forms import USPhoneNumberField
 
 valid_time_formats = ['%P', '%H:%M%A', '%H:%M %A', '%H:%M%a', '%H:%M %a']
+
 
 class ProposalForm(forms.ModelForm):
 
@@ -204,11 +209,45 @@ class InvestigatorsForm(forms.Form):
     '''
 
 
-class ProposalUpdateForm(forms.ModelForm):
+class ProposalApproverForm(forms.Form):
 
-    class Meta:
-        model = Proposal
-        exclude = (
-            'user','created_at','updated_at','department',
-            'level2_approved','level1_approved'
-        )
+    def __init__(self, *args, **kwargs):
+        super(ProposalApproverForm, self).__init__(*args, **kwargs)
+
+        results = do_sql(FACSTAFF_ALPHA)
+        facstaff = [('','-----------')]
+        cid = None
+        for r in results:
+            if cid != r.id:
+                name = '{}, {}'.format(r.lastname, r.firstname)
+                facstaff.append((r.id, name))
+                cid = r.id
+        proposals = [('','-----------')]
+        self.fields['user'].choices = facstaff
+
+        for p in Proposal.objects.all():
+            title = '{}: by {}, {}'.format(
+                p.title, p.user.last_name, p.user.first_name
+            )
+            proposals.append((p.id,title))
+        self.fields['proposal'].choices = proposals
+
+    user = forms.ChoiceField(
+        label="Faculty/Staff",
+        choices=()
+    )
+    proposal = forms.ChoiceField(
+        label="Proposal",
+        choices=()
+    )
+    steps = forms.ChoiceField(
+        label="Steps",
+        choices = PROJECT_STEPS_CHOICES
+    )
+
+
+class EmailInvestigatorForm(forms.Form):
+    content = forms.CharField(
+        widget=forms.Textarea, label="Email content"
+    )
+

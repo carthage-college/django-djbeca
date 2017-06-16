@@ -1,0 +1,70 @@
+{% extends "home.html" %}
+{% load livewhale_api %}
+{% block extra_javascript %}
+<script type="text/javascript">
+  $(function() {
+    $('textarea').summernote({height: 200});
+    $(".required > input").addClass("required");
+    $(".required > select").addClass("required");
+    $(".required > textarea").addClass("required");
+    $(".required > textarea").parent().parent().find('h3').addClass("required");
+    $(".warning > input").addClass("error");
+    $(".warning > select").addClass("error");
+    $(".warning > textarea").addClass("error");
+    $(".required > ul").parent().parent().find('h3').addClass("required");
+  });
+</script>
+{% endblock %}
+{% block extra_style %}
+    {{block.super}}
+    <style type="text/css">
+    li.ctrlHolder div ul.ul-block li {
+        font-weight:bold;color:#8a1f11;display:block;
+        list-style-type:disc;
+    }
+    li.ctrlHolder div ul.ul-block li:before {
+        content: "• ";
+        color: #8a1ff1;
+    }
+    form.form h3 {font-size:18px;margin-bottom:3px;}
+    form.form fieldset ol li.details {background-color:#efefef !important;}
+    </style>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <h1 class="page-header">
+      Approver Form
+    </h1>
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+  <div class="col-lg-8">
+    <div class="panel panel-default">
+      <!-- /.panel-heading -->
+      <div class="panel-body" id="proposals-data-panel">
+        {% include "includes/required_text.html" %}
+        {% include "includes/errors_text.html" %}
+        <form method="post" enctype="multipart/form-data" action="."
+          class="form" id="profile">{% csrf_token %}
+          <fieldset class="blockLabels">
+            <legend>Add an Approver to a Proposal</legend>
+            <ol>
+              {% for field in form.visible_fields %}
+              {% include "form_field.inc.html" %}
+              {% endfor %}
+              {% include "form_submit.inc.html" %}
+            </ol>
+          </fieldset>
+        </form>
+      </div>
+      <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+  </div>
+  <!-- /.col-lg-8 -->
+</div>
+<!-- /.row -->
+{% endblock %}

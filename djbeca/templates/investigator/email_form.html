@@ -1,0 +1,70 @@
+{% extends "proposal/form.html" %}
+{% load get_prof %}
+{% block title %}
+    Email Primary Investigator Form &mdash;
+    Office of Sponsored Programs &mdash;
+    Carthage College
+{% endblock %}
+{% block content %}
+    <h1>Email Primary Investigator</h1>
+    <p>
+        Compose an email to send to:
+        <b>{{p.user.first_name}} {{p.user.last_name}}</b>
+    </p>
+    <h2>{{p.title}}</h2>
+    {% if data %}
+        <div class="notice">
+        <p>
+            If you are satisfied with the content below, click on the
+            "execute" button, and your email will be sent.
+        </p>
+        <p>
+            If you would like to update the content, click on the "edit" button.
+        </p>
+        </div>
+        <div class="buffer" style="background-color:#efefef;">
+        {{data.content}}
+        </div>
+        <form method="post" action="." class="form"
+            id="profile"{% block extra_form_tag %}{% endblock%}>
+        {% csrf_token %}
+        <div style="display:none;">
+        <table>
+        {{form}}
+        </table>
+        </div>
+        <p>
+            <br />
+            <input type="button" name="update" value="Edit"
+                class="button fleft" onclick="javascript:history.go(-1)" />
+            &nbsp;
+            <input type="submit" name="execute" value="Execute"
+                class="button fright" />
+        </p>
+        </form>
+    {% else %}
+        <form method="post" action="." class="form" id="profile">
+            {% csrf_token %}
+            <fieldset class="blockLabels">
+            <ol>
+                <li class="ctrlHolder">
+                    <div class="span-12">
+                    <textarea id="id_content" rows="10" cols="40" name="content"></textarea>
+                    </div>
+                </li>
+            </ol>
+            </fieldset>
+            <fieldset class="btnHolder">
+              <ol>
+                <li>
+                  <label for="id_submit" style="display:none;">Submit</label>
+                  <input id="id_submit" name="confirm" value="Submit" class="button" type="submit">
+                </li>
+              </ol>
+            </fieldset>
+        </form>
+    {% endif %}
+{% endblock %}
+{% block sidebar %}
+    {% include "scholars/side_bar.html" %}
+{% endblock %}

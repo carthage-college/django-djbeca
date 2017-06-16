@@ -9,7 +9,7 @@
 <link href="//www.carthage.edu/themes/shared/css/forms.css"
     rel="stylesheet" type="text/css" />
 <style>
-h4, .h4 {margin-top: 20px; font-weight: 700; }
+h4, .h4 {margin-top: 20px;font-weight: 700;color:darkblue;}
 h5, .h5 { color: #141823; }
 form ol {padding-left:0;}
 li.ctrlHolder div ul li {display:inline; padding-right:3px;}
@@ -143,8 +143,8 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
     <div class="sidebar-collapse">
         <ul class="nav" id="side-menu">
             <li>
-                <a href="{% url 'home' %}">
-                    <i class="fa fa-home fa-fw"></i>
+                <a href="{% url 'home' %}" title="Proposals List">
+                    <i class="fa fa-home fa-fw" aria-hidden="true"></i>
                     {% ifusergroup 'Sponsored Programs' %}All{% else %}
                     {% if dean_chair %}All{% else %}My{% endif %}
                     {% endifusergroup %}
@@ -152,16 +152,25 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
                 </a>
             </li>
             <li>
-                <a href="{% url 'proposal_form' %}">
-                    <i class="fa fa-wpforms fa-fw"></i>
-                    Submit Proposal
+                <a href="{% url 'proposal_form' %}" title="Submit a proposal">
+                  <i class="fa fa-wpforms fa-fw" aria-hidden="true"></i>
+                  Submit Proposal
                 </a>
             </li>
+            {% ifusergroup 'Sponsored Programs' %}
+            <li>
+                <a href="{% url 'proposal_approver_manager' %}"
+                  title="Add an Approver to a proposal">
+                  <i class="fa fa-thumbs-o-up fa-fw" aria-hidden="true"></i>
+                  Approvers
+                </a>
+            </li>
+            {% endifusergroup %}
             {% if user.is_superuser %}
             <li>
-                <a href="{% url 'admin:index' %}">
-                    <i class="fa fa-tachometer fa-fw"></i>
-                    Administration
+                <a href="{% url 'admin:index' %}" title="Administration">
+                  <i class="fa fa-tachometer fa-fw" aria-hidden="true"></i>
+                  Administration
                 </a>
             </li>
             {% endif %}

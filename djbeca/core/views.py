@@ -1,34 +1,39 @@
 from django.conf import settings
 from django.template import RequestContext
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse_lazy
 
-from djbeca.core.models import GenericContact, Proposal
-from djbeca.core.forms import ProposalForm
+from djbeca.core.models import GenericContact, Proposal, ProposalApprover
 from djbeca.core.forms import InstitutionsForm
+from djbeca.core.forms import EmailInvestigatorForm
 from djbeca.core.forms import InvestigatorsForm
 from djbeca.core.forms import ProposalForm
+from djbeca.core.forms import ProposalApproverForm
 
 from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import person_departments
 from djzbar.utils.hr import department_division_chairs
 from djzbar.decorators.auth import portal_auth_required
-from djzbar.utils.informix import do_sql
 
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
+from djtools.fields import NOW
 
-from directory.core import FACSTAFF_ALPHA
+from djauth.LDAPManager import LDAPManager
+
+BCC = settings.MANAGERS
+
 
 @portal_auth_required(
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def home(request):
     user = request.user
-    group = in_group(user,'Office of Sponsored Programs')
+    group = in_group(user,'Sponsored Programs')
     depts = False
     div = False
     dc = None
@@ -62,7 +67,6 @@ def home(request):
 )
 def proposal_form(request, pid=None):
     TO_LIST = [settings.PROPOSAL_EMAIL,]
-    BCC = settings.MANAGERS
 
     institu = None
     investi = None
@@ -192,7 +196,7 @@ def proposal_detail(request, pid):
 
     proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
-    group = in_group(user,'Office of Sponsored Programs')
+    group = in_group(user,'Sponsored Programs')
     dean_chair = department_division_chairs(
         '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
     )
@@ -217,22 +221,92 @@ def proposal_detail(request, pid):
 @portal_auth_required(
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
-def approver_manager(request, pid):
-    group = in_group(user,'Office of Sponsored Programs')
+def proposal_approver(request, pid=0):
+    group = in_group(request.user,'Sponsored Programs')
     if not group:
         return HttpResponseRedirect(
             reverse_lazy('home')
         )
     else:
-        if request.method=='POST':
-            pass
-        else:
-            facstaff = do_sql(FACSTAFF_ALPHA)
+        proposal = None
+        if pid:
             proposal = get_object_or_404(Proposal, id=pid)
+        if request.method=='POST':
+            form = ProposalApproverForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                cid = data['user']
+                try:
+                    user = User.objects.get(id=cid)
+                except:
+                    # create a new user
+                    l = LDAPManager()
+                    luser = l.search(cid)
+                    data = luser[0][1]
+                    password = User.objects.make_random_password(length=24)
+                    user = User.objects.create(
+                        pk=cid, username=data['cn'][0],
+                        email=data['mail'][0], last_login=NOW
+                    )
+                    user.set_password(password)
+                    user.first_name = data['givenName'][0]
+                    user.last_name = data['sn'][0]
+                    user.save()
+
+                approver = ProposalApprover(user=user, proposal=proposal)
+                approver.save()
+
+                return HttpResponseRedirect(
+                    reverse_lazy('proposal_approver_success')
+                )
+        else:
+            form = ProposalApproverForm(initial={'proposal': pid})
 
     return render(
-        request, 'proposal/approvers.html', {
-            'facstaff':facstaff, 'proposal':proposal,
+        request, 'approver/form.html', {
+            'proposal':proposal, 'form':form
         }
     )
 
+
+def email_investigator(request, pid, action):
+    '''
+    send an email to the primary investigator
+    '''
+
+    form_data = None
+    proposal = get_object_or_404(Proposal, id=pid)
+    if request.method=='POST':
+        form = EmailInvestigatorForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            if 'confirm' in request.POST:
+                context = {'form':form,'data':form_data,'p':proposal}
+                return render (
+                    request, 'investigator/email_form.html', context
+                )
+            elif "execute" in request.POST:
+                FEMAIL = request.user.email
+                TO_LIST = [proposal.user.email,]
+                data = {'content':form_data['content']}
+                sub = "[Office of Sponsored Programs] Grant Proposal: {}".format(
+                    proposal.title
+                )
+                send_mail (
+                    request, TO_LIST, sub,
+                    FEMAIL, 'investigator/email_data.html', data, BCC
+                )
+                return HttpResponseRedirect(
+                    reverse_lazy('email_investigator_done')
+                )
+            else:
+                return HttpResponseRedirect(
+                    reverse_lazy('email_investigator_form', args=[pid,action])
+                )
+    else:
+        form = EmailInvestigatorForm()
+
+    return render(
+        request, 'investigator/email_form.html',
+        {'form': form,'data':form_data,"p":proposal,'action':action}
+    )

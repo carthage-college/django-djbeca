@@ -73,6 +73,35 @@ urlpatterns = [
         r'^proposal/(?P<pid>\d+)/update/$',
         views.proposal_form, name='proposal_update'
     ),
+    # Proposal: assign approver
+    url(
+        r'^proposal/(?P<pid>\d+)/approver/$',
+        views.proposal_approver, name='proposal_approver'
+    ),
+    url(
+        r'^proposal/approver/$',
+        views.proposal_approver, name='proposal_approver_manager'
+    ),
+    url(
+        r'^proposal/approver/success/$',
+        TemplateView.as_view(
+            template_name='approver/done.html'
+        ),
+        name='proposal_approver_success'
+    ),
+    # send email to primary investigator
+    url(
+        r'^proposal/email/success/$',
+        TemplateView.as_view(
+            template_name='investigator/email_done.html'
+        ),
+        name='email_investigator_done'
+    ),
+    url(
+        r'^proposal/email/(?P<pid>\d+)/(?P<action>[-\w]+)/$',
+        views.email_investigator, name='email_investigator_form'
+    ),
+    # home dashboard
     url(
         r'^$', views.home, name='home'
     )
