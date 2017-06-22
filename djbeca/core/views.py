@@ -74,9 +74,15 @@ def impact_form(request, pid):
 
     TO_LIST = [settings.PROPOSAL_EMAIL,]
     proposal = get_object_or_404(Proposal, id=pid)
-    impact = proposal.proposal_impact
-    goals = proposal.proposal_goal.all()
-    budget = proposal.proposal_budget
+    try:
+        impact = proposal.proposal_impact
+        budget = proposal.proposal_budget
+    except:
+        impact = budget = None
+    try:
+        goals = proposal.proposal_goal.all()
+    except:
+        goals = None
 
     if request.method=='POST':
         form_impact = ImpactForm(
