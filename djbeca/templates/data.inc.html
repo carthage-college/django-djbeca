@@ -9,8 +9,12 @@
                     aria-hidden="true"></i> /
                   <i class="fa fa-print green" aria-hidden="true"></i></a>
                 </th>
-                <th>Step I</th>
-                <th>Step II</th>
+                <th>
+                  Part A <i class="fa fa-check"></i>
+                </th>
+                <th>
+                  Part B <i class="fa fa-check"></i>
+                </th>
                 <th>
                   Submitted by
                   {% ifusergroup 'Sponsored Programs' %}
@@ -36,9 +40,9 @@
                 title="View proposal">{{p.title}}</a>
             </td>
             <td style="text-align:center;">
-            {% if p.division_approved %}
+            {% if not p.division_approved %}
               <a href="{% url 'proposal_update' p.id %}">
-                  <i class="fa fa-pencil-square-o" title="Update Step I"
+                  <i class="fa fa-pencil-square-o" title="Update Part A"
                     aria-hidden="true"></i>
               </a>
             {% else %}
@@ -46,9 +50,9 @@
             {% endif %}
             </td>
             <td style="text-align:center;">
-            {% if p.division_approved %}
-              <a href="{# url 'impact_form' p.id #}">
-                  <i class="fa fa-pencil-square-o" title="Update Step II"
+            {% if not p.division_approved %}
+              <a href="{% url 'impact_form' p.id %}">
+                  <i class="fa fa-pencil-square-o" title="Update Part B"
                     aria-hidden="true"></i>
               </a>
             {% else %}
@@ -87,8 +91,12 @@
                     aria-hidden="true"></i>
                   <i class="fa fa-print green" aria-hidden="true"></i></a>
                 </th>
-                <th>Step I</th>
-                <th>Step II</th>
+                <th>
+                  Part A <i class="fa fa-check"></i>
+                </th>
+                <th>
+                  Part B <i class="fa fa-check"></i>
+                </th>
                 <th>
                   Submitted by
                   {% ifusergroup 'Sponsored Programs' %}

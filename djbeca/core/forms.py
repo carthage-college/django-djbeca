@@ -3,6 +3,7 @@
 from django import forms
 
 from djbeca.core.models import Proposal, ProposalApprover
+from djbeca.core.models import ProposalBudget, ProposalImpact
 from djbeca.core.choices import *
 
 from djtools.fields import BINARY_CHOICES
@@ -37,9 +38,6 @@ class ProposalForm(forms.ModelForm):
         choices=PROPOSAL_SUBMISSION_METHOD_CHOICES,
         widget=forms.RadioSelect()
     )
-    #grant_deadline_time = KungfuTimeField(
-    #    label="Proposal deadline time"
-    #)
     grant_deadline_time = forms.TimeField(
         label="Proposal deadline time",
         #widget=TimeInput(format='%I:%H %p')
@@ -53,7 +51,7 @@ class ProposalForm(forms.ModelForm):
     )
     # NOTE: "Co-Principal Investigators & Associated Institution"
     # are GenericContact() Foreign Key relationships.
-    # Name, Instituion fields [limit 5]
+    # Name, Institution fields [limit 5]
     partner_institutions = forms.TypedChoiceField(
         label = "Are other institutions involved?",
         choices=BINARY_CHOICES,
@@ -112,101 +110,172 @@ class InvestigatorsForm(forms.Form):
     institution_5 = forms.CharField(required=False)
 
 
-    '''
+class GoalsForm(forms.Form):
+    name_1 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_1 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_2 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_2 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_3 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_3 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_4 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_4 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_5 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_5 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_6 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_6 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_7 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_7 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
+    name_8 = forms.TypedChoiceField(
+        label="Goal Type",
+        choices=PROPOSAL_GOAL_CHOICES,
+        widget=forms.Select(),
+        required=False
+    )
+    description_8 = forms.CharField(
+        label="Description",
+        widget=forms.Textarea,
+        required=False
+    )
 
-    # Institutional Impact
+
+class BudgetForm(forms.ModelForm):
+    cost_match_required = forms.TypedChoiceField(
+        label = "Is a cost share/ match required?",
+        choices=BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+        required=False
+    )
+
+    class Meta:
+        model = ProposalBudget
+        exclude = (
+            'proposal','created_at','updated_at',
+            'level2_approved','level1_approved'
+        )
+
+
+class ImpactForm(forms.ModelForm):
+
     course_release = forms.TypedChoiceField(
-        label = "Require course release or overload?",
+        label = "Does this proposal require course release or overload?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+
+    additional_pay = forms.TypedChoiceField(
+        label = "Does this proposal require additional pay?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    payout_students = forms.TypedChoiceField(
+        label = "Does this proposal require payout to Carthage students?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    new_positions = forms.TypedChoiceField(
+        label = """
+            Does this proposal require the creation of new Carthage positions?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    purchase_equipment = forms.TypedChoiceField(
+        label = """
+            Does this proposal result in the purchase of major equipment,
+            costing over $5,000?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    infrastructure_modifications = forms.TypedChoiceField(
+        label = """
+            Does this proposal require additional office,
+            lab or other facilities or room modifications?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    institutional_review = forms.TypedChoiceField(
+        label = "Does this proposal require review of IRB and/or IACUC?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    institutional_review_date = forms.DateField(
+        label = "If 'Yes', please provide the approval date",
+        required=False
+    )
+    cost_share_match = forms.TypedChoiceField(
+        label = "Does this proposal require cost share/match?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    voluntary_committment = forms.TypedChoiceField(
+        label = "Does this proposal contain any voluntary commitment?",
         choices=BINARY_CHOICES, widget=forms.RadioSelect(),
+        help_text = "e.g. faculty/staff time, cost share/match"
     )
-    grant_submission_requirement = forms.TypedChoiceField(
-        label = """
-            Satisfy the grant submission requirement for time/effort
-            for each Carthage individual involved?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect(),
-    )
-    new_personnel = forms.TypedChoiceField(
-        label = "Require new hires other than students?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect(),
-    )
-    major_equipment = forms.TypedChoiceField(
-        label = "Result in the purchase of major equipment?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    additional_space = forms.TypedChoiceField(
-        label = """
-            Require additional office, lab or other facilities or
-            room modifications?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    technology_support = forms.TypedChoiceField(
-        label = """
-            Involve technology use that will require extensive
-            support from Technology Services?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    # Compliance Requirements
-    students = forms.TypedChoiceField(
-        label = "Invole the use of students?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    patent_confidential = forms.TypedChoiceField(
-        label = """
-            Involve work that may result in a patent or involve
-            proprietary or confidential information?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    human_subjects = forms.TypedChoiceField(
-        label = "Use human subjects?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    human_review_submitted_date = forms.DateField(
-        label = "Date Human Subjects Review Form Submitted",
-        required=False
-    )
-    human_review_approved_date = forms.DateField(
-        label = "Date Human Subjects Review Form Approved",
-        required=False
-    )
-    other_participants = forms.TypedChoiceField(
-        label = """
-            Involve participation and/or subcontrators with other
-            institutions/organizations?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    hazzards = forms.TypedChoiceField(
-        label = """
-            Involve the use of chemical/physical hazards (including toxic or
-            hazardous chemicals, radioactive material, biohazards, pathogens,
-            toxins, recombinant DNA, oncogenic viruses, tumor cells, etc.)?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    international_collaboration = forms.TypedChoiceField(
-        label = """
-            Involve international travel, collaboration, export,
-            international student participation?
-        """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    animal_subjects = forms.TypedChoiceField(
-        label = "Use animal subjects?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    animal_protocol_submitted_date = forms.DateField(
-        label = "Date IACUC Protocol Submitted",
-        required=False
-    )
-    animal_protocol_approved_date = forms.DateField(
-        label = "Date IACUC Protocol Approved",
-        required=False
-    )
-    '''
+
+    class Meta:
+        model = ProposalImpact
+        exclude = (
+            'proposal','created_at','updated_at',
+            'level2_approved','level1_approved'
+        )
 
 
 class ProposalApproverForm(forms.Form):
@@ -240,9 +309,9 @@ class ProposalApproverForm(forms.Form):
         label="Proposal",
         choices=()
     )
-    steps = forms.ChoiceField(
-        label="Steps",
-        choices = PROJECT_STEPS_CHOICES
+    forms = forms.ChoiceField(
+        label="Forms",
+        choices = PROPOSAL_STEPS_CHOICES
     )
 
 

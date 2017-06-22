@@ -14,11 +14,6 @@ handler404 = 'djtools.views.errors.four_oh_four_error'
 handler500 = 'djtools.views.errors.server_error'
 
 urlpatterns = [
-    # Grappelli admin
-    # NOTE: does not work with django 1.11 just yet
-    #url(
-    #    r'^grappelli/', include('grappelli.urls')
-    #),
     # django admin
     url(
         r'^admin/', include(admin.site.urls)
@@ -50,8 +45,9 @@ urlpatterns = [
             template_name='denied.html'
         ), name='access_denied'
     ),
-
-    # Proposal: form A
+    # Proposal: Part A
+    # -------------------------------------------------------------------------
+    # Part A: new submission
     url(
         r'^proposal/$',
         views.proposal_form, name='proposal_form'
@@ -63,17 +59,33 @@ urlpatterns = [
         ),
         name='proposal_success'
     ),
-    # Proposal: detail
+    # Part A: Detail
     url(
         r'^proposal/(?P<pid>\d+)/detail/$',
         views.proposal_detail, name='proposal_detail'
     ),
-    # Proposal: update
+    # Part A: update
     url(
         r'^proposal/(?P<pid>\d+)/update/$',
         views.proposal_form, name='proposal_update'
     ),
-    # Proposal: assign approver
+    # Proposal Impact: Part B
+    # -------------------------------------------------------------------------
+    # Part B: new submission
+    url(
+        r'^proposal/(?P<pid>\d+)/impact/$',
+        views.impact_form, name='impact_form'
+    ),
+    url(
+        r'^proposal/impact/success/$',
+        TemplateView.as_view(
+            template_name='impact/done.html'
+        ),
+        name='impact_success'
+    ),
+    # Manager Dashboard
+    # -------------------------------------------------------------------------
+    # Assign approver to a proposal
     url(
         r'^proposal/(?P<pid>\d+)/approver/$',
         views.proposal_approver, name='proposal_approver'
@@ -89,7 +101,7 @@ urlpatterns = [
         ),
         name='proposal_approver_success'
     ),
-    # send email to primary investigator
+    # Send an email to primary investigator
     url(
         r'^proposal/email/success/$',
         TemplateView.as_view(
@@ -101,7 +113,8 @@ urlpatterns = [
         r'^proposal/email/(?P<pid>\d+)/(?P<action>[-\w]+)/$',
         views.email_investigator, name='email_investigator_form'
     ),
-    # home dashboard
+    # Home dashboard
+    # -------------------------------------------------------------------------
     url(
         r'^$', views.home, name='home'
     )

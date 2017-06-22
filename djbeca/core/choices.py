@@ -33,14 +33,18 @@ TERM_CHOICES = (
     ('Academic Year','Academic Year'),
     ('Both','Both'),
 )
-
-PROJECT_STEPS_CHOICES = (
+PROPOSAL_STEPS_CHOICES = (
     ('','----------'),
-    ('1','Step I'),
-    ('2','Step II'),
-    ('3','Steps I and II')
+    ('1','Part A'),
+    ('2','Part B'),
+    ('3','Parts A and B')
 )
-
+PROPOSAL_GOAL_CHOICES = (
+    ('Goal','Goal'),
+    ('Objective','Objective'),
+    ('Outcome','Outcome'),
+    ('Priority','Priority')
+)
 PROPOSAL_TYPE_CHOICES = (
     (
         'New: never submitted this proposal to this agency before',

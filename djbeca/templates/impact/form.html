@@ -1,0 +1,254 @@
+{% extends "home.html" %}
+{% load livewhale_api %}
+{% block extra_javascript %}
+<script src="//www.carthage.edu/static/vendor/summernote/summernote.min.js"
+  type="text/javascript" charset="utf-8"></script>
+<script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
+  type="text/javascript" charset="utf-8"></script>
+<script src="https://malsup.github.io/min/jquery.blockUI.min.js"
+    type="text/javascript"></script>
+<script type="text/javascript">
+  $(function() {
+    /*$('textarea').summernote({height: 200}); */
+    $(".required > input").addClass("required");
+    $(".required > select").addClass("required");
+    $(".required > textarea").addClass("required");
+    $(".required > textarea").parent().parent().find('h3').addClass("required");
+    $(".warning > input").addClass("error");
+    $(".warning > select").addClass("error");
+    $(".warning > textarea").addClass("error");
+    $(".required > ul").parent().parent().find('h3').addClass("required");
+
+    var copies = {{copies|default:1}};
+    $("#clone").click(function () {
+        if (copies < 8) {
+            copies++;
+            newId = 'doop-' + copies;
+            $('#goal-master').clone().attr('id',newId).appendTo('#duplicates');
+            $('#' + newId).find('select').attr('name','goal-name_' + copies);
+            $('#' + newId).find('textarea').attr('name','goal-description_' + copies);
+            $.growlUI('Goals: ', copies);
+        }else{
+            $.growlUI('Warning', 'Goals Limit: 8');
+        }
+    });
+    $("#destroy").click(function () {
+        if (copies > 1) {
+            delid = 'doop-' + copies;
+            $('#doop-' + copies ).remove();
+            copies--;
+            $.growlUI('Goals: ', copies);
+        }else{
+            $.growlUI('Warning', 'No Goals to delete');
+        }
+    });
+
+    // binary switch to show/hide fields that depend on the value
+    // of the previous question
+    function binarySwitch(val, bswitch, domids, trigger) {
+        if (val == bswitch) {
+            for (index = 0; index < domids.length; ++index) {
+                domids[index].slideDown();
+                trigger.addClass("details");
+            }
+        }else{
+            for (index = 0; index < domids.length; ++index) {
+                domids[index].slideUp();
+                trigger.removeClass("details");
+            }
+        }
+    }
+
+    // Does this proposal require review of IRB and/or IACUC?
+    var $institutional_review = $('#id_impact-institutional_review').closest('li');
+    var $institutional_review_date = $('#id_impact-institutional_review_date').closest('li');
+    {% if form_impact.institutional_review.value != 'Yes' %}
+    $institutional_review_date.slideUp();
+    {% endif %}
+    $('input[name=impact-institutional_review]').click(function (){
+      var domArray = [
+        $institutional_review_date
+      ]
+      binarySwitch($(this).val(), 'Yes', domArray, $institutional_review_date);
+      if ($(this).val() == 'Yes') {
+        $institutional_review_date.find('h3').addClass('required');
+        console.log($(this).val());
+      }else{
+        $institutional_review_date.find('h3').removeClass('required');
+        console.log($(this).val());
+      }
+    })
+
+    // What is Indirect Cost Rate Used?
+    var $indirect_cost_rate = $('#id_budget-indirect_cost_rate').closest('li');
+    var $indirect_cost_rate_other = $('#id_budget-indirect_cost_rate_other').closest('li');
+    {% if form_budget.indirect_cost_rate.value != 'Other' %}
+    $indirect_cost_rate_other.slideUp();
+    {% endif %}
+    $('select[name=budget-indirect_cost_rate]').click(function(){
+      var domArray = [
+        $indirect_cost_rate_other
+      ]
+      binarySwitch($(this).val(), 'Other', domArray, $indirect_cost_rate_other);
+      if (this.value == 'Other') {
+        $('#id_budget-indirect_cost_rate_other').addClass('required');
+      }else{
+        $('#id_budget-indirect_cost_rate_other').removeClass('required');
+      }
+    })
+
+    // jquery datepicker on all fields whose DOM ID
+    // begins with id_ and ends with _date
+    $('[id^=id_][id$=_date]').datepicker({
+        firstDay:1,appendText:'(format yyyy-mm-dd)',
+        changeFirstDay:false,dateFormat:'yy-mm-dd',
+        showOn:'both',
+        buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
+        buttonImageOnly:true
+    });
+  });
+</script>
+{% endblock %}
+{% block extra_style %}
+    {{block.super}}
+    <link href="//www.carthage.edu/static/vendor/jquery/ui/datepicker/css/smoothness/jquery-ui-1.10.4.custom.min.css"
+        rel="stylesheet" type="text/css" />
+    <link href="//www.carthage.edu/static/vendor/summernote/summernote.css"
+        rel="stylesheet" type="text/css" />
+    <style type="text/css">
+    font: .74em Arial, Verdana, sans-serif;text-align: center;
+    line-height: 1.6em;margin: 2.5em 0;}
+    .note-editor{
+        width:500px;background: #fff;
+        border: solid 1px #ccc;
+    }
+    li.ctrlHolder div ul.ul-block li {
+        font-weight:bold;color:#8a1f11;display:block;
+        list-style-type:disc;
+    }
+    li.ctrlHolder div ul.ul-block li:before {
+        content: "• ";
+        color: #8a1ff1;
+    }
+    form.form h3 {font-size:18px;margin-bottom:3px;}
+    form.form fieldset ol li.details {background-color:#efefef !important;}
+    </style>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <h1 class="page-header">
+      Proposal Form: Part B
+    </h1>
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+  <div class="col-lg-8">
+    <div class="panel panel-default">
+      <div class="panel-body" id="proposals-data-panel">
+        {% if form_impact.errors or form_budget.erros %}
+        <p class="error">
+        Please correct the errors below.
+        </p>
+        {% endif %}
+        {% get_lw_content as intro blurbs 2501 %}
+        {{intro.body}}
+        {% include "includes/required_text.html" %}
+        <form method="post" enctype="multipart/form-data" action="."
+          class="form" id="profile">
+        {% csrf_token %}
+        <fieldset class="blockLabels">
+          <legend>Project Goals</legend>
+          <div>
+            Click on the "plus" symbol to add goals, and
+            use the "minus" symbol to remove goals.
+            <div class="ctrlcx">
+              <a href="javascript:void" id="clone"><i class="fa fa-plus-circle fa-lg green" aria-hidden="true"></i></a>
+              <a href="javascript:void" id="destroy"><i class="fa fa-minus-circle fa-lg red" aria-hidden="true"></i></a>
+            </div>
+          </div>
+          <div id="duplicates">
+            <dl class="goals">
+            {% if goals %}
+              {% for g in goals %}
+              <dt>
+                <select name="goal-name_{{forloop.counter}}">
+                  <option value="" selected>----------------</option>
+                  {% for c in goal_choices %}
+                    <option value="{{c}}"{% if g.name == c %} selected{% endif %}>
+                    {{c}}
+                    </option>
+                  {% endfor %}
+                </select>
+              </dt>
+              <dd>
+                <textarea name="goal-description_{{forloop.counter}}">{{g.description}}</textarea>
+              </dd>
+              {% endfor %}
+            {% else %}
+              <dt>
+                <select name="goal-name_1">
+                  <option value="" selected="">----------------</option>
+                  <option value="Goal"> Goal </option>
+                  <option value="Objective"> Objective </option>
+                  <option value="Outcome"> Outcome </option>
+                  <option value="Priority"> Priority </option>
+                </select>
+              </dt>
+              <dd>
+                <textarea name="goal-description_1"></textarea>
+              </dd>
+            {% endif %}
+            </dl>
+          </div>
+        </fieldset>
+        <fieldset class="blockLabels">
+          <legend>Institutional Impacts</legend>
+          <ol>
+          {% for field in form_impact.visible_fields %}
+            {% include "form_field.inc.html" %}
+          {% endfor %}
+          </ol>
+        </fieldset>
+        <fieldset class="blockLabels">
+          <legend>Budget Data</legend>
+          <ol>
+          {% for field in form_budget.visible_fields %}
+            {% if field.name == "year_1" %}
+                <li><h4>Annual Budget Breakout</h4></li>
+            {% endif %}
+            {% include "form_field.inc.html" %}
+            {% if field.name == "cost_match_required" %}
+              {% get_lw_content as help blurbs 2502 %}
+              {{help.body}}
+            {% endif %}
+          {% endfor %}
+          </ol>
+        </fieldset>
+        {% include "form_submit.inc.html" %}
+        </form>
+        <dl class="goals" id="goal-master">
+          <dt>
+            <select name="goal-name">
+              <option value="" selected="">----------------</option>
+                <option value="Goal"> Goal </option>
+                <option value="Objective"> Objective </option>
+                <option value="Outcome"> Outcome </option>
+                <option value="Priority"> Priority </option>
+            </select>
+          </dt>
+          <dd>
+            <textarea name="goal-description"></textarea>
+          </dd>
+        </dl>
+      <div>
+      <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+  </div>
+  <!-- /.col-lg-8 -->
+</div>
+<!-- /.row -->
+{% endblock %}

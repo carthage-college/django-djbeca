@@ -3,7 +3,9 @@ from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 
 from djzbar.utils.hr import department
-from djbeca.core.models import GenericContact, Proposal, ProposalApprover
+from djbeca.core.models import Proposal, ProposalBudget, ProposalContact
+from djbeca.core.models import ProposalGoal, ProposalImpact, ProposalApprover
+
 
 class ProposalAdmin(admin.ModelAdmin):
     list_display = (
@@ -69,7 +71,7 @@ class ProposalAdmin(admin.ModelAdmin):
     """
 
 
-class GenericContactAdmin(admin.ModelAdmin):
+class ProposalContactAdmin(admin.ModelAdmin):
     list_per_page = 500
     raw_id_fields = ('proposal',)
     date_hierarchy = 'created_at'
@@ -82,6 +84,24 @@ class ProposalApproverAdmin(admin.ModelAdmin):
     list_display = ('title','last_name','first_name','email')
 
 
-admin.site.register(GenericContact, GenericContactAdmin)
-admin.site.register(ProposalApprover, ProposalApproverAdmin)
+class ProposalBudgetAdmin(admin.ModelAdmin):
+    list_per_page = 500
+    raw_id_fields = ('proposal',)
+
+
+class ProposalGoalAdmin(admin.ModelAdmin):
+    list_per_page = 500
+    raw_id_fields = ('proposal',)
+
+
+class ProposalImpactAdmin(admin.ModelAdmin):
+    list_per_page = 500
+    raw_id_fields = ('proposal',)
+
+
 admin.site.register(Proposal, ProposalAdmin)
+admin.site.register(ProposalApprover, ProposalApproverAdmin)
+admin.site.register(ProposalBudget, ProposalBudgetAdmin)
+admin.site.register(ProposalContact, ProposalContactAdmin)
+admin.site.register(ProposalGoal, ProposalGoalAdmin)
+admin.site.register(ProposalImpact, ProposalImpactAdmin)

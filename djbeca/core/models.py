@@ -100,7 +100,7 @@ class Proposal(models.Model):
         max_length=12
     )
     # NOTE: "Co-Principal Investigators & Associated Institution"
-    # are GenericContact() Foreign Key relationships.
+    # are ProposalContact() Foreign Key relationships.
     # Name, Instituion fields [limit 5]
     partner_institutions = models.CharField(
         "Are other institutions involved?",
@@ -108,7 +108,7 @@ class Proposal(models.Model):
         choices=BINARY_CHOICES,
     )
     # NOTE: "List all institutions involved"
-    # are GenericContact() FK relationships.
+    # are ProposalContact() FK relationships.
     # Name field [limit 5]
     lead_institution = models.CharField(
         "Is Carthage College the lead institution on this project?",
@@ -208,9 +208,9 @@ class ProposalImpact(models.Model):
     updated_at = models.DateTimeField(
         "Date Updated", auto_now=True
     )
-    proposal = models.ForeignKey(
+    proposal = models.OneToOneField(
         Proposal, editable=False,
-        related_name='proprosal_impact'
+        related_name='proposal_impact'
     )
 
     # status
@@ -280,7 +280,7 @@ class ProposalImpact(models.Model):
         "Does this proposal contain any voluntary commitment?",
         max_length=4,
         choices=BINARY_CHOICES,
-        help_text = "(ex: faculty/staff time, cost share/match)"
+        help_text = "e.g. faculty/staff time, cost share/match"
     )
 
     class Meta:
@@ -303,7 +303,7 @@ class ProposalBudget(models.Model):
     updated_at = models.DateTimeField(
         "Date Updated", auto_now=True
     )
-    proposal = models.ForeignKey(
+    proposal = models.OneToOneField(
         Proposal, editable=False,
         related_name='proposal_budget'
     )
@@ -373,7 +373,7 @@ class ProposalBudget(models.Model):
     cost_match_required = models.CharField(
         "Is a cost share/ match required?",
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=BINARY_CHOICES
     )
 
     class Meta:
@@ -385,49 +385,14 @@ class ProposalBudget(models.Model):
         return 'proposal-budget/'
 
 
-class ProposalApprover(models.Model):
-    '''
-    Additional folks who need to approve a proposal
-    '''
-    user = models.ForeignKey(
-        User,
-        related_name='approver_user'
-    )
-    proposal = models.ForeignKey(
-        Proposal,
-        related_name='approver'
-    )
-    steps = models.CharField(
-        max_length=4,
-        default='0',
-        choices=PROJECT_STEPS_CHOICES
-    )
-    approved = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'core_proposal_approver'
-
-    def first_name(self):
-        return self.user.first_name
-
-    def last_name(self):
-        return self.user.last_name
-
-    def email(self):
-        return self.user.email
-
-    def title(self):
-        return self.proposal.title
-
-
-class GenericContact(models.Model):
+class ProposalContact(models.Model):
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
     )
     proposal = models.ForeignKey(
         Proposal,
         editable=False,
-        related_name='generic_contact'
+        related_name='proposal_contact'
     )
     name = models.CharField(
         max_length=128,
@@ -448,10 +413,10 @@ class GenericContact(models.Model):
         ordering = ['institution']
         #ordering  = ['-created_at']
         get_latest_by = 'created_at'
-        db_table = 'core_generic_contact'
+        db_table = 'core_proposal_contact'
 
     def get_slug(self):
-        return 'generic-contact/'
+        return 'proposal-contact/'
 
     def __unicode__(self):
         return u'{}: {}'.format(self.name, self.institution)
@@ -461,16 +426,18 @@ class ProposalGoal(models.Model):
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
     )
-    proposal_impact = models.ForeignKey(
-        ProposalImpact,
+    proposal = models.ForeignKey(
+        Proposal,
         editable=False,
         related_name='proposal_goal'
     )
     name = models.CharField(
         max_length=128,
-        null=True, blank=True
+        null=True, blank=True,
+        choices=PROPOSAL_GOAL_CHOICES
     )
     description = models.TextField(
+        null=True, blank=True,
         help_text="~200 words"
     )
 
@@ -492,3 +459,37 @@ class ProposalGoal(models.Model):
     def __unicode__(self):
         return u'{}'.format(self.name)
 
+
+class ProposalApprover(models.Model):
+    '''
+    Additional folks who need to approve a proposal
+    '''
+    user = models.ForeignKey(
+        User,
+        related_name='approver_user'
+    )
+    proposal = models.ForeignKey(
+        Proposal,
+        related_name='approver'
+    )
+    steps = models.CharField(
+        max_length=4,
+        default='0',
+        choices=PROPOSAL_STEPS_CHOICES
+    )
+    approved = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'core_proposal_approver'
+
+    def first_name(self):
+        return self.user.first_name
+
+    def last_name(self):
+        return self.user.last_name
+
+    def email(self):
+        return self.user.email
+
+    def title(self):
+        return self.proposal.title

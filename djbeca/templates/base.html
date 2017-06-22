@@ -1,7 +1,7 @@
 {% extends "djdash/base.html" %}
 {% load ifusergroup %}
 {% block title %}
-    Carthage College Proposal Routing Form &mdash;
+    Carthage College Grant Proposal Application &mdash;
     Office of Sponsored Programs &mdash;
     Carthage College
 {% endblock %}
@@ -9,6 +9,7 @@
 <link href="//www.carthage.edu/themes/shared/css/forms.css"
     rel="stylesheet" type="text/css" />
 <style>
+.panel-body h2{background-color: #5594b9;color: white;padding: 4px;}
 h4, .h4 {margin-top: 20px;font-weight: 700;color:darkblue;}
 h5, .h5 { color: #141823; }
 form ol {padding-left:0;}
@@ -27,7 +28,7 @@ color:#800; font-family: 'FontAwesome';content: "\f05e"; }
 
 #proposal-detail :checked + label:before {
 color:#080;font-family: 'FontAwesome';content: "\f00c"; }
-#proposal-detail input {display: none;}
+#proposal-detail input, #goal-master {display: none;}
 #proposal-detail h3 {margin-top:0; border-bottom: 1px dotted #000; }
 #proposal-detail h4{ display:inline;}
 #proposal-detail .panel-body {padding-top:0;}
@@ -43,6 +44,11 @@ dl dt {
 dl dd {
     margin: 2px 0 2px 5px;
 }
+dl.goals {width:100%;margin-bottom:0;}
+dl.goals dt {background-color:transparent;width:25%;}
+dl.goals dd {width:65%;float:left;}
+dl.goals dt select {width:80%;}
+dl.goals dd textarea {width:100%;height:80px;}
 .dashintro {padding-top:20px;}
 .green { font-weight:bold; color:green; }
 .table-hover > tbody > tr:hover > td.minor { background-color: #ccf; }
@@ -52,6 +58,7 @@ dl dd {
 .red {color:#800;}
 .green {color:#080;}
 .detail {font-weight:bold;text-decoration:underline;padding-top:12px;}
+.header {font-weight:bold;margin-left:8px;}
 div.DTTT {
 float: right;
 margin-bottom: 1em;
@@ -65,6 +72,15 @@ position: relative;
 .ui-dialog{z-index:10010 !important;}
 .ui-dialog-content {padding:7px;}
 .ui-dialog-titlebar{padding:3px;}
+.ctrlcx {width:36px;float:right;}
+div.growlUI {
+    background: url(//www.carthage.edu/assets/img/ico/information.png) no-repeat 10px 10px;
+    height:90px;
+}
+div.growlUI h1, div.growlUI h2 {
+    font-size: 1.4em; color: white;
+    padding: 5px 5px 5px 75px; text-align: left
+}
 div.growlUI { background: url(//www.carthage.edu/themes/shared/img/ico/check48.png) no-repeat 10px 10px; margin-top:60px; }
 div.growlUI h1, div.growlUI h2 {
 color: white; padding: 5px 5px 5px 75px; text-align: left;
