@@ -12,7 +12,7 @@
         title="Add Approver to this proposal">
         <i class="fa fa-thumbs-o-up green" aria-hidden="true"
           title="Add Approver to this proposal"></i></a> |
-      <a href="#">
+      <a href="{% url 'email_investigator_form' proposal.id 'email' %}">
         <i class="fa fa-envelope green" aria-hidden="true"
           title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i>
       </a>
@@ -166,20 +166,18 @@
           Funding Plan
         </h4>
         <div>{{proposal.funding_plan}}</div>
+        {% ifusergroup 'Sponsored Programs' %}
         <h4>
           Status
         </h4>
-
         <h5 class="detail">
           Approvers
         </h5>
-        <!-- fin -->
         <ol>
         {% for a in proposal.approver.all %}
           {{a.user.last_name}}, {{a.user.first_name}}
         {% endfor %}
         </ol>
-
         <dl class="clear dl-horizontal">
           <dt>Approvers</dt>
           <dd>
@@ -206,6 +204,7 @@
           {% endif %}
           </dd>
         </dl>
+        {% endifusergroup %}
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
@@ -218,6 +217,75 @@
     <div class="panel panel-default">
       <div class="panel-body">
         <h2>Part B</h2>
+        <h3 class="detail">
+          Project Goals
+        </h3>
+        {% for g in proposal.proposal_goal.all %}
+          <h4>{{g.name}}</h4>
+          <p>{{g.description}}</p>
+        {% endfor %}
+        </dl>
+        <h3 class="detail">
+          Institutional Impacts
+        </h3>
+        <div>
+          <h4>Does this proposal require course release or overload?</h4>
+          <h5>{{proposal.proposal_impact.course_release}}</h5>
+          <h4>Does this proposal require additional pay?</h4>
+          <h5>{{proposal.proposal_impact.additional_pay}}</h5>
+          <h4>Does this proposal require payout to Carthage students?</h4>
+          <h5>{{proposal.proposal_impact.payout_students}}</h5>
+          <h4>Does this proposal require the creation of new Carthage positions?</h4>
+          <h5>{{proposal.proposal_impact.new_positions}}</h5>
+          <h4>Does this proposal result in the purchase of major equipment, costing over $5,000?</h4>
+          <h5>{{proposal.proposal_impact.purchase_equipment}}</h5>
+          <h4>Does this proposal require additional office, lab or other facilities or room modifications?</h4>
+          <h5>{{proposal.proposal_impact.infrastructure_modifications}}</h5>
+          <h4>Does this proposal require review of IRB and/or IACUC?</h4>
+          <h5>{{proposal.proposal_impact.institutional_review}}</h5>
+          {% if proposal.proposal_impact.institutional_review == 'Yes' %}
+          <h4>If 'Yes', please provide the approval date</h4>
+          <h5>{{proposal.proposal_impact.institutional_review_date}}</h5>
+          {% endif %}
+          <h4>Does this proposal require cost share/match?</h4>
+          <h5>{{proposal.proposal_impact.cost_share_match}}</h5>
+          <h4>Does this proposal contain any voluntary commitment?</h4>
+          <h5>{{proposal.proposal_impact.voluntary_committment}}</h5>
+        </div>
+        <h3 class="detail">
+          Budget Data
+        </h3>
+        <div>
+          <h4>Completed budget</h4>
+          <h5>{{proposal.proposal_budget.document}}
+          <h4>Budget Overview/Narrative</h4>
+          <div>{{proposal.proposal_budget.overview}}</div>
+          <h4>Total budget request</h4>
+          <h5>{{proposal.proposal_budget.total}}</h5>
+          <h4>Annual Budget Breakout</h4>
+          <dl>
+            <dt>Year 1</dt>
+            <dd>{{proposal.proposal_budget.year_1}}</dd>
+            <dt>Year 2</dt>
+            <dd>{{proposal.proposal_budget.year_2}}</dd>
+            <dt>Year 3</dt>
+            <dd>{{proposal.proposal_budget.year_3}}</dd>
+            <dt>Year 4</dt>
+            <dd>{{proposal.proposal_budget.year_4}}</dd>
+            <dt>Year 5</dt>
+            <dd>{{proposal.proposal_budget.year_5}}</dd>
+          </dl>
+          <h4>Total Indirect Costs Requested</h4>
+          <h5>{{proposal.proposal_budget.indirect_cost}}</h5>
+          <h4>What is Indirect Cost Rate Used?</h4>
+          <h5>{{proposal.proposal_budget.indirect_cost_rate}}</h5>
+          {% if proposal.proposal_budget.indirect_cost_rate == 'Other' %}
+          <h4>If 'Other', please specify the rate</h4>
+          {% endif %}
+          <h5>{{proposal.proposal_budget.indirect_cost_rate_other}}</h5>
+          <h4>Is a cost share/ match required?</h4>
+          <h5>{{proposal.proposal_budget.cost_match_required}}</h5>
+        </div>
         <!-- fin -->
       </div>
       <!-- /.panel-body -->

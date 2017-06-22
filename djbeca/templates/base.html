@@ -58,7 +58,7 @@ dl.goals dd textarea {width:100%;height:80px;}
 .red {color:#800;}
 .green {color:#080;}
 .detail {font-weight:bold;text-decoration:underline;padding-top:12px;}
-.header {font-weight:bold;margin-left:8px;}
+.header {font-weight:bold;padding:4px 0 4px 4px;background-color:aliceblue !important;}
 div.DTTT {
 float: right;
 margin-bottom: 1em;
@@ -110,6 +110,9 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 .navbar-static-side { width: 170px; }
 @media (min-width: 768px) {
     #page-wrapper { margin: 0 0 0 170px; }
+}
+@media print {
+#page-wrapper{margin:0;}
 }
 </style>
 {% endblock %}
