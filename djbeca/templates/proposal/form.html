@@ -223,9 +223,6 @@
         <form method="post" enctype="multipart/form-data" action="."
           class="form" id="profile">
         {% csrf_token %}
-        {% for field in form.hidden_fields %}
-          {% include "form_field.inc.html" %}
-        {% endfor %}
         <fieldset class="blockLabels">
           <legend>Basic Proposal Elements</legend>
           <ol>
