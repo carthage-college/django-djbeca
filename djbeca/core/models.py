@@ -69,26 +69,6 @@ class Proposal(models.Model):
         "Proposal Deadline Time",
         #input_formats=('%I:%H %p',)
     )
-    proposal_submission_entity = models.CharField(
-        "Who is required to submit the final submission?",
-        max_length=128,
-        choices=PROPOSAL_SUBMISSION_ENTITY_CHOICES
-    )
-    proposal_submission_entity_other = models.CharField(
-        "If 'Other', please list names",
-        max_length=128,
-        null=True,blank=True
-    )
-    proposal_submission_method = models.CharField(
-        "How is the proposal to be submitted?",
-        max_length=128,
-        choices=PROPOSAL_SUBMISSION_METHOD_CHOICES,
-    )
-    proposal_submission_method_other = models.CharField(
-        "If 'Other', please provide details",
-        max_length=128,
-        null=True,blank=True
-    )
     # Investigator Information
     # NOTE: we have name, email, ID from user profile data
     phone = models.CharField(
@@ -155,13 +135,6 @@ class Proposal(models.Model):
         "Total Budget Request",
         max_length=16,
         help_text="List the total amount budgeted for this project"
-    )
-    funding_total = models.CharField(
-        """
-            List the total amount of funding you intend
-            to request through this proposal
-        """,
-        max_length=16,
     )
     funding_plan = models.TextField(
         "Funding Plan (~250 words)",
@@ -307,52 +280,18 @@ class ProposalBudget(models.Model):
         Proposal, editable=False,
         related_name='proposal_budget'
     )
-    # core
-    document = models.FileField(
-        "Completed budget",
-        upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
-        max_length=768,
-        help_text="PDF format"
-    )
-    overview = models.TextField(
-        "Budget Overview/Narrative",
-        help_text="~1000 words",
-        null=True,blank=True
-    )
+    # Costs and totals
     total = models.CharField(
         "Total budget request",
         max_length=16,
         help_text="List the total amount budgeted for this project",
         null=True,blank=True
     )
-    # Annual Budget Breakout
-    year_1 = models.CharField(
-        "Year 1",
+    cost_match_amount = models.CharField(
+        "Total Cost Share / Match Amount",
         max_length=16,
         null=True,blank=True
     )
-    year_2 = models.CharField(
-        "Year 2",
-        max_length=16,
-        null=True,blank=True
-    )
-    year_3 = models.CharField(
-        "Year 3",
-        max_length=16,
-        null=True,blank=True
-    )
-    year_4 = models.CharField(
-        "Year 4",
-        max_length=16,
-        null=True,blank=True
-    )
-    year_5 = models.CharField(
-        "Year 5",
-        max_length=16,
-        null=True,blank=True
-    )
-    # indirect costs
     indirect_cost = models.CharField(
         "Total Indirect Costs Requested",
         max_length=16,
@@ -369,11 +308,21 @@ class ProposalBudget(models.Model):
         max_length=128,
         null=True,blank=True
     )
-    # Cost Share / Match
-    cost_match_required = models.CharField(
-        "Is a cost share/ match required?",
-        max_length=4,
-        choices=BINARY_CHOICES
+    # Files
+    document = models.FileField(
+        "Final Budget for Review",
+        upload_to=upload_to_path,
+        #validators=[MimetypeValidator('application/pdf')],
+        max_length=768,
+        help_text="PDF format"
+    )
+    overview = models.FileField(
+        "Final Budget Justification for Review",
+        upload_to=upload_to_path,
+        #validators=[MimetypeValidator('application/pdf')],
+        max_length=768,
+        help_text="PDF format",
+        null=True,blank=True
     )
 
     class Meta:
