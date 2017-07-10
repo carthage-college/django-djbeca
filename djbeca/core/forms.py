@@ -28,16 +28,6 @@ class ProposalForm(forms.ModelForm):
         self.fields['department'].choices = department_choices
 
     # Basic Proposal Elements
-    proposal_submission_entity = forms.TypedChoiceField(
-        label = "Who is required to submit the final submission?",
-        choices=PROPOSAL_SUBMISSION_ENTITY_CHOICES,
-        widget=forms.RadioSelect()
-    )
-    proposal_submission_method = forms.TypedChoiceField(
-        label = "How is the proposal to be submitted?",
-        choices=PROPOSAL_SUBMISSION_METHOD_CHOICES,
-        widget=forms.RadioSelect()
-    )
     grant_deadline_time = forms.TimeField(
         label="Proposal deadline time",
         #widget=TimeInput(format='%I:%H %p')
@@ -202,12 +192,6 @@ class GoalsForm(forms.Form):
 
 
 class BudgetForm(forms.ModelForm):
-    cost_match_required = forms.TypedChoiceField(
-        label = "Is a cost share/ match required?",
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-        required=False
-    )
 
     class Meta:
         model = ProposalBudget
