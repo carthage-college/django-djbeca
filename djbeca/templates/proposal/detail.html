@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load ifusergroup %}
+{% load humanize %}
 {% block content %}
 <div class="row">
   <div class="col-lg-12">
@@ -57,18 +58,6 @@
           {{proposal.grant_deadline_date}}
           {{proposal.grant_deadline_time}}
         </h5>
-        <h4>Who is required to submit the final submission?</h4>
-        <h5>{{proposal.proposal_submission_entity}}</h5>
-        {% if proposal.proposal_submission_entity_other %}
-        <h4>If 'Other', please list names</h4>
-        <h5>{{proposal.proposal_submission_entity_other}}</h5>
-        {% endif %}
-        <h4>How is the proposal to be submitted?</h4>
-        <h5>{{proposal.proposal_submission_method}}</h5>
-        {% if proposal.proposal_submission_method_other %}
-        <h4>If 'Other', please provide details</h4>
-        <h5>{{proposal.proposal_submission_method_other}}</h5>
-        {% endif %}
         <h3 class="clear detail">
           Investigator Information
         </h3>
@@ -157,14 +146,7 @@
           Total Budget Request
         </h4>
         <h5>
-          {{proposal.budget_total}}
-        </h5>
-        <h4>
-          List the total amount of funding you intend
-          to request through this proposal
-        </h4>
-        <h5>
-          {{proposal.funding_total}}
+          ${{proposal.budget_total|intcomma}}
         </h5>
         <h4>
           Funding Plan
@@ -222,13 +204,29 @@
       <div class="panel-body">
         <h2>Part B</h2>
         <h3 class="detail">
-          Project Goals
+          Budget Data
         </h3>
-        {% for g in proposal.proposal_goal.all %}
-          <h4>{{g.name}}</h4>
-          <p>{{g.description}}</p>
-        {% endfor %}
-        </dl>
+        <div>
+          <h4>Total budget request</h4>
+          <h5>${{proposal.proposal_budget.total|intcomma}}</h5>
+          <h4>Total Cost Share / Match Amount</h4>
+          <h5>${{proposal.proposal_budget.cost_match_amount|intcomma}}</h5>
+          <h4>Total Indirect Costs Requested</h4>
+          <h5>${{proposal.proposal_budget.indirect_cost|intcomma}}</h5>
+          <h4>What is Indirect Cost Rate Used?</h4>
+          <h5>{{proposal.proposal_budget.indirect_cost_rate}}</h5>
+          {% if proposal.proposal_budget.indirect_cost_rate == 'Other' %}
+          <h4>If 'Other', please specify the rate</h4>
+          {% endif %}
+          <h5>{{proposal.proposal_budget.indirect_cost_rate_other}}</h5>
+          <h4>Completed budget</h4>
+          <h5>
+            <a href="https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.document}}">
+            https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.document}}</a>
+          </h5>
+          <h4>Budget Overview/Narrative</h4>
+          <div>{{proposal.proposal_budget.overview}}</div>
+        </div>
         <h3 class="detail">
           Institutional Impacts
         </h3>
@@ -239,11 +237,19 @@
           <h5>{{proposal.proposal_impact.additional_pay}}</h5>
           <h4>Does this proposal require payout to Carthage students?</h4>
           <h5>{{proposal.proposal_impact.payout_students}}</h5>
-          <h4>Does this proposal require the creation of new Carthage positions?</h4>
+          <h4>
+            Does this proposal require the creation of new Carthage positions?
+          </h4>
           <h5>{{proposal.proposal_impact.new_positions}}</h5>
-          <h4>Does this proposal result in the purchase of major equipment, costing over $5,000?</h4>
+          <h4>
+            Does this proposal result in the purchase of major equipment,
+            costing over $5,000?
+          </h4>
           <h5>{{proposal.proposal_impact.purchase_equipment}}</h5>
-          <h4>Does this proposal require additional office, lab or other facilities or room modifications?</h4>
+          <h4>
+            Does this proposal require additional office,
+            lab or other facilities or room modifications?
+          </h4>
           <h5>{{proposal.proposal_impact.infrastructure_modifications}}</h5>
           <h4>Does this proposal require review of IRB and/or IACUC?</h4>
           <h5>{{proposal.proposal_impact.institutional_review}}</h5>
@@ -257,39 +263,13 @@
           <h5>{{proposal.proposal_impact.voluntary_committment}}</h5>
         </div>
         <h3 class="detail">
-          Budget Data
+          Project Goals
         </h3>
-        <div>
-          <h4>Completed budget</h4>
-          <h5>{{proposal.proposal_budget.document}}
-          <h4>Budget Overview/Narrative</h4>
-          <div>{{proposal.proposal_budget.overview}}</div>
-          <h4>Total budget request</h4>
-          <h5>{{proposal.proposal_budget.total}}</h5>
-          <h4>Annual Budget Breakout</h4>
-          <dl>
-            <dt>Year 1</dt>
-            <dd>{{proposal.proposal_budget.year_1|default:"&nbsp;"}}</dd>
-            <dt>Year 2</dt>
-            <dd>{{proposal.proposal_budget.year_2|default:"&nbsp;"}}</dd>
-            <dt>Year 3</dt>
-            <dd>{{proposal.proposal_budget.year_3|default:"&nbsp;"}}</dd>
-            <dt>Year 4</dt>
-            <dd>{{proposal.proposal_budget.year_4|default:"&nbsp;"}}</dd>
-            <dt>Year 5</dt>
-            <dd>{{proposal.proposal_budget.year_5|default:"&nbsp;"}}</dd>
-          </dl>
-          <h4>Total Indirect Costs Requested</h4>
-          <h5>{{proposal.proposal_budget.indirect_cost}}</h5>
-          <h4>What is Indirect Cost Rate Used?</h4>
-          <h5>{{proposal.proposal_budget.indirect_cost_rate}}</h5>
-          {% if proposal.proposal_budget.indirect_cost_rate == 'Other' %}
-          <h4>If 'Other', please specify the rate</h4>
-          {% endif %}
-          <h5>{{proposal.proposal_budget.indirect_cost_rate_other}}</h5>
-          <h4>Is a cost share/ match required?</h4>
-          <h5>{{proposal.proposal_budget.cost_match_required}}</h5>
-        </div>
+        {% for g in proposal.proposal_goal.all %}
+          <h4>{{g.name}}</h4>
+          <p>{{g.description}}</p>
+        {% endfor %}
+        </dl>
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
