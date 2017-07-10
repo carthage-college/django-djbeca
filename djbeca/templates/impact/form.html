@@ -160,6 +160,26 @@
           class="form" id="profile">
         {% csrf_token %}
         <fieldset class="blockLabels">
+          <legend>Budget Data</legend>
+          <ol>
+          {% for field in form_budget.visible_fields %}
+            {% include "form_field.inc.html" %}
+            {% if field.name == "cost_match_amount" %}
+              {% get_lw_content as help blurbs 2502 %}
+              {{help.body}}
+            {% endif %}
+          {% endfor %}
+          </ol>
+        </fieldset>
+        <fieldset class="blockLabels">
+          <legend>Institutional Impacts</legend>
+          <ol>
+          {% for field in form_impact.visible_fields %}
+            {% include "form_field.inc.html" %}
+          {% endfor %}
+          </ol>
+        </fieldset>
+        <fieldset class="blockLabels">
           <legend>Project Goals</legend>
           <div>
             Click on the "plus" symbol to add goals, and
@@ -203,29 +223,6 @@
             {% endif %}
             </dl>
           </div>
-        </fieldset>
-        <fieldset class="blockLabels">
-          <legend>Institutional Impacts</legend>
-          <ol>
-          {% for field in form_impact.visible_fields %}
-            {% include "form_field.inc.html" %}
-          {% endfor %}
-          </ol>
-        </fieldset>
-        <fieldset class="blockLabels">
-          <legend>Budget Data</legend>
-          <ol>
-          {% for field in form_budget.visible_fields %}
-            {% if field.name == "year_1" %}
-                <li><h4>Annual Budget Breakout</h4></li>
-            {% endif %}
-            {% include "form_field.inc.html" %}
-            {% if field.name == "cost_match_required" %}
-              {% get_lw_content as help blurbs 2502 %}
-              {{help.body}}
-            {% endif %}
-          {% endfor %}
-          </ol>
         </fieldset>
         {% include "form_submit.inc.html" %}
         </form>
