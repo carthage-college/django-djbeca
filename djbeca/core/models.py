@@ -309,14 +309,14 @@ class ProposalBudget(models.Model):
         null=True,blank=True
     )
     # Files
-    document = models.FileField(
+    budget_final = models.FileField(
         "Final Budget for Review",
         upload_to=upload_to_path,
         #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format"
     )
-    overview = models.FileField(
+    budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
         upload_to=upload_to_path,
         #validators=[MimetypeValidator('application/pdf')],
