@@ -219,13 +219,24 @@
           <h4>If 'Other', please specify the rate</h4>
           {% endif %}
           <h5>{{proposal.proposal_budget.indirect_cost_rate_other}}</h5>
-          <h4>Completed budget</h4>
+          <h4>Final Budget for Review</h4>
           <h5>
-            <a href="https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.document}}">
-            https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.document}}</a>
+            {% if proposal.proposal_budget.budget_final %}
+            <a href="https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_final}}">
+            https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_final}}</a>
+            {% else %}
+            Missing
+            {% endif %}
           </h5>
-          <h4>Budget Overview/Narrative</h4>
-          <div>{{proposal.proposal_budget.overview}}</div>
+          <h4>Final Budget Justification for Review</h4>
+          <h5>
+            {% if proposal.proposal_budget.budget_justification_final %}
+            <a href="https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_justification_final}}">
+            https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_justification_final}}</a>
+            {% else %}
+            Missing
+            {% endif %}
+          </h5>
         </div>
         <h3 class="detail">
           Institutional Impacts
