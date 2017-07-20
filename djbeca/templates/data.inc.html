@@ -3,6 +3,7 @@
     <table class="table table-striped table-bordered table-hover dataTable display proposals-data">
         <thead>
             <tr>
+                <th>Deadline Date</th>
                 <th>
                   Title
                   <i class="fa fa-eye green" title="View Proposal"
@@ -22,19 +23,12 @@
                     title="Send email to primary investigator"></i>
                   {% endifusergroup %}
                 </th>
-                <th>
-                  Department
-                  {% ifusergroup 'Sponsored Programs' %}
-                  <i class="fa fa-thumbs-o-up green" aria-hidden="true"
-                    title="Add Approver to this proposal"></i>
-                  {% endifusergroup %}
-                </th>
-                <th>Creation Date</th>
             </tr>
         </thead>
         <tbody>
         {% for p in proposals %}
           <tr>
+            <td>{{p.grant_deadline_date}} {{p.grant_deadline_time}}</td>
             <td>
               <a href="{% url 'proposal_detail' p.id %}"
                 title="View proposal">{{p.title}}</a>
@@ -69,22 +63,12 @@
               {{p.user.last_name}}, {{p.user.first_name}}
               {% endifusergroup %}
             </td>
-            <td>
-              {% ifusergroup 'Sponsored Programs' %}
-              <a href="{% url 'proposal_approver' p.id %}"
-                title="Add Approver to this proposal">
-                {{p.department}}
-              </a>
-              {% else %}
-                {{p.department}}
-              {% endifusergroup %}
-            </td>
-            <td>{{p.created_at}}</td>
           </tr>
         {% endfor %}
         </tbody>
         <tfoot>
             <tr>
+                <th>Deadline Date</th>
                 <th>
                   Title
                   <i class="fa fa-eye green" title="View Proposal"
@@ -104,14 +88,6 @@
                     title="Send email to proposal owner"></i>
                   {% endifusergroup %}
                 </th>
-                <th>
-                  Department
-                  {% ifusergroup 'Sponsored Programs' %}
-                  <i class="fa fa-thumbs-o-up green" aria-hidden="true"
-                    title="Add Approver to this proposal"></i>
-                  {% endifusergroup %}
-                </th>
-                <th>Creation Date</th>
             </tr>
         </tfoot>
     </table>
