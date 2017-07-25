@@ -10,6 +10,7 @@
     rel="stylesheet" type="text/css" />
 <style>
 .panel-body h2{background-color: #5594b9;color: white;padding: 4px;}
+h3.h3 {border-bottom: 1px solid black;margin-top: 0;padding-bottom:3px;}
 h4, .h4 {margin-top: 20px;font-weight: 700;color:darkblue;}
 h5, .h5 { color: #141823; }
 form ol {padding-left:0;}
@@ -113,6 +114,7 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 }
 @media print {
 #page-wrapper{margin:0;}
+.update-icon{display:none;}
 }
 </style>
 {% endblock %}
@@ -206,12 +208,14 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 <script src="//www.carthage.edu/static/vendor/dashboard/js/plugins/dataTables/dataTables.bootstrap.js"></script>
 <script>
 $(function() {
+  /*
   var table = $('.proposals-data').dataTable({
     "lengthMenu": [
       [30, 60, 90, 200, 500, -1],
       [30, 60, 90, 200, 500]
     ]
   });
+  */
   $(".required > input").addClass("required");
   $(".required > select").addClass("required");
   $(".required > textarea").addClass("required");

@@ -6,14 +6,16 @@
   <div class="col-lg-12">
     <h1 class="page-header">
       Proposal Detail
-      <a href="#" id="print" title="Print to paper or PDF">
-        <i class="fa fa-print green" aria-hidden="true"></i></a>
+      <a href="#" id="print" class="no-print-icon">
+        <i class="fa fa-print green" aria-hidden="true"
+          title="Print to paper or PDF"></i></a>
       {% ifusergroup 'Sponsored Programs' %}|
       <a href="{% url 'proposal_approver' proposal.id %}"
-        title="Add Approver to this proposal">
+        class="no-print-icon">
         <i class="fa fa-thumbs-o-up green" aria-hidden="true"
           title="Add Approver to this proposal"></i></a> |
-      <a href="{% url 'email_investigator_form' proposal.id 'email' %}">
+      <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
+        class="no-print-icon">
         <i class="fa fa-envelope green" aria-hidden="true"
           title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i>
       </a>
@@ -23,6 +25,78 @@
   <!-- /.col-lg-12 -->
 </div>
 <!-- /.row -->
+{% ifusergroup 'Sponsored Programs' %}
+<div class="row">
+  <div class="col-lg-6">
+    <h3 class="h3">Status</h3>
+    <dl class="clear dl-horizontal">
+      <dt style="background-color:transparent !important;">&nbsp;</dt>
+      <dd><b>A | B</b></dd>
+      <dt>Approvers</dt>
+      <dd>
+      {% if proposal.approvers_approved %}
+        <i class="fa fa-check green"></i>
+      {% else %}
+        <i class="fa fa-times red"></i>
+      {% endif %}
+      </dd>
+      <dt>Division</dt>
+      <dd>
+      {% if proposal.division_approved %}
+        <i class="fa fa-check green"></i>
+      {% else %}
+        <i class="fa fa-times red"></i>
+      {% endif %}
+      </dd>
+      <dt>Provost</dt>
+      <dd>
+      {% if proposal.provost_approved %}
+        <i class="fa fa-check green"></i>
+      {% else %}
+        <i class="fa fa-times red"></i>
+      {% endif %}
+      </dd>
+    </dl>
+  </div>
+  <!-- /.col-lg-6 -->
+  <div class="col-lg-6">
+    {% if proposal.approver %}
+      <h3 class="h3">Approvers</h3>
+      <dl>
+        <dt style="background-color:transparent !important;">&nbsp;</dt>
+        <dd><b>A | B</b></dd>
+        {% for a in proposal.approver.all %}
+          <dt>{{a.user.last_name}}, {{a.user.first_name}}</dt>
+          <dd>
+            {% if a.steps == '1' or a.steps == '3' %}
+              {% if a.approved_1 %}
+              <i class="fa fa-check green" title="Form A"></i>
+              {% else %}
+              <i class="fa fa-times red" title="Form A"></i>
+              {% endif %}
+            {% endif %}
+            {% if a.steps == '2' or a.steps == '3' %}
+              {% if a.steps == '3' %}|{% endif %}
+              {% if a.approved_2 %}
+              <i class="fa fa-check green" title="Form B"></i>
+          {% if request.user.id == proposal.user.id %}
+          <a href="{% url 'proposal_update' proposal.id %}"
+            style="float:right;color:#fff">
+            <i class="fa fa-pencil" aria-hidden="true"></i></a>
+          {% endif %}
+              {% else %}
+              <i class="fa fa-times red" title="Form B"></i>
+              {% endif %}
+            {% endif %}
+          </dd>
+        {% endfor %}
+      </dl>
+    {% endif %}
+  </div>
+  <!-- /.col-lg-6 -->
+</div>
+<!-- /.row -->
+{% endifusergroup %}
 <div class="row">
   {% if proposal.proposal_impact %}
   <div class="col-lg-6">
@@ -31,7 +105,15 @@
   {% endif %}
     <div class="panel panel-default">
       <div class="panel-body">
-        <h2>Part A</h2>
+        <h2>
+          Form A
+          {% if request.user.id == proposal.user.id %}
+          <a href="{% url 'proposal_update' proposal.id %}"
+            class="no-print-icon" style="float:right;color:#fff">
+            <i class="fa fa-pencil" aria-hidden="true"
+              title="Update Form A"></i></a>
+          {% endif %}
+        </h2>
         <h3 class="detail">
           Basic Proposal Elements
         </h3>
@@ -68,10 +150,6 @@
               {{proposal.user.last_name}},
               {{proposal.user.first_name}}
             </a>
-          </dd>
-          <dt>Phone</dt>
-          <dd>
-            <a href="tel:{{proposal.phonel}}">{{proposal.phone}}</a>
           </dd>
           <dt>Department</dt>
           <dd>
@@ -152,45 +230,6 @@
           Funding Plan
         </h4>
         <div>{{proposal.funding_plan}}</div>
-        {% ifusergroup 'Sponsored Programs' %}
-        <h4>
-          Status
-        </h4>
-        <h5 class="detail">
-          Approvers
-        </h5>
-        <ol>
-        {% for a in proposal.approver.all %}
-          {{a.user.last_name}}, {{a.user.first_name}}
-        {% endfor %}
-        </ol>
-        <dl class="clear dl-horizontal">
-          <dt>Approvers</dt>
-          <dd>
-          {% if proposal.approvers_approved %}
-            <i class="fa fa-check green"></i>
-          {% else %}
-            <i class="fa fa-ban red"></i>
-          {% endif %}
-          </dd>
-          <dt>Division</dt>
-          <dd>
-          {% if proposal.division_approved %}
-            <i class="fa fa-check green"></i>
-          {% else %}
-            <i class="fa fa-ban red"></i>
-          {% endif %}
-          </dd>
-          <dt>Provost</dt>
-          <dd>
-          {% if proposal.provost_approved %}
-            <i class="fa fa-check green"></i>
-          {% else %}
-            <i class="fa fa-ban red"></i>
-          {% endif %}
-          </dd>
-        </dl>
-        {% endifusergroup %}
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
@@ -202,7 +241,14 @@
   <div class="col-lg-6">
     <div class="panel panel-default">
       <div class="panel-body">
-        <h2>Part B</h2>
+        <h2>Form B
+          {% if request.user.id == proposal.user.id %}
+          <a href="{% url 'impact_form' proposal.id %}"
+            class="no-print-icon" style="float:right;color:#fff">
+            <i class="fa fa-pencil" aria-hidden="true"
+              title="Update Form B"></i></a>
+          {% endif %}
+        </h2>
         <h3 class="detail">
           Budget Data
         </h3>
@@ -210,7 +256,13 @@
           <h4>Total budget request</h4>
           <h5>${{proposal.proposal_budget.total|intcomma}}</h5>
           <h4>Total Cost Share / Match Amount</h4>
-          <h5>${{proposal.proposal_budget.cost_match_amount|intcomma}}</h5>
+          <h5>
+            {% if proposal.proposal_budget.cost_match_amount %}
+            ${{proposal.proposal_budget.cost_match_amount|intcomma}}
+            {% else %}
+             0
+            {% endif %}
+          </h5>
           <h4>Total Indirect Costs Requested</h4>
           <h5>${{proposal.proposal_budget.indirect_cost|intcomma}}</h5>
           <h4>What is Indirect Cost Rate Used?</h4>

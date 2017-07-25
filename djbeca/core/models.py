@@ -40,9 +40,9 @@ class Proposal(models.Model):
         max_length=128,
         null=True,blank=True
     )
-    grant_agency_name = models.CharField(
-        verbose_name="Grant Agency and Program Name",
-        max_length=128,
+    funding_agency_program_name = models.CharField(
+        verbose_name="Funding Agency Name and Grant Program Name",
+        max_length=128
     )
     grant_agency_funding_source = models.CharField(
         verbose_name="What type of funding source is the granting agency?",
@@ -53,10 +53,6 @@ class Proposal(models.Model):
         "If 'Other', please provide details",
         max_length=128,
         null=True,blank=True
-    )
-    grant_name = models.CharField(
-        verbose_name="Name of Grant / Specific Funding Opportunity",
-        max_length=128,
     )
     grant_agency_url = models.CharField(
         verbose_name="Solicitation Website",
@@ -70,12 +66,6 @@ class Proposal(models.Model):
         #input_formats=('%I:%H %p',)
     )
     # Investigator Information
-    # NOTE: we have name, email, ID from user profile data
-    phone = models.CharField(
-        verbose_name='Phone',
-        max_length=12,
-        help_text="Format: XXX-XXX-XXXX"
-    )
     department = models.CharField(
         max_length=12
     )
@@ -131,17 +121,15 @@ class Proposal(models.Model):
         max_length=128,
         choices=TIME_FRAME_CHOICES
     )
-    budget_total = models.CharField(
+    budget_total = models.DecimalField(
         "Total Budget Request",
-        max_length=16,
+        decimal_places=2,
+        max_digits=10,
         help_text="List the total amount budgeted for this project"
     )
-    funding_plan = models.TextField(
-        "Funding Plan (~250 words)",
-        help_text="""
-            Briefly describe your funding plan/s for any project budget
-            costs in excess of the proposal request.
-        """
+    budget_summary = models.TextField(
+        "Budget Summary (~250 words)",
+        help_text="Briefly describe your funding plan"
     )
 
     class Meta:
@@ -168,6 +156,9 @@ class Proposal(models.Model):
 
     def get_slug(self):
         return 'proposal/'
+
+    def level3_approved(self):
+        return True
 
 
 class ProposalImpact(models.Model):
@@ -264,6 +255,9 @@ class ProposalImpact(models.Model):
     def get_slug(self):
         return 'proposal-impact/'
 
+    def level3_approved(self):
+        return True
+
 
 class ProposalBudget(models.Model):
     '''
@@ -281,20 +275,24 @@ class ProposalBudget(models.Model):
         related_name='proposal_budget'
     )
     # Costs and totals
-    total = models.CharField(
+
+    total = models.DecimalField(
         "Total budget request",
-        max_length=16,
+        decimal_places=2,
+        max_digits=10,
         help_text="List the total amount budgeted for this project",
         null=True,blank=True
     )
-    cost_match_amount = models.CharField(
+    cost_match_amount = models.DecimalField(
         "Total Cost Share / Match Amount",
-        max_length=16,
+        decimal_places=2,
+        max_digits=10,
         null=True,blank=True
     )
-    indirect_cost = models.CharField(
+    indirect_cost = models.DecimalField(
         "Total Indirect Costs Requested",
-        max_length=16,
+        decimal_places=2,
+        max_digits=10,
         null=True,blank=True
     )
     indirect_cost_rate = models.CharField(
@@ -426,7 +424,8 @@ class ProposalApprover(models.Model):
         default='0',
         choices=PROPOSAL_STEPS_CHOICES
     )
-    approved = models.BooleanField(default=False)
+    approved_1 = models.BooleanField(default=False)
+    approved_2 = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'core_proposal_approver'

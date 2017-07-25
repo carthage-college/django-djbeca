@@ -2,7 +2,7 @@
 
 from django import forms
 
-from djbeca.core.models import Proposal, ProposalApprover
+from djbeca.core.models import Proposal
 from djbeca.core.models import ProposalBudget, ProposalImpact
 from djbeca.core.choices import *
 
@@ -12,8 +12,6 @@ from djtools.fields.time import KungfuTimeField
 from directory.core import FACSTAFF_ALPHA
 
 from djzbar.utils.informix import do_sql
-
-from localflavor.us.forms import USPhoneNumberField
 
 valid_time_formats = ['%P', '%H:%M%A', '%H:%M %A', '%H:%M%a', '%H:%M %a']
 
@@ -34,7 +32,6 @@ class ProposalForm(forms.ModelForm):
     )
     # Investigator Information
     # NOTE: we have name, email, ID from user profile data
-    phone = USPhoneNumberField()
     department = forms.ChoiceField(
         label="Department",
         choices=()
@@ -70,6 +67,13 @@ class ProposalForm(forms.ModelForm):
         choices=TIME_FRAME_CHOICES,
         widget=forms.RadioSelect()
     )
+    '''
+    budget_total = forms.DecimalField(
+        label="Total Budget Request",
+        widget=forms.TextInput(attrs={'placeholder':"$"}),
+        help_text="List the total amount budgeted for this project"
+    )
+    '''
 
     class Meta:
         model = Proposal
@@ -293,7 +297,7 @@ class ProposalApproverForm(forms.Form):
         label="Proposal",
         choices=()
     )
-    forms = forms.ChoiceField(
+    steps = forms.ChoiceField(
         label="Forms",
         choices = PROPOSAL_STEPS_CHOICES
     )

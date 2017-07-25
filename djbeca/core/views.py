@@ -239,8 +239,7 @@ def proposal_form(request, pid=None):
                 investigator.save()
                 investigator.tags.add('Co-Principal Investigators')
 
-            '''
-            # send email to division dean and departmental chair
+            # send email to division dean
             where = 'PT.pcn_03 = "{}"'.format(data.department)
             chairs = department_division_chairs(where)
             if len(chairs) > 0:
@@ -248,7 +247,7 @@ def proposal_form(request, pid=None):
                 data.department = chairs[0][0]
                 if not settings.DEBUG:
                     # Department chair's email
-                    TO_LIST.append(chairs[0][4])
+                    #TO_LIST.append(chairs[0][4])
                     # Division dean's email
                     TO_LIST.append(chairs[0][8])
                 else:
@@ -265,7 +264,8 @@ def proposal_form(request, pid=None):
                 request, TO_LIST, subject, data.user.email,
                 'proposal/email_approve.html', data, BCC
             )
-            # send confirmation to individual submitting idea
+            # send confirmation to the Primary Investigator (PI)
+            # who submitted the form
             subject = "[OSP Program Idea] {}".format(
                 data.title
             )
@@ -273,7 +273,7 @@ def proposal_form(request, pid=None):
                 request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
                 'proposal/email_confirmation.html', data, BCC
             )
-            '''
+
 
             return HttpResponseRedirect(
                 reverse_lazy('proposal_success')
@@ -350,8 +350,8 @@ def proposal_approver(request, pid=0):
         if request.method=='POST':
             form = ProposalApproverForm(request.POST)
             if form.is_valid():
-                data = form.cleaned_data
-                cid = data['user']
+                cd = form.cleaned_data
+                cid = cd['user']
                 try:
                     user = User.objects.get(id=cid)
                 except:
@@ -369,7 +369,9 @@ def proposal_approver(request, pid=0):
                     user.last_name = data['sn'][0]
                     user.save()
 
-                approver = ProposalApprover(user=user, proposal=proposal)
+                approver = ProposalApprover(
+                    user=user, proposal=proposal, steps=cd['steps']
+                )
                 approver.save()
 
                 return HttpResponseRedirect(
