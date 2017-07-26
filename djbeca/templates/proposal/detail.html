@@ -123,18 +123,20 @@
         <h4>If 'Other', please provide details</h4>
         <h5>{{proposal.proposal_type_other}}</h5>
         {% endif %}
-        <h4>Grant Agency and Program Name</h4>
-        <h5>{{proposal.grant_agency_name}}</h5>
+        <h4>Funding Agency Name and Grant Program Name</h4>
+        <h5>{{proposal.funding_agency_program_name}}</h5>
         <h4>What type of funding source is the granting agency?</h4>
         <h5>{{proposal.grant_agency_funding_source}}</h5>
         {% if proposal.grant_agency_funding_other %}
         <h4>If 'Other', please provide details</h4>
         <h5>{{proposal.grant_agency_funding_other}}</h5>
         {% endif %}
-        <h4>Name of Grant / Specific Funding Opportunity</h4>
-        <h5>{{proposal.grant_name}}</h5>
         <h4>Solicitation Website</h4>
-        <h5>{{proposal.grant_agency_url}}</h5>
+        <h5>
+          <a href="{{proposal.grant_agency_url}}">
+            {{proposal.grant_agency_url}}
+          </a>
+        </h5>
         <h4>Proposal Deadline Date/Time</h4>
         <h5>
           {{proposal.grant_deadline_date}}
@@ -227,9 +229,9 @@
           ${{proposal.budget_total|intcomma}}
         </h5>
         <h4>
-          Funding Plan
+          Budget Summary
         </h4>
-        <div>{{proposal.funding_plan}}</div>
+        <div>{{proposal.budget_summary}}</div>
         <!-- fin -->
       </div>
       <!-- /.panel-body -->

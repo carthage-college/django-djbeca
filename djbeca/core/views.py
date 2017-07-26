@@ -30,7 +30,7 @@ from djtools.fields import NOW
 
 from djauth.LDAPManager import LDAPManager
 
-BCC = settings.MANAGERS
+BCC = [settings.MANAGERS[0][1]]
 
 
 @portal_auth_required(
@@ -139,7 +139,8 @@ def impact_form(request, pid):
                 data.department = depts[0][1]
 
             # send the email
-            subject = "[OSP Program Idea] {}, {}".format(
+            subject = "[OSP] Proposal: {} by {}, {}".format(
+                data.title,
                 data.user.last_name, data.user.first_name
             )
             send_mail(
@@ -147,7 +148,7 @@ def impact_form(request, pid):
                 'proposal/email_approve.html', data, BCC
             )
             # send confirmation to individual submitting idea
-            subject = "[OSP Program Idea] {}".format(
+            subject = "[OSP] Proposal: {}".format(
                 data.title
             )
             send_mail(
@@ -182,8 +183,6 @@ def impact_form(request, pid):
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def proposal_form(request, pid=None):
-    TO_LIST = [settings.PROPOSAL_EMAIL,]
-
     institu = None
     investi = None
     proposal = None
@@ -239,41 +238,46 @@ def proposal_form(request, pid=None):
                 investigator.save()
                 investigator.tags.add('Co-Principal Investigators')
 
-            # send email to division dean
-            where = 'PT.pcn_03 = "{}"'.format(data.department)
-            chairs = department_division_chairs(where)
-            if len(chairs) > 0:
-                # temporarily assign department to full name
-                data.department = chairs[0][0]
-                if not settings.DEBUG:
-                    # Department chair's email
-                    #TO_LIST.append(chairs[0][4])
-                    # Division dean's email
-                    TO_LIST.append(chairs[0][8])
+            # send emails only if we have a new proposal
+            if not proposal:
+                TO_LIST = []
+                where = 'PT.pcn_03 = "{}"'.format(data.department)
+                chairs = department_division_chairs(where)
+                if len(chairs) > 0:
+                    # temporarily assign department to full name
+                    data.department = chairs[0][0]
+                    if not settings.DEBUG:
+                        # Division dean's email
+                        TO_LIST.append(chairs[0][8])
+                    else:
+                        data.chairs = chairs
                 else:
-                    data.chairs = chairs
-            else:
-                # staff do not have chairs
-                data.department = depts[0][1]
+                    # staff do not have chairs
+                    data.department = depts[0][1]
 
-            # send the email
-            subject = "[OSP Program Idea] {}, {}".format(
-                data.user.last_name, data.user.first_name
-            )
-            send_mail(
-                request, TO_LIST, subject, data.user.email,
-                'proposal/email_approve.html', data, BCC
-            )
-            # send confirmation to the Primary Investigator (PI)
-            # who submitted the form
-            subject = "[OSP Program Idea] {}".format(
-                data.title
-            )
-            send_mail(
-                request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
-                'proposal/email_confirmation.html', data, BCC
-            )
+                if not TO_LIST:
+                    TO_LIST = [settings.PROPOSAL_EMAIL,]
+                else:
+                    BCC.append(settings.PROPOSAL_EMAIL)
 
+                # send the email
+                subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
+                    data.title, data.user.last_name, data.user.first_name
+                )
+                send_mail(
+                    request, TO_LIST, subject, data.user.email,
+                    'proposal/email_approve.html', data, BCC
+                )
+                # send confirmation to the Primary Investigator (PI)
+                # who submitted the form
+                subject = "[OSP] Proposal: {}".format(
+                    data.title
+                )
+                send_mail(
+                    request, [data.user.email], subject,
+                    settings.PROPOSAL_EMAIL,
+                    'proposal/email_confirmation.html', data, BCC
+                )
 
             return HttpResponseRedirect(
                 reverse_lazy('proposal_success')
@@ -350,7 +354,10 @@ def proposal_approver(request, pid=0):
         if request.method=='POST':
             form = ProposalApproverForm(request.POST)
             if form.is_valid():
+                # shouldn't return a 404 but just in case someone is doing
+                # something untoward or nefarious
                 cd = form.cleaned_data
+                proposal = get_object_or_404(Proposal, id=cd['proposal'])
                 cid = cd['user']
                 try:
                     user = User.objects.get(id=cid)
@@ -374,19 +381,44 @@ def proposal_approver(request, pid=0):
                 )
                 approver.save()
 
+                # send an email to approver
+                subject = '[OSP] Proposal: "{}" by {}, {}'.format(
+                    proposal.title,
+                    proposal.user.last_name, proposal.user.first_name
+                )
+
+                if settings.DEBUG:
+                    TO_LIST = [settings.SERVER_EMAIL,]
+                else:
+                    TO_LIST = [proposal.user.email, approver.user.email]
+
+                send_mail(
+                    request, TO_LIST, subject, settings.PROPOSAL_EMAIL,
+                    'approver/email.html', {'proposal':proposal,}, BCC
+                )
+
                 return HttpResponseRedirect(
                     reverse_lazy('proposal_approver_success')
                 )
+
         else:
             form = ProposalApproverForm(initial={'proposal': pid})
 
+    template = 'approver/form.html'
+    #template = 'approver/email.html'
+    context = {'proposal':proposal, 'form':form}
+    #context = {'data': {'proposal':proposal}}
+
     return render(
-        request, 'approver/form.html', {
-            'proposal':proposal, 'form':form
-        }
+        request, template, context
     )
 
 
+@portal_auth_required(
+    session_var='DJBECA_AUTH',
+    group='Sponsored Programs',
+    redirect_url=reverse_lazy('access_denied')
+)
 def email_investigator(request, pid, action):
     '''
     send an email to the primary investigator
@@ -399,20 +431,18 @@ def email_investigator(request, pid, action):
         if form.is_valid():
             form_data = form.cleaned_data
             if 'confirm' in request.POST:
-                context = {'form':form,'data':form_data,'p':proposal}
                 return render (
-                    request, 'investigator/email_form.html', context
+                    request, 'investigator/email_form.html',
+                    {'form':form,'data':form_data,'p':proposal}
                 )
             elif "execute" in request.POST:
-                FEMAIL = request.user.email
-                TO_LIST = [proposal.user.email,]
-                data = {'content':form_data['content']}
-                sub = "[Office of Sponsored Programs] Grant Proposal: {}".format(
-                    proposal.title
-                )
                 send_mail (
-                    request, TO_LIST, sub,
-                    FEMAIL, 'investigator/email_data.html', data, BCC
+                    request, [proposal.user.email,]
+                    "[Office of Sponsored Programs] Grant Proposal: {}".format(
+                        proposal.title
+                    )
+                    request.user.email, 'investigator/email_data.html',
+                    {'content':form_data['content']}, BCC
                 )
                 return HttpResponseRedirect(
                     reverse_lazy('email_investigator_done')
@@ -428,3 +458,11 @@ def email_investigator(request, pid, action):
         request, 'investigator/email_form.html',
         {'form': form,'data':form_data,"p":proposal,'action':action}
     )
+
+
+def approve_proposal(request, pid, step):
+    '''
+    '''
+
+
+

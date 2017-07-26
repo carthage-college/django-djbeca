@@ -1,0 +1,16 @@
+{% autoescape off %}
+{% load livewhale_api %}
+<h3>Designated for Approval</h3>
+{% get_lw_content as approve blurbs 2521 %}
+{{approve.body}}
+<h4>{{data.proposal.title}}</h4>
+<p>
+Principal Investigator:
+{{data.proposal.user.last_name}}, {{data.proposal.user.first_name}}
+</p>
+<p>
+  <a href="{{data.proposal.get_absolute_url}}">
+      Review this Proposal
+  </a>
+</p>
+{% endautoescape %}

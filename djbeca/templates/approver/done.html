@@ -2,5 +2,6 @@
 {% load livewhale_api %}
 {% block content %}
 <h2>Success</h2>
-You have assigned an approver to a proposal.
+{% get_lw_content as done blurbs 2522 %}
+{{done.body}}
 {% endblock %}

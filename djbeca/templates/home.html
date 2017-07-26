@@ -21,9 +21,13 @@
                 {% endif %}
                 Proposals
             </h1>
-            <p class="fright">
-              <a href="{% url 'proposal_form' %}">Submit a proposal</a>
-            </p>
+            <div class="btn-group fright" style="margin-left:18px;margin-bottom:12px;">
+              <a href="{% url 'proposal_form' %}" class="btn btn-default btn-primary">Submit Proposal</a>
+            </div>
+            <div class="col-lg-8" style="font-weight:bold;">
+              {% get_lw_content as intro blurbs 2433 %}
+              {{intro.body}}
+            </div>
         </div>
         <!-- /.col-lg-12 -->
     </div>
@@ -31,13 +35,6 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">
-                  <div style="width:50%;font-weight:bold;">
-                    {% get_lw_content as intro blurbs 2433 %}
-                    {{intro.body}}
-                  </div>
-                </div>
-                <!-- /.panel-heading -->
                 <div class="panel-body" id="proposals-data-panel">
                     {% include "data.inc.html" %}
                 </div>

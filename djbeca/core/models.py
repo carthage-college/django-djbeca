@@ -124,7 +124,7 @@ class Proposal(models.Model):
     budget_total = models.DecimalField(
         "Total Budget Request",
         decimal_places=2,
-        max_digits=10,
+        max_digits=16,
         help_text="List the total amount budgeted for this project"
     )
     budget_summary = models.TextField(
@@ -143,15 +143,17 @@ class Proposal(models.Model):
         '''
         return "{} ({})".format(self.title, self.id)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('proposal_detail', [str(self.id)])
+        return 'https://{}{}'.format(
+            settings.SERVER_URL,
+            reverse('proposal_detail', args=(self.id,))
+        )
 
     def get_update_url(self):
         return 'https://{}{}'.format(
             settings.SERVER_URL,
-            reverse('admin:core_proposal_change',args=(self.id,))
-            #reverse('proposal_update',args=(self.id,))
+            #reverse('admin:core_proposal_change',args=(self.id,))
+            reverse('proposal_update', args=(self.id,))
         )
 
     def get_slug(self):
@@ -279,20 +281,20 @@ class ProposalBudget(models.Model):
     total = models.DecimalField(
         "Total budget request",
         decimal_places=2,
-        max_digits=10,
+        max_digits=16,
         help_text="List the total amount budgeted for this project",
         null=True,blank=True
     )
     cost_match_amount = models.DecimalField(
         "Total Cost Share / Match Amount",
         decimal_places=2,
-        max_digits=10,
+        max_digits=16,
         null=True,blank=True
     )
     indirect_cost = models.DecimalField(
         "Total Indirect Costs Requested",
         decimal_places=2,
-        max_digits=10,
+        max_digits=16,
         null=True,blank=True
     )
     indirect_cost_rate = models.CharField(
