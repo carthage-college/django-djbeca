@@ -3,17 +3,14 @@
 from django import forms
 
 from djbeca.core.models import Proposal
-from djbeca.core.models import ProposalBudget, ProposalImpact
+from djbeca.core.models import ProposalBudget, ProposalDocument, ProposalImpact
 from djbeca.core.choices import *
 
 from djtools.fields import BINARY_CHOICES
-from djtools.fields.time import KungfuTimeField
 
 from directory.core import FACSTAFF_ALPHA
 
 from djzbar.utils.informix import do_sql
-
-valid_time_formats = ['%P', '%H:%M%A', '%H:%M %A', '%H:%M%a', '%H:%M %a']
 
 
 class ProposalForm(forms.ModelForm):
@@ -25,11 +22,6 @@ class ProposalForm(forms.ModelForm):
             choices = department_choices
         self.fields['department'].choices = department_choices
 
-    # Basic Proposal Elements
-    grant_deadline_time = forms.TimeField(
-        label="Proposal deadline time",
-        #widget=TimeInput(format='%I:%H %p')
-    )
     # Investigator Information
     # NOTE: we have name, email, ID from user profile data
     department = forms.ChoiceField(
@@ -67,19 +59,13 @@ class ProposalForm(forms.ModelForm):
         choices=TIME_FRAME_CHOICES,
         widget=forms.RadioSelect()
     )
-    '''
-    budget_total = forms.DecimalField(
-        label="Total Budget Request",
-        widget=forms.TextInput(attrs={'placeholder':"$"}),
-        help_text="List the total amount budgeted for this project"
-    )
-    '''
 
     class Meta:
         model = Proposal
         exclude = (
             'user','created_at','updated_at',
-            'level2_approved','level1_approved'
+            'level2_approved','level1_approved',
+            'comments'
         )
 
 
@@ -266,6 +252,24 @@ class ImpactForm(forms.ModelForm):
         )
 
 
+class DocumentForm1(forms.ModelForm):
+    class Meta:
+        model = ProposalDocument
+        fields = ('phile',)
+class DocumentForm2(DocumentForm1):
+    pass
+class DocumentForm3(DocumentForm1):
+    pass
+
+
+class CommentsForm(forms.Form):
+    comments = forms.CharField(
+        widget=forms.Textarea,
+        required=False,
+        help_text="Provide any additional comments if need be"
+    )
+
+
 class ProposalApproverForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -296,10 +300,6 @@ class ProposalApproverForm(forms.Form):
     proposal = forms.ChoiceField(
         label="Proposal",
         choices=()
-    )
-    steps = forms.ChoiceField(
-        label="Forms",
-        choices = PROPOSAL_STEPS_CHOICES
     )
 
 
