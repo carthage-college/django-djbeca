@@ -61,10 +61,6 @@ class Proposal(models.Model):
     grant_deadline_date = models.DateField(
         "Proposal Deadline Date"
     )
-    grant_deadline_time = models.TimeField(
-        "Proposal Deadline Time",
-        #input_formats=('%I:%H %p',)
-    )
     # Investigator Information
     department = models.CharField(
         max_length=12
@@ -108,7 +104,7 @@ class Proposal(models.Model):
         choices=PROJECT_TYPE_CHOICES,
     )
     summary = models.TextField(
-        "Program summary (~250 words)",
+        "Program summary (~500 words)",
         help_text="""
             Provide a brief description of your proposed project
             and how the proposed project addresses one or more
@@ -128,8 +124,13 @@ class Proposal(models.Model):
         help_text="List the total amount budgeted for this project"
     )
     budget_summary = models.TextField(
-        "Budget Summary (~250 words)",
+        "Budget Summary (~500 words)",
         help_text="Briefly describe your funding plan"
+    )
+    # additional comments
+    comments = models.TextField(
+        null=True, blank=True,
+        help_text="Provide any additional comments if need be"
     )
 
     class Meta:
@@ -291,23 +292,6 @@ class ProposalBudget(models.Model):
         max_digits=16,
         null=True,blank=True
     )
-    indirect_cost = models.DecimalField(
-        "Total Indirect Costs Requested",
-        decimal_places=2,
-        max_digits=16,
-        null=True,blank=True
-    )
-    indirect_cost_rate = models.CharField(
-        "What is Indirect Cost Rate Used?",
-        max_length=128,
-        choices=INDIRECT_COST_RATE_CHOICES,
-        null=True,blank=True
-    )
-    indirect_cost_rate_other = models.CharField(
-        "If 'Other', please specify the rate",
-        max_length=128,
-        null=True,blank=True
-    )
     # Files
     budget_final = models.FileField(
         "Final Budget for Review",
@@ -332,6 +316,37 @@ class ProposalBudget(models.Model):
 
     def get_slug(self):
         return 'proposal-budget/'
+
+
+class ProposalDocument(models.Model):
+    '''
+    Proposal supporting documents
+    '''
+    # meta
+    created_at = models.DateTimeField(
+        "Date Created", auto_now_add=True
+    )
+    proposal = models.ForeignKey(
+        Proposal, editable=False,
+        related_name='proposal_documents'
+    )
+    phile = models.FileField(
+        "Supporting document",
+        upload_to=upload_to_path,
+        #validators=[MimetypeValidator('application/pdf')],
+        max_length=768,
+        help_text="PDF format",
+        null=True,blank=True
+    )
+    tags = TaggableManager(blank=True)
+
+    class Meta:
+        ordering  = ['-created_at']
+        get_latest_by = 'created_at'
+        db_table = 'core_proposal_document'
+
+    def get_slug(self):
+        return 'proposal-document/'
 
 
 class ProposalContact(models.Model):
@@ -423,7 +438,7 @@ class ProposalApprover(models.Model):
     )
     steps = models.CharField(
         max_length=4,
-        default='0',
+        default='3',
         choices=PROPOSAL_STEPS_CHOICES
     )
     approved_1 = models.BooleanField(default=False)
