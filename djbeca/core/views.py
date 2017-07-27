@@ -11,6 +11,8 @@ from djbeca.core.choices import PROPOSAL_GOAL_CHOICES
 from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
 from djbeca.core.models import ProposalContact, ProposalGoal
 from djbeca.core.forms import BudgetForm
+from djbeca.core.forms import CommentsForm
+from djbeca.core.forms import DocumentForm1, DocumentForm2, DocumentForm3
 from djbeca.core.forms import EmailInvestigatorForm
 from djbeca.core.forms import GoalsForm
 from djbeca.core.forms import ImpactForm
@@ -46,7 +48,7 @@ def home(request):
         '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
     )
     if group:
-        proposals = Proposal.objects.all()
+        proposals = Proposal.objects.all().order_by('-grant_deadline_date')
     elif dean_chair:
         chair_depts = chair_departments(user.id)
         dc = chair_depts[1]
@@ -54,9 +56,11 @@ def home(request):
         depts = chair_depts[0]['depts']
         proposals = Proposal.objects.filter(
             department__in=[ key for key,val in depts.iteritems() ]
-        )
+        ).order_by('-grant_deadline_date')
     else:
-        proposals = Proposal.objects.filter(user=user)
+        proposals = Proposal.objects.filter(user=user).order_by(
+            '-grant_deadline_date'
+        )
 
     return render(
         request, 'home.html',
@@ -74,15 +78,21 @@ def impact_form(request, pid):
 
     TO_LIST = [settings.PROPOSAL_EMAIL,]
     proposal = get_object_or_404(Proposal, id=pid)
+    # budget and impact
     try:
         impact = proposal.proposal_impact
         budget = proposal.proposal_budget
     except:
         impact = budget = None
+    # goals
     try:
         goals = proposal.proposal_goal.all()
     except:
         goals = None
+    # documents
+    docs = [None,None,None]
+    for c, d in enumerate(proposal.proposal_documents.all()):
+        docs[c] = d
 
     if request.method=='POST':
         form_impact = ImpactForm(
@@ -92,17 +102,57 @@ def impact_form(request, pid):
             request.POST, request.FILES,
             instance=budget, prefix='budget', label_suffix=''
         )
+        form_comments = CommentsForm(
+            request.POST, prefix='comments', label_suffix=''
+        )
         form_goals = GoalsForm(
             request.POST, prefix='goal'
         )
+        form_doc1 = DocumentForm1(
+            request.POST, request.FILES,
+            instance=docs[0], prefix='doc1', label_suffix=''
+        )
+        form_doc2 = DocumentForm1(
+            request.POST, request.FILES,
+            instance=docs[1], prefix='doc2', label_suffix=''
+        )
+        form_doc3 = DocumentForm1(
+            request.POST, request.FILES,
+            instance=docs[2], prefix='doc3', label_suffix=''
+        )
         if form_impact.is_valid() and form_budget.is_valid():
+            # proposal impact
             impact = form_impact.save(commit=False)
             impact.proposal = proposal
             impact.save()
+            # proposal budget
             budget = form_budget.save(commit=False)
             budget.proposal = proposal
             budget.save()
-
+            # proposal comments (not a ModelForm)
+            if request.POST.get('comments-comments'):
+                form_comments.is_valid()
+                comments = form_comments.cleaned_data
+                proposal.comments = comments['comments']
+                proposal.save()
+            # document 1
+            #if request.FILES.get('doc1-phile'):
+            form_doc1.is_valid()
+            doc1 = form_doc1.save(commit=False)
+            doc1.proposal = proposal
+            doc1.save()
+            # document 2
+            #if request.FILES.get('doc2-phile'):
+            form_doc2.is_valid()
+            doc2 = form_doc2.save(commit=False)
+            doc2.proposal = proposal
+            doc2.save()
+            # document 3
+            #if request.FILES.get('doc3-phile'):
+            form_doc3.is_valid()
+            doc3 = form_doc3.save(commit=False)
+            doc3.proposal = proposal
+            doc3.save()
             # delete the old goals because it's just easier this way
             if impact:
                 if goals:
@@ -167,11 +217,28 @@ def impact_form(request, pid):
         form_budget = BudgetForm(
             instance=budget, prefix='budget', label_suffix=''
         )
+        form_comments = CommentsForm(
+            initial={'comments':proposal.comments},
+            prefix='comments', label_suffix=''
+        )
+        form_doc1 = DocumentForm1(
+            instance=docs[0], prefix='doc1', label_suffix=''
+        )
+        form_doc2 = DocumentForm1(
+            instance=docs[1], prefix='doc2', label_suffix=''
+        )
+        form_doc3 = DocumentForm1(
+            instance=docs[2], prefix='doc3', label_suffix=''
+        )
 
     return render(
         request, 'impact/form.html', {
-            'form_impact': form_impact,
             'form_budget': form_budget,
+            'form_comments': form_comments,
+            'form_impact': form_impact,
+            'form_doc1': form_doc1,
+            'form_doc2': form_doc2,
+            'form_doc3': form_doc3,
             'goals': goals,
             'goal_choices':[p[1] for p in PROPOSAL_GOAL_CHOICES],
             'copies':len(goals)
@@ -333,7 +400,7 @@ def proposal_detail(request, pid):
     return render(
         request, 'proposal/detail.html', {
             'proposal':proposal,'group':group,'co_principals':co_principals,
-            'institutions':institutions
+            'institutions':institutions,'dean':dean_chair
         }
     )
 
@@ -377,7 +444,7 @@ def proposal_approver(request, pid=0):
                     user.save()
 
                 approver = ProposalApprover(
-                    user=user, proposal=proposal, steps=cd['steps']
+                    user=user, proposal=proposal
                 )
                 approver.save()
 
@@ -437,10 +504,10 @@ def email_investigator(request, pid, action):
                 )
             elif "execute" in request.POST:
                 send_mail (
-                    request, [proposal.user.email,]
+                    request, [proposal.user.email,],
                     "[Office of Sponsored Programs] Grant Proposal: {}".format(
                         proposal.title
-                    )
+                    ),
                     request.user.email, 'investigator/email_data.html',
                     {'content':form_data['content']}, BCC
                 )
@@ -459,10 +526,9 @@ def email_investigator(request, pid, action):
         {'form': form,'data':form_data,"p":proposal,'action':action}
     )
 
-
+'''
 def approve_proposal(request, pid, step):
-    '''
-    '''
+'''
 
 
 
