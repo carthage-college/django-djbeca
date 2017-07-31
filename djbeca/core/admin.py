@@ -10,22 +10,22 @@ from djbeca.core.models import ProposalGoal, ProposalImpact, ProposalApprover
 class ProposalAdmin(admin.ModelAdmin):
     list_display = (
         'last_name', 'first_name', 'title',
-        'level2_approved','level1_approved',
+        'level3',
         'created_at','updated_at'
     )
     date_hierarchy = 'created_at'
     ordering = [
         'user__last_name','user__first_name',
-        'level2_approved','level1_approved'
+        'level3'
     ]
     '''
     readonly_fields = (
         'user','title','department_name','summary_strip',
-        'level2_approved','level1_approved'
+        'level3'
     )
     fields = (
         'user','department_name','title','summary_strip',
-        'level2_approved','level1_approved'
+        'level3'
     )
     '''
     search_fields = (
