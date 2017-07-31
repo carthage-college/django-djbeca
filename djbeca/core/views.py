@@ -9,7 +9,6 @@ from django.http import HttpResponseRedirect, Http404
 from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
 from djbeca.core.models import ProposalContact, ProposalGoal
 from djbeca.core.choices import PROPOSAL_GOAL_CHOICES
-from djbeca.core.utils import permissions
 from djbeca.core.forms import *
 
 from djzbar.utils.hr import chair_departments
