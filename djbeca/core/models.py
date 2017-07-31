@@ -11,9 +11,7 @@ from djtools.utils.users import in_group
 from djtools.fields import BINARY_CHOICES
 from djtools.fields.helpers import upload_to_path
 from djtools.fields.validators import MimetypeValidator
-
-from djzbar.utils.hr import person_departments
-from djzbar.utils.hr import department_division_chairs
+from djzbar.utils.hr import chair_departments
 
 from taggit.managers import TaggableManager
 
@@ -33,8 +31,10 @@ class Proposal(models.Model):
     )
     #user = models.ForeignKey(User, editable=False)
     user = models.ForeignKey(User)
-    # status
-    level3 = models.BooleanField(default=False) # division dean
+    # Division Dean or VP approval
+    level3 = models.BooleanField(default=False)
+    # anyone in the workflow decline the proposal at this point
+    decline = models.BooleanField(default=False)
     # Basic Proposal Elements
     proposal_type = models.CharField(
         "What type of proposal submission is this?",
@@ -161,7 +161,6 @@ class Proposal(models.Model):
     def get_slug(self):
         return 'proposal/'
 
-
     def permissions(self, user):
         '''
         what can the user access in terms of the proposal
@@ -171,11 +170,12 @@ class Proposal(models.Model):
         perms = {'view':False,'approve':False}
         # in_group includes an exception for superusers
         group = in_group(user, OSP_GROUP)
-        dean = department_division_chairs(
-            '(DTID.id={} or DVID.id={})'.format(user.id, user.id)
-        )
 
-        if self.user != user and not group and not dean:
+        chair_depts = chair_departments(user.id)
+        # dean or chair?
+        dc = chair_depts[1]
+
+        if self.user != user and not group and dc != 'dean':
             # no permissions
             return perms
         else:
@@ -183,31 +183,55 @@ class Proposal(models.Model):
             # can the user see the approve/decline buttons
             perms['superuser'] = False
             perms['approver'] = False
-            perms['dean'] = False
-            perms['cfo'] = False
-            perms['provost'] = False
-            # superuser
-            if user.is_superuser:
-                perms['superuser'] = True
-                perms['approve'] = True
+            perms['level3'] = False
+            perms['level2'] = False
+            perms['level1'] = False
+            # Dean?
+            if dc == 'dean':
+                perms['level3'] = True
+                perms['approve'] = 'level3'
             # CFO?
             elif user.id == settings.CFO_ID:
-                perms['cfo'] = True
-                perms['approve'] = True
+                perms['level2'] = True
+                perms['approve'] = 'level2'
             # Provost?
             elif user.id == settings.PROVOST_ID:
-                perms['provost'] = True
-                perms['approve'] = True
-            # ad-hoc approver?
+                perms['level1'] = True
+                perms['approve'] = 'level1'
+            # Superuser?
+            elif user.is_superuser:
+                perms['superuser'] = True
+                perms['approve'] = 'superuser'
+            # Ad-hoc approver?
             else:
-                for a in self.approvers.all():
+                for a in self.proposal_approvers.all():
                     if a.user == user:
                         perms['approver'] = True
-                        perms['approve'] = True
+                        perms['approve'] = 'approver'
                         break
 
         return perms
 
+    # at the moment, we assume all approvers will be responsible for
+    # step 1 AND step 2. in the future, i suspect that might change.
+    def step1(self):
+        approved = self.level3
+        for a in self.proposal_approvers.all():
+            if not a.step1:
+                approved = False
+                break
+        return approved
+
+    def step2(self):
+        approved = False
+        if self.proposal_impact.level1 and self.proposal_impact.level2 \
+          and self.proposal_impact.level3:
+            approved = True
+        for a in self.proposal_approvers.all():
+            if not a.step2:
+                approved = False
+                break
+        return approved
 
 class ProposalImpact(models.Model):
     '''
@@ -533,7 +557,7 @@ class ProposalApprover(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal,
-        related_name='approvers'
+        related_name='proposal_approvers'
     )
     # this field is not in use at the moment but i suspect
     # OSP will want to reactivate it in the future

@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
 from djbeca.core.models import ProposalContact, ProposalGoal
@@ -493,7 +493,7 @@ def email_investigator(request, pid, action):
                     request, 'investigator/email_form.html',
                     {'form':form,'data':form_data,'p':proposal}
                 )
-            elif "execute" in request.POST:
+            elif 'execute' in request.POST:
                 send_mail (
                     request, [proposal.user.email,],
                     "[Office of Sponsored Programs] Grant Proposal: {}".format(
@@ -517,8 +517,50 @@ def email_investigator(request, pid, action):
         {'form': form,'data':form_data,"p":proposal,'action':action}
     )
 
-'''
-def approve_proposal(request, pid, step):
-'''
 
+def proposal_approve(request, pid):
+    '''
+    approve a proposal via AJAX POST
+    '''
 
+    user = request.user
+    proposal = get_object_or_404(Proposal, id=pid)
+    perms = proposal.permissions(user)
+    if not perms['approve']:
+        return HttpResponse("Access Denied")
+    else:
+        post = request.POST
+
+        # we can stop here if declined.
+        # anyone can decline, for now.
+        if 'decline' in request.POST:
+            proposal.decline = True
+            proposal.save()
+            return HttpResponse("Success")
+
+        # which step?
+        step = 'step2'
+        if not proposal.step1:
+            step = 'step1'
+            # if dean stop here
+            if perms['approve'] = 'level3':
+                proposal.level3 = True
+                return HttpResponse("Dean")
+
+        # CFO?
+        if user.id == settings.CFO_ID:
+            proposal.proposal_impact.level2 = True
+            return HttpResponse("CFO")
+        # Provost?
+        elif user.id == settings.PROVOST_ID:
+            perms['level1'] = True
+            perms['approve'] = 'level1'
+            return HttpResponse("Provost")
+        else:
+            # approvers
+            for a in proposal.proposal_approvers.all():
+                if a.user == user:
+                    a.__dict__[step] = True
+                    a.save()
+                    break
+            return HttpResponse("Approver")
