@@ -39,6 +39,14 @@ PROPOSAL_STEPS_CHOICES = (
     ('2','Part B'),
     ('3','Parts A and B')
 )
+APPROVAL_LEVEL_CHOICES = (
+    ('','----------'),
+    ('level3','Division Dean'),
+    ('level2','CFO'),
+    ('level1','Provost')
+)
+
+
 PROPOSAL_GOAL_CHOICES = (
     ('Goal','Goal'),
     ('Objective','Objective'),

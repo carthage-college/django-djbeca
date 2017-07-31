@@ -5,16 +5,21 @@
       <tr>
         <th>
           Title
-          <i class="fa fa-eye green" title="View Proposal"
-            aria-hidden="true"></i> /
-          <i class="fa fa-print green" aria-hidden="true"></i></a>
+          <i class="fa fa-eye green blue-tooltip" data-toggle="tooltip"
+            data-placement="top" aria-hidden="true"
+            title="View Proposal"></i>
+          /
+          <i class="fa fa-print green blue-tooltip" data-toggle="tooltip"
+            data-placement="top" aria-hidden="true"
+            title="Print Proposal"></i></a>
         </th>
         <th>Part A</th>
         <th>Part B</th>
         <th>
           Submitted by
           {% ifusergroup 'Sponsored Programs' %}
-          <i class="fa fa-envelope-o green" aria-hidden="true"
+          <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
+            data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
           {% endifusergroup %}
         </th>
@@ -25,65 +30,99 @@
       {% for p in proposals %}
         <tr>
           <td>
-            <a href="{% url 'proposal_detail' p.id %}"
-              title="View proposal">{{p.title}}</a>
+            <a href="{% url 'proposal_detail' p.id %}" data-toggle="tooltip"
+            data-placement="top" class="blue-tooltip"
+            title="View Proposal">{{p.title}}</a>
           </td>
-          <td style="text-align:center;">
-            {% if not p.division_approved %}
-            <a href="{% url 'proposal_update' p.id %}">
-                <i class="fa fa-pencil-square-o" title="Update Part A"
-                  aria-hidden="true"></i>
+          <td>
+            {% if p.level3 or group or request.user.is_superuser %}
+            <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
+              data-placement="top" title="Update Part A" class="blue-tooltip">
+                <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
             </a>
+            {% if p.level3 %}
+            <i class="fa fa-2x fa-check green blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Division Dean Approved"></i>
             {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
+            <i class="fa fa-2x fa-times red blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Dean or Department VP has NOT approved this proposal"></i>
             {% endif %}
-            {% if p.level3_approved %}
-            <i class="fa fa-check green" aria-hidden="true"></i>
+            {% for a in p.approvers.all %}
+              {% if a.replace != 'level3' %}
+                {% if a.step1 %}
+                <i class="fa fa-2x fa-check green blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="{{a.user.last_name}}, {{a.user.first_name}} Approved"></i>
+                {% else %}
+                <i class="fa fa-2x fa-times red blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="{{a.user.last_name}}, {{a.user.first_name}} has NOT Approved this proposl"></i>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
             {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
-            {% endif %}
-            {% if p.level2_approved %}
-            <i class="fa fa-check green" aria-hidden="true"></i>
-            {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
-            {% endif %}
-            {% if p.level1_approved %}
-            <i class="fa fa-check green" aria-hidden="true"></i>
-            {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
+            <i class="fa fa-2x fa-times red blue-tooltip"
+            data-toggle="tooltip" data-placement="top" aria-hidden='true'
+            title="Dean or Department VP must approve this proposal"></i>
             {% endif %}
           </td>
-          <td style="text-align:center;">
-            {% if not p.division_approved %}
-            <a href="{% url 'impact_form' p.id %}">
-              <i class="fa fa-pencil-square-o" title="Update Part B"
-                aria-hidden="true"></i>
-            </a>
+          <td>
+            {% if p.level3 or group or request.user.is_superuser %}
+              <a href="{% url 'impact_form' p.id %}" data-toggle="tooltip"
+              data-placement="top" title="Update Part B" class="blue-tooltip">
+              <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i></a>
+              {% for a in p.approvers.all %}
+                {% if a.replace != 'level3' %}
+                  {% if a.step2 %}
+                    <i class="fa fa-2x fa-check green blue-tooltip"
+                    data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                    title="{{a.user.last_name}}, {{a.user.first_name}} Approved"></i>
+                  {% else %}
+                    <i class="fa fa-2x fa-times red blue-tooltip"
+                    data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                    title="{{a.user.last_name}}, {{a.user.first_name}} has NOT Approved this proposl"></i>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              {% if p.proposal_impact.level3 %}
+                <i class="fa fa-2x fa-check green blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="Division Dean Approved"></i>
+              {% else %}
+                <i class="fa fa-2x fa-times red blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="Dean or Department VP has NOT approved this proposal"></i>
+              {% endif %}
+              {% if p.proposal_impact.level2 %}
+                <i class="fa fa-2x fa-check green blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="CFO Approved"></i>
+              {% else %}
+                <i class="fa fa-2x fa-times red blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="CFO has NOT approved this proposal"></i>
+              {% endif %}
+              {% if p.proposal_impact.level1 %}
+                <i class="fa fa-2x fa-check green blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="Provost Approved"></i>
+              {% else %}
+                <i class="fa fa-2x fa-times red blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden="true"
+                title="Provost has NOT approved this proposal"></i>
+              {% endif %}
             {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
-            {% endif %}
-            {% if p.proposal_impact.level3_approved %}
-            <i class="fa fa-check green" aria-hidden="true"
-              title="Dean Approval"></i>
-            {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
-            {% endif %}
-            {% if p.proposal_impact.level2_approved %}
-            <i class="fa fa-check green" aria-hidden="true"
-              title="Provost Approval"></i>
-            {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
-            {% endif %}
-            {% if p.proposal_impact.level1_approved %}
-            <i class="fa fa-check green" aria-hidden="true"
-              title="CFO Approval"></i>
-            {% else %}
-            <i class="fa fa-times red" aria-hidden="true"></i>
+            <i class="fa fa-2x fa-times red blue-tooltip"
+            data-toggle="tooltip" data-placement="top" aria-hidden='true'
+            title="Dean or Department VP must approve this proposal"></i>
             {% endif %}
           </td>
           <td>
             {% ifusergroup 'Sponsored Programs' %}
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
+              data-toggle="tooltip" data-placement="top" class="blue-tooltip"
               title="Send email to primary investigator">
               {{p.user.last_name}}, {{p.user.first_name}}
             </a>
@@ -99,16 +138,21 @@
       <tr>
         <th>
           Title
-          <i class="fa fa-eye green" title="View Proposal"
-            aria-hidden="true"></i> /
-          <i class="fa fa-print green" aria-hidden="true"></i></a>
+          <i class="fa fa-eye green blue-tooltip" data-toggle="tooltip"
+            data-placement="top" aria-hidden="true"
+            title="View Proposal"></i>
+          /
+          <i class="fa fa-print green blue-tooltip" data-toggle="tooltip"
+            data-placement="top" aria-hidden="true"
+            title="Print Proposal"></i></a>
         </th>
         <th>Part A</th>
         <th>Part B</th>
         <th>
           Submitted by
           {% ifusergroup 'Sponsored Programs' %}
-          <i class="fa fa-envelope-o green" aria-hidden="true"
+          <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
+            data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
           {% endifusergroup %}
         </th>

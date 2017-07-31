@@ -1,25 +1,16 @@
 from django.conf import settings
+from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, Http404
-from django.core.urlresolvers import reverse_lazy
 
-from djbeca.core.choices import PROPOSAL_GOAL_CHOICES
 from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
 from djbeca.core.models import ProposalContact, ProposalGoal
-from djbeca.core.forms import BudgetForm
-from djbeca.core.forms import CommentsForm
-from djbeca.core.forms import DocumentForm1, DocumentForm2, DocumentForm3
-from djbeca.core.forms import EmailInvestigatorForm
-from djbeca.core.forms import GoalsForm
-from djbeca.core.forms import ImpactForm
-from djbeca.core.forms import InstitutionsForm
-from djbeca.core.forms import InvestigatorsForm
-from djbeca.core.forms import ProposalForm
-from djbeca.core.forms import ProposalApproverForm
+from djbeca.core.choices import PROPOSAL_GOAL_CHOICES
+from djbeca.core.utils import permissions
+from djbeca.core.forms import *
 
 from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import person_departments
@@ -33,6 +24,7 @@ from djtools.fields import NOW
 from djauth.LDAPManager import LDAPManager
 
 BCC = [settings.MANAGERS[0][1]]
+OSP_GROUP = settings.OSP_GROUP
 
 
 @portal_auth_required(
@@ -40,12 +32,12 @@ BCC = [settings.MANAGERS[0][1]]
 )
 def home(request):
     user = request.user
-    group = in_group(user,'Sponsored Programs')
+    group = in_group(user, OSP_GROUP)
     depts = False
     div = False
     dc = None
     dean_chair = department_division_chairs(
-        '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
+        '(DTID.id={} or DVID.id={})'.format(user.id, user.id)
     )
     if group:
         proposals = Proposal.objects.all().order_by('-grant_deadline_date')
@@ -383,24 +375,24 @@ def proposal_detail(request, pid):
 
     proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
-    group = in_group(user,'Sponsored Programs')
-    dean_chair = department_division_chairs(
-        '(DTID.id={} or DVID.id={})'.format(user.id,user.id)
-    )
+
+    # verify that the user can view this proposal
+    # and if they are an approver or not
+    perms = proposal.permissions(user)
+    if not perms['view']:
+        raise Http404
+
     co_principals = proposal.proposal_contact.filter(
         tags__name='Co-Principal Investigators'
     )
     institutions = proposal.proposal_contact.filter(
         tags__name='Other Institution'
     )
-    if proposal.user != request.user and not group and not dean_chair:
-        if not request.user.is_superuser:
-            raise Http404
 
     return render(
         request, 'proposal/detail.html', {
-            'proposal':proposal,'group':group,'co_principals':co_principals,
-            'institutions':institutions,'dean':dean_chair
+            'proposal':proposal,'co_principals':co_principals,
+            'institutions':institutions,'perms':perms
         }
     )
 
@@ -409,7 +401,7 @@ def proposal_detail(request, pid):
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
 def proposal_approver(request, pid=0):
-    group = in_group(request.user,'Sponsored Programs')
+    group = in_group(request.user, OSP_GROUP)
     if not group:
         return HttpResponseRedirect(
             reverse_lazy('home')
@@ -529,6 +521,5 @@ def email_investigator(request, pid, action):
 '''
 def approve_proposal(request, pid, step):
 '''
-
 
 

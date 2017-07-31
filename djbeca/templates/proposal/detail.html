@@ -70,22 +70,22 @@
           <dd>
             {% if a.steps == '1' or a.steps == '3' %}
               {% if a.approved_1 %}
-              <i class="fa fa-check green" title="Form A"></i>
+              <i class="fa fa-check green" title="Part A"></i>
               {% else %}
-              <i class="fa fa-times red" title="Form A"></i>
+              <i class="fa fa-times red" title="Part A"></i>
               {% endif %}
             {% endif %}
             {% if a.steps == '2' or a.steps == '3' %}
               {% if a.steps == '3' %}|{% endif %}
               {% if a.approved_2 %}
-              <i class="fa fa-check green" title="Form B"></i>
+              <i class="fa fa-check green" title="Part B"></i>
           {% if request.user.id == proposal.user.id %}
           <a href="{% url 'proposal_update' proposal.id %}"
             style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"></i></a>
           {% endif %}
               {% else %}
-              <i class="fa fa-times red" title="Form B"></i>
+              <i class="fa fa-times red" title="Part B"></i>
               {% endif %}
             {% endif %}
           </dd>
@@ -97,6 +97,23 @@
 </div>
 <!-- /.row -->
 {% endifusergroup %}
+{% if not proposal.level3 and perms.approve %}
+{{perms}}
+<div class="row">
+  <div class="col-lg-12 text-center">
+    <div class="panel panel-default">
+      <div class="panel-body">
+      <a href="#" class="btn btn-default btn-success"
+        style="width:128px;">Approve</a>
+      <a href="#" class="btn btn-default btn-danger"
+        style="margin-left:24px;width:128px;">Decline</a>
+      </div>
+    </div>
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+{% endif %}
 <div class="row">
   {% if proposal.proposal_impact %}
   <div class="col-lg-6">
@@ -106,12 +123,12 @@
     <div class="panel panel-default">
       <div class="panel-body">
         <h2>
-          Form A
+          Part A
           {% if request.user.id == proposal.user.id %}
           <a href="{% url 'proposal_update' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
-              title="Update Form A"></i></a>
+              title="Update Part A"></i></a>
           {% endif %}
         </h2>
         <h3 class="detail">
@@ -243,12 +260,13 @@
   <div class="col-lg-6">
     <div class="panel panel-default">
       <div class="panel-body">
-        <h2>Form B
+        <h2>
+          Part B
           {% if request.user.id == proposal.user.id %}
           <a href="{% url 'impact_form' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
-              title="Update Form B"></i></a>
+              title="Update Part B"></i></a>
           {% endif %}
         </h2>
         <h3 class="detail">
@@ -265,8 +283,6 @@
              0
             {% endif %}
           </h5>
-          <h4>Total Indirect Costs Requested</h4>
-          <h5>${{proposal.proposal_budget.indirect_cost|intcomma}}</h5>
           <h4>What is Indirect Cost Rate Used?</h4>
           <h5>{{proposal.proposal_budget.indirect_cost_rate}}</h5>
           {% if proposal.proposal_budget.indirect_cost_rate == 'Other' %}
@@ -335,6 +351,28 @@
           <p>{{g.description}}</p>
         {% endfor %}
         </dl>
+        <h3 class="detail">
+          Additional Information
+        </h3>
+        {% if proposal.comments %}
+          <h4>Comments</h4>
+          <h5>{{proposal.comments}}</h5>
+        {% endif %}
+
+
+        <h3 class="detail">
+          Additional Documents
+        </h3>
+        <ul>
+        {% for d in proposal.proposal_documents.all %}
+          <li>
+            <a href="{{d.phile}}">{{d.name}}</a>
+          </li>
+        {% endfor %}
+        </ul>
+
+
+
         <!-- fin -->
       </div>
       <!-- /.panel-body -->

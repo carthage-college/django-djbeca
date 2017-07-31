@@ -31,11 +31,6 @@ class ProposalForm(forms.ModelForm):
     # NOTE: "Co-Principal Investigators & Associated Institution"
     # are GenericContact() Foreign Key relationships.
     # Name, Institution fields [limit 5]
-    partner_institutions = forms.TypedChoiceField(
-        label = "Are other institutions involved?",
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect()
-    )
     # NOTE: "List all institutions involved"
     # are GenericContact() FK relationships.
     # Name field [limit 5]
@@ -64,8 +59,7 @@ class ProposalForm(forms.ModelForm):
         model = Proposal
         exclude = (
             'user','created_at','updated_at',
-            'level2_approved','level1_approved',
-            'comments'
+            'level3','comments'
         )
 
 
@@ -187,75 +181,123 @@ class BudgetForm(forms.ModelForm):
         model = ProposalBudget
         exclude = (
             'proposal','created_at','updated_at',
-            'level2_approved','level1_approved'
         )
 
 
 class ImpactForm(forms.ModelForm):
 
-    course_release = forms.TypedChoiceField(
-        label = "Does this proposal require course release or overload?",
+    cost_share_match = forms.TypedChoiceField(
+        label = "Does this proposal require cost sharing/match?",
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
-
-    additional_pay = forms.TypedChoiceField(
-        label = "Does this proposal require additional pay?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    payout_students = forms.TypedChoiceField(
-        label = "Does this proposal require payout to Carthage students?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    new_positions = forms.TypedChoiceField(
+    voluntary_committment = forms.TypedChoiceField(
         label = """
-            Does this proposal require the creation of new Carthage positions?
+        Does this proposal contain any voluntary commitments
+        on behalf of the College?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    subcontractors_subawards = forms.TypedChoiceField(
+        label = """
+        Does this proposal involve subcontracts and/or subawards
+        with other institutions/organizations?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    students_involved = forms.TypedChoiceField(
+        label = "Does this proposal involve the use of students?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    new_hires = forms.TypedChoiceField(
+        label = "Does this proposal require any new faculty or staff hires?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    course_relief = forms.TypedChoiceField(
+        label = """
+        Does this proposal contain course relief of any Carthage personnel
+        during the academic year?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    service_overload = forms.TypedChoiceField(
+        label = """
+        Does this proposal contain extra service or overload
+        of any Carthage personnnel?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    irb_review = forms.TypedChoiceField(
+        label = "Does this proposal require review of IRB?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    iacuc_review = forms.TypedChoiceField(
+        label = "Does this proposal require review of IACUC?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    international = forms.TypedChoiceField(
+        label = """
+        Does this proposal involve international travel, collaboration,
+        export, international student participation?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    hazards = forms.TypedChoiceField(
+        label = """
+        Does this proposal involve the use of chemical/physical hazards
+        (including toxic or hazardous chemicals, radioactive material,
+        biohazards, pathogens, toxins, recombinant DNA, oncongenic viruses,
+        tumor cells, etc.)?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    proprietary_confidential = forms.TypedChoiceField(
+        label = """
+        Does this proposal involve work that may result in a patent
+        or involve proprietary or confidential information?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    tech_support = forms.TypedChoiceField(
+        label = """
+        Does this proposal involve technology use that will require
+        extensive technical support?
         """,
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
     purchase_equipment = forms.TypedChoiceField(
         label = """
-            Does this proposal result in the purchase of major equipment,
-            costing over $5,000?
+        Does this proposal require any purchase, installation,
+        and maintenance of equipment?
         """,
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
-    infrastructure_modifications = forms.TypedChoiceField(
+    infrastructure_requirements = forms.TypedChoiceField(
         label = """
-            Does this proposal require additional office,
-            lab or other facilities or room modifications?
+        Does this proposal require any additional space than
+        currently provided?
         """,
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
-    institutional_review = forms.TypedChoiceField(
-        label = "Does this proposal require review of IRB and/or IACUC?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    institutional_review_date = forms.DateField(
-        label = "If 'Yes', please provide the approval date",
-        required=False
-    )
-    cost_share_match = forms.TypedChoiceField(
-        label = "Does this proposal require cost share/match?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
-    voluntary_committment = forms.TypedChoiceField(
-        label = "Does this proposal contain any voluntary commitment?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect(),
-        help_text = "e.g. faculty/staff time, cost share/match"
-    )
+    disclosure_assurance = forms.BooleanField(required = True)
 
     class Meta:
         model = ProposalImpact
         exclude = (
             'proposal','created_at','updated_at',
-            'level2_approved','level1_approved'
+            'level3','level2','level1'
         )
 
 
 class DocumentForm1(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(DocumentForm1, self).__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs['placeholder'] = \
+          'Name or short description'
+
     class Meta:
         model = ProposalDocument
-        fields = ('phile',)
+        fields = ('name','phile',)
+
 class DocumentForm2(DocumentForm1):
     pass
 class DocumentForm3(DocumentForm1):

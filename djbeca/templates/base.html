@@ -8,32 +8,38 @@
 {% block extra_style %}
 <link href="//www.carthage.edu/themes/shared/css/forms.css"
     rel="stylesheet" type="text/css" />
-<style>
+<style type="text/css">
 .panel-body h2{background-color: #5594b9;color: white;padding: 4px;}
+.row h1{color:#481676;}
 h3.h3 {border-bottom: 1px solid black;margin-top: 0;padding-bottom:3px;}
 h4, .h4 {margin-top: 20px;font-weight: 700;color:darkblue;}
 h5, .h5 { color: #141823; }
+hr {margin:16px 0 16px 0;border:1px solid #cacaca;}
 form ol {padding-left:0;}
 li.ctrlHolder div ul li {display:inline; padding-right:3px;}
-.bg-danger {
-    padding: 15px;
-}
+.bg-danger { padding: 15px; }
 .form ol li, .form ul li {
     list-style-type: none;
 }
 .form ol li, .form ul li {
     list-style-type: none;
 }
+.form ol.bullets li {
+    list-style-type: decimal;
+    margin-left:16px;
+}
+.fa-2x { font-size: 1.5em; }
+.blue-tooltip + .tooltip > .tooltip-inner {background-color: #00f;}
 #proposal-detail label:before {
 color:#800; font-family: 'FontAwesome';content: "\f05e"; }
-
 #proposal-detail :checked + label:before {
 color:#080;font-family: 'FontAwesome';content: "\f00c"; }
 #proposal-detail input, #goal-master {display: none;}
 #proposal-detail h3 {margin-top:0; border-bottom: 1px dotted #000; }
 #proposal-detail h4{ display:inline;}
 #proposal-detail .panel-body {padding-top:0;}
-.dependents {background-color: #f8f8f8;border: 1px solid #e7e7e7;padding:5px;margin-bottom:9px;}
+.dependents { background-color: #f8f8f8;border: 1px solid #e7e7e7;
+padding:5px;margin-bottom:9px;}
 dl dt {
     background-color: #ddf3f3;
     color: #003c4b;
@@ -216,6 +222,7 @@ $(function() {
     ]
   });
   */
+  $('[data-toggle="tooltip"]').tooltip();
   $(".required > input").addClass("required");
   $(".required > select").addClass("required");
   $(".required > textarea").addClass("required");

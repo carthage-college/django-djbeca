@@ -7,11 +7,17 @@ from django.utils.safestring import mark_safe
 
 from djbeca.core.choices import *
 
+from djtools.utils.users import in_group
 from djtools.fields import BINARY_CHOICES
 from djtools.fields.helpers import upload_to_path
 from djtools.fields.validators import MimetypeValidator
 
+from djzbar.utils.hr import person_departments
+from djzbar.utils.hr import department_division_chairs
+
 from taggit.managers import TaggableManager
+
+OSP_GROUP = settings.OSP_GROUP
 
 
 class Proposal(models.Model):
@@ -25,10 +31,10 @@ class Proposal(models.Model):
     updated_at = models.DateTimeField(
         "Date Updated", auto_now=True
     )
-    user = models.ForeignKey(User, editable=False)
+    #user = models.ForeignKey(User, editable=False)
+    user = models.ForeignKey(User)
     # status
-    level2_approved = models.BooleanField(default=False) # division dean
-    level1_approved = models.BooleanField(default=False) # provost
+    level3 = models.BooleanField(default=False) # division dean
     # Basic Proposal Elements
     proposal_type = models.CharField(
         "What type of proposal submission is this?",
@@ -68,11 +74,6 @@ class Proposal(models.Model):
     # NOTE: "Co-Principal Investigators & Associated Institution"
     # are ProposalContact() Foreign Key relationships.
     # Name, Instituion fields [limit 5]
-    partner_institutions = models.CharField(
-        "Are other institutions involved?",
-        max_length=4,
-        choices=BINARY_CHOICES,
-    )
     # NOTE: "List all institutions involved"
     # are ProposalContact() FK relationships.
     # Name field [limit 5]
@@ -160,8 +161,52 @@ class Proposal(models.Model):
     def get_slug(self):
         return 'proposal/'
 
-    def level3_approved(self):
-        return True
+
+    def permissions(self, user):
+        '''
+        what can the user access in terms of the proposal
+        and viewing it and the approval process
+        '''
+
+        perms = {'view':False,'approve':False}
+        # in_group includes an exception for superusers
+        group = in_group(user, OSP_GROUP)
+        dean = department_division_chairs(
+            '(DTID.id={} or DVID.id={})'.format(user.id, user.id)
+        )
+
+        if self.user != user and not group and not dean:
+            # no permissions
+            return perms
+        else:
+            perms['view'] = True
+            # can the user see the approve/decline buttons
+            perms['superuser'] = False
+            perms['approver'] = False
+            perms['dean'] = False
+            perms['cfo'] = False
+            perms['provost'] = False
+            # superuser
+            if user.is_superuser:
+                perms['superuser'] = True
+                perms['approve'] = True
+            # CFO?
+            elif user.id == settings.CFO_ID:
+                perms['cfo'] = True
+                perms['approve'] = True
+            # Provost?
+            elif user.id == settings.PROVOST_ID:
+                perms['provost'] = True
+                perms['approve'] = True
+            # ad-hoc approver?
+            else:
+                for a in self.approvers.all():
+                    if a.user == user:
+                        perms['approver'] = True
+                        perms['approve'] = True
+                        break
+
+        return perms
 
 
 class ProposalImpact(models.Model):
@@ -181,8 +226,9 @@ class ProposalImpact(models.Model):
     )
 
     # status
-    level2_approved = models.BooleanField(default=False) # division dean
-    level1_approved = models.BooleanField(default=False) # provost
+    level3 = models.BooleanField(default=False) # Division Dean
+    level2 = models.BooleanField(default=False) # CFO
+    level1 = models.BooleanField(default=False) # Provost
 
     # Project Impact
     # NOTE: "Describe your project goal/s"
@@ -193,62 +239,114 @@ class ProposalImpact(models.Model):
     # HOLD ON DEVELOPING THIS SECTION: MAY ADD LATER
 
     # Institutional Impact
-    course_release = models.CharField(
-        "Does this proposal require course release or overload?",
+    cost_share_match = models.CharField(
+        "Does this proposal require cost sharing/match?",
         max_length=4,
         choices=BINARY_CHOICES,
     )
-    additional_pay = models.CharField(
-        "Does this proposal require additional pay?",
+    voluntary_committment = models.CharField(
+        """
+        Does this proposal contain any voluntary commitments
+        on behalf of the College?
+        """,
         max_length=4,
         choices=BINARY_CHOICES,
     )
-    payout_students = models.CharField(
-        "Does this proposal require payout to Carthage students?",
+    subcontractors_subawards = models.CharField(
+        """
+        Does this proposal involve subcontracts and/or subawards
+        with other institutions/organizations?
+        """,
         max_length=4,
         choices=BINARY_CHOICES,
     )
-    new_positions = models.CharField(
-        "Does this proposal require the creation of new Carthage positions?",
+    students_involved = models.CharField(
+        "Does this proposal involve the use of students?",
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    new_hires = models.CharField(
+        "Does this proposal require any new faculty or staff hires?",
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    course_relief = models.CharField(
+        """
+        Does this proposal contain course relief of any Carthage personnel
+        during the academic year?
+        """,
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    service_overload = models.CharField(
+        """
+        Does this proposal contain extra service or overload
+        of any Carthage personnnel?
+        """,
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    irb_review = models.CharField(
+        "Does this proposal require review of IRB?",
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    iacuc_review = models.CharField(
+        "Does this proposal require review of IACUC?",
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    international = models.CharField(
+        """
+        Does this proposal involve international travel, collaboration,
+        export, international student participation?
+        """,
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    hazards = models.CharField(
+        """
+        Does this proposal involve the use of chemical/physical hazards
+        (including toxic or hazardous chemicals, radioactive material,
+        biohazards, pathogens, toxins, recombinant DNA, oncongenic viruses,
+        tumor cells, etc.)?
+        """,
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    proprietary_confidential = models.CharField(
+        """
+        Does this proposal involve work that may result in a patent
+        or involve proprietary or confidential information?
+        """,
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    tech_support = models.CharField(
+        """
+        Does this proposal involve technology use that will require
+        extensive technical support?
+        """,
         max_length=4,
         choices=BINARY_CHOICES,
     )
     purchase_equipment = models.CharField(
         """
-            Does this proposal result in the purchase of major equipment,
-            costing over $5,000?
+        Does this proposal require any purchase, installation,
+        and maintenance of equipment?
         """,
         max_length=4,
         choices=BINARY_CHOICES,
     )
-    infrastructure_modifications = models.CharField(
+    infrastructure_requirements = models.CharField(
         """
-            Does this proposal require additional office,
-            lab or other facilities or room modifications?
+        Does this proposal require any additional space than
+        currently provided?
         """,
         max_length=4,
         choices=BINARY_CHOICES,
     )
-    institutional_review = models.CharField(
-        "Does this proposal require review of IRB and/or IACUC?",
-        max_length=4,
-        choices=BINARY_CHOICES,
-    )
-    institutional_review_date = models.DateField(
-        "If 'Yes', please provide the approval date",
-        null=True,blank=True
-    )
-    cost_share_match = models.CharField(
-        "Does this proposal require cost share/match?",
-        max_length=4,
-        choices=BINARY_CHOICES,
-    )
-    voluntary_committment = models.CharField(
-        "Does this proposal contain any voluntary commitment?",
-        max_length=4,
-        choices=BINARY_CHOICES,
-        help_text = "e.g. faculty/staff time, cost share/match"
-    )
+    disclosure_assurance = models.BooleanField(default=False)
 
     class Meta:
         ordering  = ['-created_at']
@@ -257,9 +355,6 @@ class ProposalImpact(models.Model):
 
     def get_slug(self):
         return 'proposal-impact/'
-
-    def level3_approved(self):
-        return True
 
 
 class ProposalBudget(models.Model):
@@ -330,8 +425,12 @@ class ProposalDocument(models.Model):
         Proposal, editable=False,
         related_name='proposal_documents'
     )
+    name = models.CharField(
+        "Name or short description of the file",
+        max_length=128,
+    )
     phile = models.FileField(
-        "Supporting document",
+        "Supporting Document",
         upload_to=upload_to_path,
         #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
@@ -434,15 +533,23 @@ class ProposalApprover(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal,
-        related_name='approver'
+        related_name='approvers'
     )
+    # this field is not in use at the moment but i suspect
+    # OSP will want to reactivate it in the future
     steps = models.CharField(
         max_length=4,
         default='3',
         choices=PROPOSAL_STEPS_CHOICES
     )
-    approved_1 = models.BooleanField(default=False)
-    approved_2 = models.BooleanField(default=False)
+    replace = models.CharField(
+        max_length=24,
+        default='level3',
+        choices=APPROVAL_LEVEL_CHOICES,
+        null=True,blank=True
+    )
+    step1 = models.BooleanField(default=False)
+    step2 = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'core_proposal_approver'

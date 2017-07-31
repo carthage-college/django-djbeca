@@ -1,6 +1,7 @@
 {% extends "home.html" %}
 {% load livewhale_api %}
 {% block extra_javascript %}
+{{block.super}}
 <script src="//www.carthage.edu/static/vendor/summernote/summernote.min.js"
   type="text/javascript" charset="utf-8"></script>
 <script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
@@ -9,16 +10,7 @@
     type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
-    /*$('textarea').summernote({height: 200}); */
-    $(".required > input").addClass("required");
-    $(".required > select").addClass("required");
-    $(".required > textarea").addClass("required");
-    $(".required > textarea").parent().parent().find('h3').addClass("required");
-    $(".warning > input").addClass("error");
-    $(".warning > select").addClass("error");
-    $(".warning > textarea").addClass("error");
-    $(".required > ul").parent().parent().find('h3').addClass("required");
-
+    $('#id_comments-comments').summernote({height: 200});
     var copies = {{copies|default:1}};
     $("#clone").click(function () {
         if (copies < 8) {
@@ -78,25 +70,6 @@
         console.log($(this).val());
       }
     })
-
-    // What is Indirect Cost Rate Used?
-    var $indirect_cost_rate = $('#id_budget-indirect_cost_rate').closest('li');
-    var $indirect_cost_rate_other = $('#id_budget-indirect_cost_rate_other').closest('li');
-    {% if form_budget.indirect_cost_rate.value != 'Other' %}
-    $indirect_cost_rate_other.slideUp();
-    {% endif %}
-    $('select[name=budget-indirect_cost_rate]').click(function(){
-      var domArray = [
-        $indirect_cost_rate_other
-      ]
-      binarySwitch($(this).val(), 'Other', domArray, $indirect_cost_rate_other);
-      if (this.value == 'Other') {
-        $('#id_budget-indirect_cost_rate_other').addClass('required');
-      }else{
-        $('#id_budget-indirect_cost_rate_other').removeClass('required');
-      }
-    })
-
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -116,8 +89,6 @@
     <link href="//www.carthage.edu/static/vendor/summernote/summernote.css"
         rel="stylesheet" type="text/css" />
     <style type="text/css">
-    font: .74em Arial, Verdana, sans-serif;text-align: center;
-    line-height: 1.6em;margin: 2.5em 0;}
     .note-editor{
         width:500px;background: #fff;
         border: solid 1px #ccc;
@@ -160,7 +131,9 @@
           class="form" id="profile">
         {% csrf_token %}
         <fieldset class="blockLabels">
-          <legend>Budget Data</legend>
+          <legend>Budget and Budget Narrative</legend>
+          {% get_lw_content as intro blurbs 2516 %}
+          {{intro.body}}
           <ol>
           {% for field in form_budget.visible_fields %}
             {% include "form_field.inc.html" %}
@@ -172,10 +145,12 @@
           </ol>
         </fieldset>
         <fieldset class="blockLabels">
-          <legend>Institutional Impacts</legend>
+          <legend>Institutional/Compliance Impacts</legend>
           <ol>
           {% for field in form_impact.visible_fields %}
+            {% if field.name != 'disclosure_assurance' %}
             {% include "form_field.inc.html" %}
+            {% endif %}
           {% endfor %}
           </ol>
         </fieldset>
@@ -224,7 +199,71 @@
             </dl>
           </div>
         </fieldset>
-        {% include "form_submit.inc.html" %}
+        <fieldset class="blockLabels">
+          <legend>Additional Information</legend>
+          <ol>
+          {% for field in form_comments.visible_fields %}
+            {% include "form_field.inc.html" %}
+          {% endfor %}
+          </ol>
+          <h3>Documents</h3>
+          <ol>
+          {% for field in form_doc1.visible_fields %}
+            {% include "form_file_field.inc.html" %}
+          {% endfor %}
+          </ol>
+          <hr>
+          <ol>
+          {% for field in form_doc2.visible_fields %}
+            {% include "form_file_field.inc.html" %}
+          {% endfor %}
+          </ol>
+          <hr>
+          <ol>
+          {% for field in form_doc3.visible_fields %}
+            {% include "form_file_field.inc.html" %}
+          {% endfor %}
+          </ol>
+        </fieldset>
+        <fieldset class="blockLabels">
+          {% get_lw_content as disclosure blurbs 2513 %}
+          {{disclosure.body}}
+          <ol style="padding-bottom:24px;">
+            <li class="form-group ctrlHolder">
+              {% if form_impact.disclosure_assurance.errors %}
+              <div class="required warning">
+                <span class="error-message">
+                  {{ form_impact.disclosure_assurance.errors|join:", "}}
+                </span>
+              {% else %}
+              <div class="required">
+              {% endif %}
+                <input name="impact-disclosure_assurance" type="checkbox"
+                id="id_impact-disclosure_assurance"
+                {% if form_impact.disclosure_assurance.value %}checked{% endif %}>
+              </div>
+            </li>
+          </ol>
+          <hr>
+          <ol>
+            <li>
+              <label for="id_save" style="display:none;">
+                Save
+              </label>
+              <input id="id_save" type="submit" value="Save my work"
+                class="button blue-tooltip" data-toggle="tooltip"
+                title="Save your work but DO NOT SUBMIT for approval"
+                data-placement="top">
+              <label for="id_submit" style="display:none;">
+                Submit Part B
+              </label>
+              <input id="id_submit" type="submit" value="Submit"
+                class="button blue-tooltip fright" data-toggle="tooltip"
+                title="Save your work and SUBMIT it for approval"
+                data-placement="top">
+            </li>
+          </ol>
+        </fieldset>
         </form>
         <dl class="goals" id="goal-master">
           <dt>
