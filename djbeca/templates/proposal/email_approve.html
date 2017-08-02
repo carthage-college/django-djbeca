@@ -1,19 +1,17 @@
-{% autoescape off %}
 {% load livewhale_api %}
-{% if data.division_approved and data.department_approved %}
-  <h3>Program Idea Approved!</h3>
-  {% get_lw_content as approved blurbs 2249 %}
-  {{approved.body}}
-{% else %}
-  {% get_lw_content as approve blurbs 2405 %}
-  {{approve.body}}
-  <p>
-    <a href="{{data.get_update_url}}">
-        Update this Program
-    </a>
-  </p>
-{% endif %}
-<h3>Program Idea</h3>
+{% autoescape off %}
+{% block message %}
+  {% get_lw_content as email blurbs 2405 %}
+  {{email.body}}
+{% endblock %}
+{% block proposal %}
+<h3>
+  <a href="{{data.get_update_url}}">
+    Click here to Update This Submission
+  </a>
+</h3>
+<h3>Title</h3>
+<p>{{data.title}}</p>
 <dl style="margin-bottom:5px">
     <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
         First name
@@ -34,10 +32,5 @@
         {{data.department}}
     </dd>
 </dl>
-<h4>Title</h4>
-<p>{{data.title}}</p>
-{% if data.chairs %}
-<h4>Chairs</h4>
-{{data.chairs}}
-{% endif %}
+{% endblock %}
 {% endautoescape %}

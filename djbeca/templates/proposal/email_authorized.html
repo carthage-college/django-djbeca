@@ -1,0 +1,7 @@
+{% load livewhale_api %}
+{% autoescape off %}
+{% block message %}
+  {% get_lw_content as email blurbs 2245 %}
+  {{email.body}}
+{% endblock %}
+{% endautoescape %}

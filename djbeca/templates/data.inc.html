@@ -34,18 +34,23 @@
             data-placement="top" class="blue-tooltip"
             title="View Proposal">{{p.title}}</a>
           </td>
+          {% if not p.decline %}
           <td>
             {% if p.step1 or group or request.user.is_superuser %}
-              <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
-              data-placement="top" title="Update Part A" class="blue-tooltip">
-                <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
-              </a>
+              {% if p.user.id == request.user.id or group or request.user.is_superuser %}
+                {% if not p.save_submit %}
+                <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
+                data-placement="top" title="Update Part A" class="blue-tooltip">
+                  <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
+                </a>
+                {% endif %}
+              {% endif %}
             {% else %}
               <i class="fa fa-2x fa-exclamation-circle yellow blue-tooltip"
               data-toggle="tooltip" data-placement="top" aria-hidden='true'
               title="Part A has not been Approved"></i>
             {% endif %}
-            {% for a in p.approvers.all %}
+            {% for a in p.proposal_approvers.all %}
               {% if a.replace != 'level3' %}
                 {% if a.step1 %}
                   <i class="fa fa-2x fa-check green blue-tooltip"
@@ -70,17 +75,21 @@
           </td>
           <td>
             {% if p.step1 %}
-              <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
-              data-placement="top" title="Update Part A" class="blue-tooltip">
-                <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
-              </a>
+              {% if p.user.id == request.user.id or group or request.user.is_superuser %}
+                {% if not p.save_submit %}
+                <a href="{% url 'impact_form' p.id %}"
+                data-toggle="tooltip" data-placement="top" class="blue-tooltip"
+                title="Update Part B">
+                  <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
+                </a>
+                {% endif %}
+              {% endif %}
             {% else %}
               <i class="fa fa-2x fa-exclamation-circle yellow blue-tooltip"
               data-toggle="tooltip" data-placement="top" aria-hidden='true'
               title="Part A has not been Approved"></i>
             {% endif %}
-
-            {% for a in p.approvers.all %}
+            {% for a in p.proposal_approvers.all %}
               {% if a.replace != 'level3' %}
                 {% if a.step2 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
@@ -121,6 +130,9 @@
                 title="Provost has NOT approved this proposal"></i>
             {% endif %}
           </td>
+          {% else %}
+          <td colspan="2"><strong>Declined</strong></td>
+          {% endif %}
           <td>
             {% ifusergroup 'Sponsored Programs' %}
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"

@@ -22,6 +22,7 @@ class Proposal(models.Model):
     '''
     Proposal to pursue funding
     '''
+
     # meta
     created_at = models.DateTimeField(
         "Date Created", auto_now_add=True
@@ -29,12 +30,17 @@ class Proposal(models.Model):
     updated_at = models.DateTimeField(
         "Date Updated", auto_now=True
     )
-    #user = models.ForeignKey(User, editable=False)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, editable=settings.DEBUG)
     # Division Dean or VP approval
     level3 = models.BooleanField(default=False)
     # anyone in the workflow decline the proposal at this point
     decline = models.BooleanField(default=False)
+    # set to True when steps 1 & 2 have been approved by all and
+    # post_save signal sends email to OSP
+    email_approved = models.BooleanField(default=False)
+    # PI has submitted proposal for final approval
+    save_submit = models.BooleanField(default=False)
+
     # Basic Proposal Elements
     proposal_type = models.CharField(
         "What type of proposal submission is this?",
@@ -213,7 +219,7 @@ class Proposal(models.Model):
         return perms
 
     # at the moment, we assume all approvers will be responsible for
-    # step 1 AND step 2. in the future, i suspect that might change.
+    # step 1 AND step 2. in the future, i suspect that this might change.
     def step1(self):
         approved = self.level3
         for a in self.proposal_approvers.all():
@@ -227,10 +233,11 @@ class Proposal(models.Model):
         if self.proposal_impact.level1 and self.proposal_impact.level2 \
           and self.proposal_impact.level3:
             approved = True
-        for a in self.proposal_approvers.all():
-            if not a.step2:
-                approved = False
-                break
+        if approved:
+            for a in self.proposal_approvers.all():
+                if not a.step2:
+                    approved = False
+                    break
         return approved
 
 class ProposalImpact(models.Model):
@@ -452,6 +459,7 @@ class ProposalDocument(models.Model):
     name = models.CharField(
         "Name or short description of the file",
         max_length=128,
+        null=True,blank=True
     )
     phile = models.FileField(
         "Supporting Document",

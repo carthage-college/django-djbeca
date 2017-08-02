@@ -79,14 +79,14 @@
     var $lead_institution_contact = $('#id_lead_institution_contact').closest('li');
     $lead_institution_name.addClass("details");
     $lead_institution_contact.addClass("details");
-    {% if form.lead_institution.value == 'Yes' %}
-      $lead_institution_name.slideUp();
-      $lead_institution_contact.slideUp();
-    {% else %}
+    {% if form.lead_institution.value == 'No' %}
       $lead_institution_name.addClass('required');
       $lead_institution_contact.addClass('required');
       $lead_institution_name.slideDown();
       $lead_institution_contact.slideDown();
+    {% else %}
+      $lead_institution_name.slideUp();
+      $lead_institution_contact.slideUp();
     {% endif %}
     $('input[name=lead_institution]').click(function(){
       var domArray = [
@@ -117,6 +117,12 @@
         showOn:'both',
         buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
+    });
+    // disable submit button after users clicks it
+    //$('form#profile').bind('submit', function (e) {
+    $('form#profile').on('submit', function (e) {
+        $('#id_submit').prop('disabled', true);
+        return true;
     });
   });
 </script>

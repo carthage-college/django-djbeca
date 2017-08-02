@@ -1,0 +1,11 @@
+{% extends "impact/email_approve.html" %}
+{% load livewhale_api %}
+{% block message %}
+  {% get_lw_content as email blurbs 2520 %}
+  {{email.body}}
+  <h3>
+    <a href="{{data.get_update_url}}">
+      Click here to approve and certify
+    </a>.
+  </h3>
+{% endblock %}

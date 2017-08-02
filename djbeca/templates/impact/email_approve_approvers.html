@@ -1,0 +1,6 @@
+{% extends "proposal/email_approve.html" %}
+{% load livewhale_api %}
+{% block message %}
+  {% get_lw_content as email blurbs 2555 %}
+  {{email.body}}
+{% endblock %}

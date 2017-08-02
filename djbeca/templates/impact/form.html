@@ -34,42 +34,6 @@
             $.growlUI('Warning', 'No Goals to delete');
         }
     });
-
-    // binary switch to show/hide fields that depend on the value
-    // of the previous question
-    function binarySwitch(val, bswitch, domids, trigger) {
-        if (val == bswitch) {
-            for (index = 0; index < domids.length; ++index) {
-                domids[index].slideDown();
-                trigger.addClass("details");
-            }
-        }else{
-            for (index = 0; index < domids.length; ++index) {
-                domids[index].slideUp();
-                trigger.removeClass("details");
-            }
-        }
-    }
-
-    // Does this proposal require review of IRB and/or IACUC?
-    var $institutional_review = $('#id_impact-institutional_review').closest('li');
-    var $institutional_review_date = $('#id_impact-institutional_review_date').closest('li');
-    {% if form_impact.institutional_review.value != 'Yes' %}
-    $institutional_review_date.slideUp();
-    {% endif %}
-    $('input[name=impact-institutional_review]').click(function (){
-      var domArray = [
-        $institutional_review_date
-      ]
-      binarySwitch($(this).val(), 'Yes', domArray, $institutional_review_date);
-      if ($(this).val() == 'Yes') {
-        $institutional_review_date.find('h3').addClass('required');
-        console.log($(this).val());
-      }else{
-        $institutional_review_date.find('h3').removeClass('required');
-        console.log($(this).val());
-      }
-    })
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -78,6 +42,12 @@
         showOn:'both',
         buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
+    });
+    // disable submit button after users clicks it
+    //$('form#profile').bind('submit', function (e) {
+    $('form#profile').on('submit', function (e) {
+        $('#id_submit').prop('disabled', true);
+        return true;
     });
   });
 </script>
@@ -251,16 +221,16 @@
                 Save
               </label>
               <input id="id_save" type="submit" value="Save my work"
-                class="button blue-tooltip" data-toggle="tooltip"
-                title="Save your work but DO NOT SUBMIT for approval"
-                data-placement="top">
+                name='save-continue' class="button blue-tooltip"
+                data-toggle="tooltip" data-placement="top"
+                title="Save your work but DO NOT SUBMIT for approval">
               <label for="id_submit" style="display:none;">
                 Submit Part B
               </label>
               <input id="id_submit" type="submit" value="Submit"
-                class="button blue-tooltip fright" data-toggle="tooltip"
-                title="Save your work and SUBMIT it for approval"
-                data-placement="top">
+                name="save-submit" class="button blue-tooltip fright"
+                data-toggle="tooltip" data-placement="top"
+                title="Save your work and SUBMIT it for approval">
             </li>
           </ol>
         </fieldset>

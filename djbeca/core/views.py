@@ -4,6 +4,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
@@ -24,7 +25,10 @@ from djauth.LDAPManager import LDAPManager
 
 BCC = [settings.MANAGERS[0][1]]
 OSP_GROUP = settings.OSP_GROUP
-
+CFO = settings.CFO
+PROVOST = settings.PROVOST
+PRESIDENT = settings.PRESIDENT
+PROPOSAL_EMAIL = settings.PROPOSAL_EMAIL
 
 @portal_auth_required(
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
@@ -67,8 +71,16 @@ def home(request):
 )
 def impact_form(request, pid):
 
-    TO_LIST = [settings.PROPOSAL_EMAIL,]
     proposal = get_object_or_404(Proposal, id=pid)
+
+    # we do not allow PIs to update their proposals after save-submit
+    # but OSP can do so
+    group = in_group(request.user, OSP_GROUP)
+    if not group and proposal.save_submit:
+        return HttpResponseRedirect(
+            reverse_lazy('home')
+        )
+
     # budget and impact
     try:
         impact = proposal.proposal_impact
@@ -126,24 +138,23 @@ def impact_form(request, pid):
                 comments = form_comments.cleaned_data
                 proposal.comments = comments['comments']
                 proposal.save()
+
             # document 1
-            #if request.FILES.get('doc1-phile'):
             form_doc1.is_valid()
             doc1 = form_doc1.save(commit=False)
             doc1.proposal = proposal
             doc1.save()
             # document 2
-            #if request.FILES.get('doc2-phile'):
             form_doc2.is_valid()
             doc2 = form_doc2.save(commit=False)
             doc2.proposal = proposal
             doc2.save()
             # document 3
-            #if request.FILES.get('doc3-phile'):
             form_doc3.is_valid()
             doc3 = form_doc3.save(commit=False)
             doc3.proposal = proposal
             doc3.save()
+
             # delete the old goals because it's just easier this way
             if impact:
                 if goals:
@@ -161,42 +172,63 @@ def impact_form(request, pid):
                     )
                     goal.save()
 
-            '''
-            # send email to division dean and departmental chair
-            where = 'PT.pcn_03 = "{}"'.format(data.department)
-            chairs = department_division_chairs(where)
-            if len(chairs) > 0:
-                # temporarily assign department to full name
-                data.department = chairs[0][0]
-                if not settings.DEBUG:
-                    # Department chair's email
-                    TO_LIST.append(chairs[0][4])
-                    # Division dean's email
-                    TO_LIST.append(chairs[0][8])
-                else:
-                    data.chairs = chairs
-            else:
-                # staff do not have chairs
-                data.department = depts[0][1]
+            # Send email to Approvers, Division Dean, CFO, and Provost
+            # if the PI is finished with the proposal (i.e. hits 'submit-save'
+            # rather than 'save and continue')
+            if 'save-submit' in request.POST and not proposal.save_submit:
+                subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
+                    proposal.title, proposal.user.last_name,
+                    proposal.user.first_name
+                )
+                # Approvers
+                to_list = []
+                for a in proposal.proposal_approvers.all():
+                    to_list.append(a.user.email)
 
-            # send the email
-            subject = "[OSP] Proposal: {} by {}, {}".format(
-                data.title,
-                data.user.last_name, data.user.first_name
-            )
-            send_mail(
-                request, TO_LIST, subject, data.user.email,
-                'proposal/email_approve.html', data, BCC
-            )
-            # send confirmation to individual submitting idea
-            subject = "[OSP] Proposal: {}".format(
-                data.title
-            )
-            send_mail(
-                request, [data.user.email], subject, settings.PROPOSAL_EMAIL,
-                'proposal/email_confirmation.html', data, BCC
-            )
-            '''
+                # send the email to Approvers
+                send_mail(
+                    request, to_list, subject, proposal.user.email,
+                    'impact/email_approve_approvers.html', proposal, BCC
+                )
+
+                # Division Dean (level3)
+                where = 'PT.pcn_03 = "{}"'.format(proposal.department)
+                chairs = department_division_chairs(where)
+                # staff do not have deans so len will be 0 in that case
+                if len(chairs) > 0:
+                    # temporarily assign department to full name
+                    proposal.department = chairs[0][0]
+                    if settings.DEBUG:
+                        to_list = [PROPOSAL_EMAIL]
+                    else:
+                        # Division dean's email
+                        to_list = [chairs[0][8]]
+
+                    # send the email
+                    send_mail(
+                        request, to_list, subject, proposal.user.email,
+                        'proposal/email_approve_level3.html', proposal, BCC
+                    )
+
+                # CFO (level2) and Provost (level1)
+                send_mail(
+                    request, [CFO['email'], PROVOST['email']], subject,
+                    proposal.user.email, 'impact/email_approve_level1.html',
+                    proposal, BCC
+                )
+
+                # send confirmation to the Primary Investigator (PI)
+                # who submitted the form
+                subject = "[OSP] Proposal: {}".format(
+                    data.title
+                )
+                send_mail(
+                    request, [data.user.email], subject, PROPOSAL_EMAIL,
+                    'impact/email_confirmation.html', data, BCC
+                )
+                # set the save submit flag so PI cannot update
+                proposal.save_submit = True
+            # end sendmail
 
             return HttpResponseRedirect(
                 reverse_lazy('impact_success')
@@ -253,6 +285,14 @@ def proposal_form(request, pid=None):
         institutions = proposal.proposal_contact.filter(
             tags__name='Other Institution'
         )
+        # we do not allow PIs to update their proposals after save-submit
+        # but OSP can do so
+        group = in_group(request.user, OSP_GROUP)
+        if not group and proposal.save_submit:
+            return HttpResponseRedirect(
+                reverse_lazy('home')
+            )
+
     depts = person_departments(request.user.id)
     if request.method=='POST':
         form = ProposalForm(
@@ -297,26 +337,26 @@ def proposal_form(request, pid=None):
                 investigator.tags.add('Co-Principal Investigators')
 
             # send emails only if we have a new proposal
-            if not proposal:
+            if not proposal and not proposal.step1:
                 TO_LIST = []
                 where = 'PT.pcn_03 = "{}"'.format(data.department)
                 chairs = department_division_chairs(where)
                 if len(chairs) > 0:
                     # temporarily assign department to full name
                     data.department = chairs[0][0]
-                    if not settings.DEBUG:
+                    if settings.DEBUG:
+                        data.chairs = chairs
+                    else:
                         # Division dean's email
                         TO_LIST.append(chairs[0][8])
-                    else:
-                        data.chairs = chairs
                 else:
-                    # staff do not have chairs
+                    # staff do not have a dean
                     data.department = depts[0][1]
 
                 if not TO_LIST:
-                    TO_LIST = [settings.PROPOSAL_EMAIL,]
+                    TO_LIST = [PROPOSAL_EMAIL,]
                 else:
-                    BCC.append(settings.PROPOSAL_EMAIL)
+                    BCC.append(PROPOSAL_EMAIL)
 
                 # send the email
                 subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
@@ -328,12 +368,9 @@ def proposal_form(request, pid=None):
                 )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[OSP] Proposal: {}".format(
-                    data.title
-                )
+                subject = "[OSP] Proposal: {}".format(data.title)
                 send_mail(
-                    request, [data.user.email], subject,
-                    settings.PROPOSAL_EMAIL,
+                    request, [data.user.email], subject, PROPOSAL_EMAIL,
                     'proposal/email_confirmation.html', data, BCC
                 )
 
@@ -451,7 +488,7 @@ def proposal_approver(request, pid=0):
                     TO_LIST = [proposal.user.email, approver.user.email]
 
                 send_mail(
-                    request, TO_LIST, subject, settings.PROPOSAL_EMAIL,
+                    request, TO_LIST, subject, PROPOSAL_EMAIL,
                     'approver/email.html', {'proposal':proposal,}, BCC
                 )
 
@@ -518,49 +555,96 @@ def email_investigator(request, pid, action):
     )
 
 
-def proposal_approve(request, pid):
+@csrf_exempt
+@portal_auth_required(
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
+)
+def proposal_status(request, pid):
     '''
-    approve a proposal via AJAX POST
+    approve or decline a proposal via AJAX POST
     '''
 
-    user = request.user
-    proposal = get_object_or_404(Proposal, id=pid)
-    perms = proposal.permissions(user)
-    if not perms['approve']:
-        return HttpResponse("Access Denied")
-    else:
-        post = request.POST
-
-        # we can stop here if declined.
-        # anyone can decline, for now.
-        if 'decline' in request.POST:
-            proposal.decline = True
-            proposal.save()
-            return HttpResponse("Success")
-
-        # which step?
-        step = 'step2'
-        if not proposal.step1:
-            step = 'step1'
-            # if dean stop here
-            if perms['approve'] = 'level3':
-                proposal.level3 = True
-                return HttpResponse("Dean")
-
-        # CFO?
-        if user.id == settings.CFO_ID:
-            proposal.proposal_impact.level2 = True
-            return HttpResponse("CFO")
-        # Provost?
-        elif user.id == settings.PROVOST_ID:
-            perms['level1'] = True
-            perms['approve'] = 'level1'
-            return HttpResponse("Provost")
+    # requires POST request
+    if request.POST:
+        user = request.user
+        approver = False
+        proposal = get_object_or_404(Proposal, id=pid)
+        perms = proposal.permissions(user)
+        if not perms['approve']:
+            return HttpResponse("Access Denied")
         else:
-            # approvers
-            for a in proposal.proposal_approvers.all():
-                if a.user == user:
-                    a.__dict__[step] = True
-                    a.save()
-                    break
-            return HttpResponse("Approver")
+            status = request.POST.get('status')
+            if not status:
+                return HttpResponse("No status")
+
+            # which step?
+            step = 'step2'
+            decline_template = 'impact/email_decline.html'
+            decline_subject = 'Proposal: "{}"'.format(proposal.title)
+            if not proposal.step1():
+                step = 'step1'
+                decline_template = 'proposal/email_decline.html'
+                decline_subject = 'Proposal Form A: "{}"'.format(proposal.title)
+
+            # we can stop here if declined.
+            # anyone can decline, for now. i suspect that will change
+            # and thus the data model will have to change.
+            if status == 'decline':
+                proposal.decline = True
+                proposal.save()
+                # send rejection email
+                BCC.append(PROPOSAL_EMAIL)
+                send_mail(
+                    request, [proposal.user.email], decline_subject,
+                    proposal.user.email, decline_template, proposal, BCC
+                )
+                return HttpResponse("Proposal Declined")
+
+            # if step1 and dean stop here
+            if step == 'step1' and perms['level3']:
+                proposal.level3 = True
+                proposal.save()
+                subject = '{}: "{}"'.format(
+                    'Access to Part B - Routing & Authorization:',
+                    proposal.title
+                )
+                send_mail(
+                    request, [proposal.user.email], subject,
+                    proposal.user.email, "proposal/email_authorized.html",
+                    proposal, BCC
+                )
+                return HttpResponse("Dean approved Part A")
+            # Dean?
+            elif perms['level3']:
+                proposal.proposal_impact.level3 = True
+                proposal.save()
+            # CFO?
+            elif user.id == CFO['id']:
+                proposal.proposal_impact.level2 = True
+                proposal.save()
+                return HttpResponse("CFO approved Part B")
+            # Provost?
+            elif user.id == PROVOST['id']:
+                proposal.proposal_impact.level1 = True
+                proposal.save()
+                return HttpResponse("Provost approved Part B")
+            else:
+                # approvers
+                for a in proposal.proposal_approvers.all():
+                    if a.user == user:
+                        a.__dict__[step] = True
+                        a.save()
+                        approver = True
+                        break
+
+            if approver:
+                message = "Approved by {} {}".format(
+                    a.user.first_name, a.user.last_name
+                )
+            else:
+                message = "Who dat tryin' to 'prove?"
+    else:
+        message = "Requies POST request"
+
+    return HttpResponse(message)
+
