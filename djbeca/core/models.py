@@ -197,11 +197,11 @@ class Proposal(models.Model):
                 perms['level3'] = True
                 perms['approve'] = 'level3'
             # CFO?
-            elif user.id == settings.CFO_ID:
+            elif user.id == settings.CFO['id']:
                 perms['level2'] = True
                 perms['approve'] = 'level2'
             # Provost?
-            elif user.id == settings.PROVOST_ID:
+            elif user.id == settings.PROVOST['id']:
                 perms['level1'] = True
                 perms['approve'] = 'level1'
             # Superuser?

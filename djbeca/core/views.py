@@ -337,7 +337,7 @@ def proposal_form(request, pid=None):
                 investigator.tags.add('Co-Principal Investigators')
 
             # send emails only if we have a new proposal
-            if not proposal and not proposal.step1:
+            if not proposal:
                 TO_LIST = []
                 where = 'PT.pcn_03 = "{}"'.format(data.department)
                 chairs = department_division_chairs(where)

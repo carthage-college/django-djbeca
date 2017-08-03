@@ -9,7 +9,7 @@ from djtools.utils.mail import send_mail
 @receiver(post_save, sender=ProposalImpact)
 def proposal_impact_poste_save(sender, **kwargs):
     obj = kwargs['instance'].proposal
-    if not obj.decline and obj.step1 and obj.step2 and not obj.email_approved:
+    if not obj.decline and obj.step1() and obj.step2() and not obj.email_approved:
         # send the email
         subject = "Proposal approved {}: {}, {}".format(
             obj.title, obj.user.last_name, obj.user.first_name

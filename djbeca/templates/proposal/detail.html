@@ -155,18 +155,6 @@ $(function() {
             {{proposal.department}}
           </dd>
         </dl>
-        <h4>Are other institutions involved?</h4>
-        <h5>{{proposal.partner_institutions}}</h5>
-        {% if proposal.partner_institutions == 'Yes' %}
-          <h4>All Institutions Involved</h4>
-          <ul>
-          {% for inst in institutions %}
-            {% if inst.institution %}
-            <li>{{inst.institution}}</li>
-            {% endif %}
-          {% endfor %}
-          </ul>
-        {% endif %}
         <h4>
           Is Carthage College the lead institution on this project?
         </h4>
@@ -179,19 +167,29 @@ $(function() {
             {{proposal.lead_institution_contact}}
           </div>
         {% endif %}
-      <h4>
+        {% if institutions %}
+          <h4>All Institutions Involved</h4>
+          <ul>
+          {% for inst in institutions %}
+            {% if inst.institution %}
+            <li>{{inst.institution}}</li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+        {% endif %}
+        <h4>
         Co-Principal Investigators & Associated Institution
-      </h4>
-      <ul>
+        </h4>
+        <ul>
         {% for cp in co_principals %}
           {% if cp.name and cp.institution %}
           <li>{{cp.name}}&mdash;{{cp.institution}}</li>
           {% endif %}
         {% endfor %}
-      </ul>
-      <h3 class="clear detail">
+        </ul>
+        <h3 class="clear detail">
         Project Overview
-      </h3>
+        </h3>
         <h4>Title</h4>
         <h5>{{proposal.title}}</h5>
         <h4>

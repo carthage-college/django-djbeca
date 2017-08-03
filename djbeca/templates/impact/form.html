@@ -27,6 +27,7 @@
     $("#destroy").click(function () {
         if (copies > 1) {
             delid = 'doop-' + copies;
+            console.log(delid);
             $('#doop-' + copies ).remove();
             copies--;
             $.growlUI('Goals: ', copies);
@@ -135,9 +136,9 @@
             </div>
           </div>
           <div id="duplicates">
-            <dl class="goals">
             {% if goals %}
               {% for g in goals %}
+              <dl class="goals" id="doop-{{forloop.counter}}">
               <dt>
                 <select name="goal-name_{{forloop.counter}}">
                   <option value="" selected>----------------</option>
@@ -153,6 +154,7 @@
               </dd>
               {% endfor %}
             {% else %}
+              <dl class="goals" id="doop-1">
               <dt>
                 <select name="goal-name_1">
                   <option value="" selected="">----------------</option>
@@ -165,8 +167,8 @@
               <dd>
                 <textarea name="goal-description_1"></textarea>
               </dd>
-            {% endif %}
             </dl>
+            {% endif %}
           </div>
         </fieldset>
         <fieldset class="blockLabels">
