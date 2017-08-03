@@ -182,7 +182,7 @@ def impact_form(request, pid):
                     proposal.user.first_name
                 )
                 # Approvers
-                to_list = []
+                to_list = [PROPOSAL_EMAIL,]
                 for a in proposal.proposal_approvers.all():
                     to_list.append(a.user.email)
 
@@ -214,7 +214,7 @@ def impact_form(request, pid):
                 # CFO (level2) and Provost (level1)
                 send_mail(
                     request, [CFO['email'], PROVOST['email']], subject,
-                    proposal.user.email, 'impact/email_approve_level1.html',
+                    PROPOSAL_EMAIL, 'impact/email_approve_level1.html',
                     proposal, BCC
                 )
 
@@ -363,7 +363,7 @@ def proposal_form(request, pid=None):
                     data.title, data.user.last_name, data.user.first_name
                 )
                 send_mail(
-                    request, TO_LIST, subject, data.user.email,
+                    request, TO_LIST, subject, PROPOSAL_EMAIL,
                     'proposal/email_approve.html', data, BCC
                 )
                 # send confirmation to the Primary Investigator (PI)
