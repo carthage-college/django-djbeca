@@ -175,7 +175,10 @@ def impact_form(request, pid):
             # Send email to Approvers, Division Dean, CFO, and Provost
             # if the PI is finished with the proposal (i.e. hits 'submit-save'
             # rather than 'save and continue')
-            if 'save-submit' in request.POST and not proposal.save_submit:
+            data = request.POST
+            if data.get('save_submit'):
+                logger.debug(data['save_submit'])
+            if data.get('save_submit') and not proposal.save_submit:
                 subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
@@ -207,7 +210,7 @@ def impact_form(request, pid):
                     # send the email
                     send_mail(
                         request, to_list, subject, proposal.user.email,
-                        'proposal/email_approve_level3.html', proposal, BCC
+                        'impact/email_approve_level3.html', proposal, BCC
                     )
 
                 # CFO (level2) and Provost (level1)
@@ -525,12 +528,7 @@ def email_investigator(request, pid, action):
         form = EmailInvestigatorForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
-            if 'confirm' in request.POST:
-                return render (
-                    request, 'investigator/email_form.html',
-                    {'form':form,'data':form_data,'p':proposal}
-                )
-            elif 'execute' in request.POST:
+            if 'execute' in request.POST:
                 send_mail (
                     request, [proposal.user.email,],
                     "[Office of Sponsored Programs] Grant Proposal: {}".format(
@@ -543,17 +541,20 @@ def email_investigator(request, pid, action):
                     reverse_lazy('email_investigator_done')
                 )
             else:
-                return HttpResponseRedirect(
-                    reverse_lazy('email_investigator_form', args=[pid,action])
+                return render (
+                    request, 'investigator/email_form.html',
+                    {'form':form,'data':form_data,'p':proposal}
                 )
     else:
         form = EmailInvestigatorForm()
 
     return render(
         request, 'investigator/email_form.html',
-        {'form': form,'data':form_data,"p":proposal,'action':action}
+        {'form': form,'data':form_data,'p':proposal,'action':action}
     )
 
+import logging
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @portal_auth_required(
@@ -600,6 +601,8 @@ def proposal_status(request, pid):
                 )
                 return HttpResponse("Proposal Declined")
 
+
+
             # if step1 and dean stop here
             if step == 'step1' and perms['level3']:
                 proposal.level3 = True
@@ -617,16 +620,17 @@ def proposal_status(request, pid):
             # Dean?
             elif perms['level3']:
                 proposal.proposal_impact.level3 = True
-                proposal.save()
+                proposal.proposal_impact.save()
+                return HttpResponse("Division Dean approved Part B")
             # CFO?
             elif user.id == CFO['id']:
                 proposal.proposal_impact.level2 = True
-                proposal.save()
+                proposal.proposal_impact.save()
                 return HttpResponse("CFO approved Part B")
             # Provost?
             elif user.id == PROVOST['id']:
                 proposal.proposal_impact.level1 = True
-                proposal.save()
+                proposal.proposal_impact.save()
                 return HttpResponse("Provost approved Part B")
             else:
                 # approvers

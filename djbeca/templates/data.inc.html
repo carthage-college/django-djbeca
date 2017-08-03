@@ -131,7 +131,9 @@
             {% endif %}
           </td>
           {% else %}
-          <td colspan="2"><strong>Declined</strong></td>
+          <td colspan="2" class="red" style="text-align:center;">
+            Proposal Declined
+          </td>
           {% endif %}
           <td>
             {% ifusergroup 'Sponsored Programs' %}

@@ -7,6 +7,7 @@
 {% endblock %}
 {% block content %}
     <h1>Email Primary Investigator</h1>
+    {% include "includes/errors_text.html" %}
     <p>
         Compose an email to send to:
         <b>{{p.user.first_name}} {{p.user.last_name}}</b>
@@ -28,6 +29,7 @@
         <form method="post" action="." class="form"
             id="profile"{% block extra_form_tag %}{% endblock%}>
         {% csrf_token %}
+        <input type="hidden" name="execute" value="Execute" id="id_execute">
         <div style="display:none;">
         <table>
         {{form}}
@@ -35,11 +37,10 @@
         </div>
         <p>
             <br />
-            <input type="button" name="update" value="Edit"
-                class="button fleft" onclick="javascript:history.go(-1)" />
+            <input type="button" value="Edit" class="button fleft"
+              onclick="javascript:history.go(-1)">
             &nbsp;
-            <input type="submit" name="execute" value="Execute"
-                class="button fright" />
+            <input type="submit" value="Execute" class="button fright">
         </p>
         </form>
     {% else %}

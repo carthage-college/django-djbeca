@@ -44,10 +44,16 @@
         buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
     });
+    $('[type="submit"]').on('click', function () {
+        if ($(this).attr('id') == 'id_submit') {
+            $('#id_save_submit').val('true');
+        }
+    });
     // disable submit button after users clicks it
     //$('form#profile').bind('submit', function (e) {
     $('form#profile').on('submit', function (e) {
         $('#id_submit').prop('disabled', true);
+        //return false;
         return true;
     });
   });
@@ -101,6 +107,7 @@
         <form method="post" enctype="multipart/form-data" action="."
           class="form" id="profile">
         {% csrf_token %}
+        <input type="hidden" id="id_save_submit" name="save_submit" value="">
         <fieldset class="blockLabels">
           <legend>Budget and Budget Narrative</legend>
           {% get_lw_content as intro blurbs 2516 %}
@@ -222,17 +229,17 @@
               <label for="id_save" style="display:none;">
                 Save
               </label>
-              <input id="id_save" type="submit" value="Save my work"
-                name='save-continue' class="button blue-tooltip"
+              <input value="Save my work" type="submit"
+                class="button blue-tooltip" id="id_save"
                 data-toggle="tooltip" data-placement="top"
                 title="Save your work but DO NOT SUBMIT for approval">
               <label for="id_submit" style="display:none;">
-                Submit Part B
+                Save and Submit Part B
               </label>
-              <input id="id_submit" type="submit" value="Submit"
-                name="save-submit" class="button blue-tooltip fright"
+              <input value="Save &amp; Submit" type="submit"
+                class="button blue-tooltip fright" id="id_submit"
                 data-toggle="tooltip" data-placement="top"
-                title="Save your work and SUBMIT it for approval">
+                title="Save your work and SUBMIT the entire proposal for approval">
             </li>
           </ol>
         </fieldset>
