@@ -175,10 +175,8 @@ def impact_form(request, pid):
             # Send email to Approvers, Division Dean, CFO, and Provost
             # if the PI is finished with the proposal (i.e. hits 'submit-save'
             # rather than 'save and continue')
-            data = request.POST
-            if data.get('save_submit'):
-                logger.debug(data['save_submit'])
-            if data.get('save_submit') and not proposal.save_submit:
+            post = request.POST
+            if post.get('save_submit') and not proposal.save_submit:
                 subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
@@ -222,15 +220,14 @@ def impact_form(request, pid):
 
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[OSP] Proposal: {}".format(
-                    data.title
-                )
+                subject = "[OSP] Proposal: {}".format(proposal.title)
                 send_mail(
-                    request, [data.user.email], subject, PROPOSAL_EMAIL,
-                    'impact/email_confirmation.html', data, BCC
+                    request, [proposal.user.email], subject, PROPOSAL_EMAIL,
+                    'impact/email_confirmation.html', proposal, BCC
                 )
                 # set the save submit flag so PI cannot update
                 proposal.save_submit = True
+                proposal.save()
             # end sendmail
 
             return HttpResponseRedirect(
@@ -553,8 +550,6 @@ def email_investigator(request, pid, action):
         {'form': form,'data':form_data,'p':proposal,'action':action}
     )
 
-import logging
-logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @portal_auth_required(
@@ -600,8 +595,6 @@ def proposal_status(request, pid):
                     proposal.user.email, decline_template, proposal, BCC
                 )
                 return HttpResponse("Proposal Declined")
-
-
 
             # if step1 and dean stop here
             if step == 'step1' and perms['level3']:
