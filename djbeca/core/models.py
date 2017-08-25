@@ -205,7 +205,7 @@ class Proposal(models.Model):
                 perms['level1'] = True
                 perms['approve'] = 'level1'
             # Superuser?
-            elif user.is_superuser:
+            elif group:
                 perms['superuser'] = True
                 perms['approve'] = 'superuser'
             # Ad-hoc approver?
