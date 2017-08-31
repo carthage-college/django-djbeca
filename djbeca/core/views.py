@@ -177,7 +177,7 @@ def impact_form(request, pid):
             # rather than 'save and continue')
             post = request.POST
             if post.get('save_submit') and not proposal.save_submit:
-                subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
+                subject = '[Grant Authorization Required] Part B: "{}" by {}, {}'.format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
                 )
@@ -220,7 +220,7 @@ def impact_form(request, pid):
 
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[OSP] Proposal: {}".format(proposal.title)
+                subject = "[Part B] Proposal: {}".format(proposal.title)
                 send_mail(
                     request, [proposal.user.email], subject, PROPOSAL_EMAIL,
                     'impact/email_confirmation.html', proposal, BCC
@@ -359,7 +359,7 @@ def proposal_form(request, pid=None):
                     BCC.append(PROPOSAL_EMAIL)
 
                 # send the email
-                subject = 'Grant Authorization Required: "{}" by {}, {}'.format(
+                subject = '[Grant Authorization Required] Part A: "{}" by {}, {}'.format(
                     data.title, data.user.last_name, data.user.first_name
                 )
                 send_mail(
@@ -368,7 +368,7 @@ def proposal_form(request, pid=None):
                 )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[OSP] Proposal: {}".format(data.title)
+                subject = "[Proposal] Part A: {}".format(data.title)
                 send_mail(
                     request, [data.user.email], subject, PROPOSAL_EMAIL,
                     'proposal/email_confirmation.html', data, BCC
@@ -477,7 +477,7 @@ def proposal_approver(request, pid=0):
                 approver.save()
 
                 # send an email to approver
-                subject = '[OSP] Proposal: "{}" by {}, {}'.format(
+                subject = '[Proposal] Part A: "{}" by {}, {}'.format(
                     proposal.title,
                     proposal.user.last_name, proposal.user.first_name
                 )
