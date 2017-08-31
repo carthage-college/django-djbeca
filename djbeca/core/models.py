@@ -218,6 +218,13 @@ class Proposal(models.Model):
 
         return perms
 
+    def impact(self):
+        try:
+            pi = self.proposal_impact
+        except:
+            pi = False
+        return pi
+
     # at the moment, we assume all approvers will be responsible for
     # step 1 AND step 2. in the future, i suspect that this might change.
     def step1(self):

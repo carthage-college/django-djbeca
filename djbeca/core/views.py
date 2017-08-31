@@ -574,13 +574,18 @@ def proposal_status(request, pid):
                 return HttpResponse("No status")
 
             # which step?
-            step = 'step2'
             decline_template = 'impact/email_decline.html'
             decline_subject = 'Proposal: "{}"'.format(proposal.title)
             if not proposal.step1():
                 step = 'step1'
                 decline_template = 'proposal/email_decline.html'
                 decline_subject = 'Proposal Form A: "{}"'.format(proposal.title)
+            elif proposal.step1() and not proposal.impact():
+                return HttpResponse("Step 2 has not been initiated")
+            elif proposal.proposal_impact and not proposal.step2():
+                return HttpResponse("Step 2 has not been completed")
+            else:
+                step = 'step2'
 
             # we can stop here if declined.
             # anyone can decline, for now. i suspect that will change
