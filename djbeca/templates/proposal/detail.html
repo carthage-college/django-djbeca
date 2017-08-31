@@ -107,13 +107,13 @@ $(function() {
         <h2>
           Part A
           {% if request.user.id == proposal.user.id or perms.superuser %}
-          {% if proposal.step1 or perms.superuser  %}
+          {% if proposal.step1 or perms.superuser %}
+          {% if not proposal.save_submit or perms.superuser %}
           <a href="{% url 'proposal_update' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
               title="Update Part A"></i></a>
-          {% endif %}
-          {% endif %}
+          {% endif %}{% endif %}{% endif %}
         </h2>
         <h3 class="detail">
           Basic Proposal Elements
@@ -244,11 +244,13 @@ $(function() {
       <div class="panel-body">
         <h2>
           Part B
-          {% if request.user.id == proposal.user.id %}
+          {% if request.user.id == proposal.user.id or perms.superuser %}
+          {% if not proposal.save_submit or perms.superuser %}
           <a href="{% url 'impact_form' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
               title="Update Part B"></i></a>
+          {% endif %}
           {% endif %}
         </h2>
         <h3 class="detail">
