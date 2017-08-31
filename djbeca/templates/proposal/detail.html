@@ -83,8 +83,10 @@ $(function() {
   <div class="col-lg-12 text-center">
     <div class="panel panel-default">
       <div class="panel-body">
+        {% if not proposal.step1 or not proposal.step2 and proposal.proposal_impact %}
         <a href="#" class="btn btn-default btn-success proposal-status"
           style="width:128px;" data-status="approve">Approve</a>
+        {% endif %}
         <a href="#" class="btn btn-default btn-danger proposal-status"
           style="margin-left:24px;width:128px;" data-status="decline">Decline</a>
       </div>
