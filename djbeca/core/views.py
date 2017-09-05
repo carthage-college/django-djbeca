@@ -177,7 +177,8 @@ def impact_form(request, pid):
             # rather than 'save and continue')
             post = request.POST
             if post.get('save_submit') and not proposal.save_submit:
-                subject = '[Grant Authorization Required] Part B: "{}" by {}, {}'.format(
+                subject = 'Review and Provide Final Authorization for Part B: \
+                    Your Approval Needed for "{}" by {}, {}'.format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
                 )
@@ -220,7 +221,9 @@ def impact_form(request, pid):
 
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[Part B] Proposal: {}".format(proposal.title)
+                subject = "[Part B] Submission Received: {}".format(
+                    proposal.title
+                )
                 send_mail(
                     request, [proposal.user.email], subject, PROPOSAL_EMAIL,
                     'impact/email_confirmation.html', proposal, BCC
@@ -359,7 +362,8 @@ def proposal_form(request, pid=None):
                     BCC.append(PROPOSAL_EMAIL)
 
                 # send the email
-                subject = '[Grant Authorization Required] Part A: "{}" by {}, {}'.format(
+                subject = 'Review and Authorization Required for Part A: \
+                    Your Approval Needed for "{}" by {}, {}'.format(
                     data.title, data.user.last_name, data.user.first_name
                 )
                 send_mail(
@@ -368,7 +372,7 @@ def proposal_form(request, pid=None):
                 )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[Proposal] Part A: {}".format(data.title)
+                subject = "Part A Submission Received: {}".format(data.title)
                 send_mail(
                     request, [data.user.email], subject, PROPOSAL_EMAIL,
                     'proposal/email_confirmation.html', data, BCC
@@ -500,9 +504,7 @@ def proposal_approver(request, pid=0):
             form = ProposalApproverForm(initial={'proposal': pid})
 
     template = 'approver/form.html'
-    #template = 'approver/email.html'
     context = {'proposal':proposal, 'form':form}
-    #context = {'data': {'proposal':proposal}}
 
     return render(
         request, template, context
@@ -575,11 +577,13 @@ def proposal_status(request, pid):
 
             # which step?
             decline_template = 'impact/email_decline.html'
-            decline_subject = 'Proposal: "{}"'.format(proposal.title)
+            decline_subject = 'Part B: Not approved, requires \
+                additional clarrification: "{}"'.format(proposal.title)
             if not proposal.step1():
                 step = 'step1'
                 decline_template = 'proposal/email_decline.html'
-                decline_subject = 'Proposal Form A: "{}"'.format(proposal.title)
+                decline_subject = 'Part A: Not approved, requires \
+                    additonal clarrification: "{}"'.format(proposal.title)
             elif proposal.step1() and not proposal.impact():
                 return HttpResponse("Step 2 has not been initiated")
             elif proposal.proposal_impact and not proposal.step2():
@@ -606,7 +610,7 @@ def proposal_status(request, pid):
                 proposal.level3 = True
                 proposal.save()
                 subject = '{}: "{}"'.format(
-                    'Access to Part B - Routing & Authorization:',
+                    'You are Approved to begin Part B:',
                     proposal.title
                 )
                 send_mail(

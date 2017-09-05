@@ -24,7 +24,7 @@ def proposal_impact_poste_save(sender, **kwargs):
         sent = send_mail(
             kwargs.get('request'), to_list,
             subject, settings.SERVER_MAIL,
-            'proposal/email.html', obj, settings.MANAGERS
+            'proposal/email_final_approved.html', obj, settings.MANAGERS
         )
         if sent:
             obj.email_approved = True
