@@ -5,6 +5,7 @@ from django import forms
 from djbeca.core.models import Proposal
 from djbeca.core.models import ProposalBudget, ProposalDocument, ProposalImpact
 from djbeca.core.choices import *
+from djbeca.core.utils import get_proposals
 
 from djtools.fields import BINARY_CHOICES
 
@@ -315,25 +316,32 @@ class CommentsForm(forms.Form):
 class ProposalApproverForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(ProposalApproverForm, self).__init__(*args, **kwargs)
 
-        results = do_sql(FACSTAFF_ALPHA)
-        facstaff = [('','-----------')]
+        # populate the approvers select field with faculty/staff
+        facstaff = do_sql(FACSTAFF_ALPHA)
+        approvers = [('','-----------')]
         cid = None
-        for r in results:
+        for r in facstaff:
             if cid != r.id:
                 name = '{}, {}'.format(r.lastname, r.firstname)
-                facstaff.append((r.id, name))
+                approvers.append((r.id, name))
                 cid = r.id
-        proposals = [('','-----------')]
-        self.fields['user'].choices = facstaff
+        self.fields['user'].choices = approvers
 
-        for p in Proposal.objects.all():
-            title = '{}: by {}, {}'.format(
-                p.title, p.user.last_name, p.user.first_name
-            )
-            proposals.append((p.id,title))
-        self.fields['proposal'].choices = proposals
+        # populate the proposals select field
+        proposals = get_proposals(user)
+        if proposals['objects']:
+            props = [('','-----------')]
+            for p in proposals['objects']:
+                title = '{}: by {}, {}'.format(
+                    p.title, p.user.last_name, p.user.first_name
+                )
+                props.append((p.id,title))
+            self.fields['proposal'].choices = props
+        else:
+            self.fields['proposal'].widget.attrs['class'] = 'error'
 
     user = forms.ChoiceField(
         label="Faculty/Staff",
