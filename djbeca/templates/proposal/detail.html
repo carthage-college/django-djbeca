@@ -51,6 +51,10 @@ $(function() {
     });
     //$.growlUI('Test', 'status: ' + $(this).data('status'));
   });
+  $('#print').click(function() {
+    window.print();
+    return false;
+  });
 });
 </script>
 {% endblock %}
@@ -62,7 +66,7 @@ $(function() {
       <a href="#" id="print" class="no-print-icon">
         <i class="fa fa-print green" aria-hidden="true"
           title="Print to paper or PDF"></i></a>
-      {% ifusergroup 'Sponsored Programs' %}|
+      {% ifusergroup osp_group deans_group %}|
       <a href="{% url 'proposal_approver' proposal.id %}"
         class="no-print-icon">
         <i class="fa fa-thumbs-o-up green" aria-hidden="true"
@@ -273,24 +277,24 @@ $(function() {
           <h4>If 'Other', please specify the rate</h4>
           {% endif %}
           <h5>{{proposal.proposal_budget.indirect_cost_rate_other}}</h5>
-          <h4>Final Budget for Review</h4>
-          <h5>
+          <h4>
+            Final Budget for Review:
             {% if proposal.proposal_budget.budget_final %}
             <a href="https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_final}}">
-            https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_final}}</a>
+            <i class="fa fa-file-pdf-o red" aria-hidden="true"></i></a>
             {% else %}
             Missing
             {% endif %}
-          </h5>
-          <h4>Final Budget Justification for Review</h4>
-          <h5>
+          </h4>
+          <h4>
+            Final Budget Justification for Review:
             {% if proposal.proposal_budget.budget_justification_final %}
             <a href="https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_justification_final}}">
-            https://{{server_url}}{{media_url}}/{{proposal.proposal_budget.budget_justification_final}}</a>
+            <i class="fa fa-file-pdf-o red" aria-hidden="true"></i></a>
             {% else %}
             Missing
             {% endif %}
-          </h5>
+          </h4>
         </div>
         <h3 class="detail">
           Institutional Impacts
@@ -342,21 +346,17 @@ $(function() {
           <h4>Comments</h4>
           <h5>{{proposal.comments}}</h5>
         {% endif %}
-
-
         <h3 class="detail">
           Additional Documents
         </h3>
         <ul>
         {% for d in proposal.proposal_documents.all %}
           <li>
-            <a href="{{d.phile}}">{{d.name}}</a>
+            <h5><a href="{{d.phile}}">{{d.name}}</a>
+            <i class="fa fa-file-pdf-o red" aria-hidden="true"></i></h5>
           </li>
         {% endfor %}
         </ul>
-
-
-
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
