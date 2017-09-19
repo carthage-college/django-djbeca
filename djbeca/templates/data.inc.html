@@ -17,7 +17,7 @@
         <th>Part B</th>
         <th>
           Submitted by
-          {% ifusergroup 'Sponsored Programs' %}
+          {% ifusergroup osp_group %}
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
             data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
@@ -136,7 +136,7 @@
           </td>
           {% endif %}
           <td>
-            {% ifusergroup 'Sponsored Programs' %}
+            {% ifusergroup osp_group %}
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
               data-toggle="tooltip" data-placement="top" class="blue-tooltip"
               title="Send email to primary investigator">
@@ -166,7 +166,7 @@
         <th>Part B</th>
         <th>
           Submitted by
-          {% ifusergroup 'Sponsored Programs' %}
+          {% ifusergroup osp_group %}
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
             data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
