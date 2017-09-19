@@ -14,35 +14,24 @@ class ProposalAdmin(admin.ModelAdmin):
         'created_at','updated_at'
     )
     date_hierarchy = 'created_at'
-    ordering = [
+    ordering = (
         'user__last_name','user__first_name',
         'level3'
-    ]
-    '''
+    )
     readonly_fields = (
-        'user','title','department_name','summary_strip',
-        'level3'
+        'user','department',
     )
-    fields = (
-        'user','department_name','title','summary_strip',
-        'level3'
-    )
-    '''
     search_fields = (
         'user__last_name','user__first_name','user__email','user__username'
     )
     list_per_page = 500
-    raw_id_fields = ("user",)
+    raw_id_fields = ('user',)
 
     class Media:
         js = [
             '/static/djtinue/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
             '/static/djtinue/grappelli/tinymce_setup/tinymce_setup.js',
         ]
-
-    def department_name(self, instance):
-        return department(instance.department)[0]
-    department_name.short_description = 'Department'
 
     def summary_strip(self, instance):
         return mark_safe(instance.summary)
@@ -53,22 +42,6 @@ class ProposalAdmin(admin.ModelAdmin):
 
     def last_name(self, obj):
         return obj.user.last_name
-
-    """
-    def response_change(self, request, obj):
-        '''
-        Redirect to dashboard after update
-        '''
-        response = super(ProposalAdmin, self).response_change(request, obj)
-        '''
-        if (isinstance(response, HttpResponseRedirect) and
-                response['location'] == '../'):
-            response['location'] = obj.get_absolute_url()
-        return response
-        '''
-        response['location'] = obj.get_absolute_url()
-        return response
-    """
 
 
 class ProposalContactAdmin(admin.ModelAdmin):
