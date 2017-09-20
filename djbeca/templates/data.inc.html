@@ -17,11 +17,9 @@
         <th>Part B</th>
         <th>
           Submitted by
-          {% ifusergroup osp_group %}
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
             data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
-          {% endifusergroup %}
         </th>
         <th>Deadline Date</th>
       </tr>
@@ -136,6 +134,13 @@
           </td>
           {% endif %}
           <td>
+            {% if approver %}
+            <a href="{% url 'email_investigator_form' p.id 'compose' %}"
+              data-toggle="tooltip" data-placement="top" class="blue-tooltip"
+              title="Send email to primary investigator">
+              {{p.user.last_name}}, {{p.user.first_name}}
+            </a>
+            {% else %}
             {% ifusergroup osp_group %}
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
               data-toggle="tooltip" data-placement="top" class="blue-tooltip"
@@ -143,8 +148,12 @@
               {{p.user.last_name}}, {{p.user.first_name}}
             </a>
             {% else %}
-            {{p.user.last_name}}, {{p.user.first_name}}
+            <a href="mailto:{{p.user.email}}"
+              data-toggle="tooltip" data-placement="top" class="blue-tooltip"
+              title="Send email to primary investigator">
+              {{p.user.last_name}}, {{p.user.first_name}}</a>
             {% endifusergroup %}
+            {% endif %}
           </td>
           <td>{{p.grant_deadline_date}}</td>
         </tr>
@@ -166,11 +175,9 @@
         <th>Part B</th>
         <th>
           Submitted by
-          {% ifusergroup osp_group %}
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
             data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
-          {% endifusergroup %}
         </th>
         <th>Deadline Date</th>
       </tr>

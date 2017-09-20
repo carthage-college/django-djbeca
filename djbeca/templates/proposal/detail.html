@@ -55,6 +55,7 @@ $(function() {
     window.print();
     return false;
   });
+  $('[data-toggle="tooltip"]').tooltip();
 });
 </script>
 {% endblock %}
@@ -64,18 +65,29 @@ $(function() {
     <h1 class="page-header">
       Proposal Detail
       <a href="#" id="print" class="no-print-icon">
-        <i class="fa fa-print green" aria-hidden="true"
+        <i class="fa fa-print green blue-tooltip" aria-hidden="true"
+          data-toggle="tooltip" data-placement="top"
           title="Print to paper or PDF"></i></a>
       {% ifusergroup osp_group deans_group %}|
       <a href="{% url 'proposal_approver' proposal.id %}"
         class="no-print-icon">
-        <i class="fa fa-thumbs-o-up green" aria-hidden="true"
+        <i class="fa fa-thumbs-o-up green blue-tooltip" aria-hidden="true"
+          data-toggle="tooltip" data-placement="top"
           title="Add Approver to this proposal"></i></a> |
       <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
         class="no-print-icon">
-        <i class="fa fa-envelope green" aria-hidden="true"
+        <i class="fa fa-envelope green blue-tooltip" aria-hidden="true"
+          data-toggle="tooltip" data-placement="top"
           title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i></a>
       {% endifusergroup %}
+      {% if perms.approver %}
+      |
+      <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
+        class="no-print-icon">
+        <i class="fa fa-envelope green blue-tooltip" aria-hidden="true"
+          data-toggle="tooltip" data-placement="top"
+          title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i></a>
+      {% endif %}
     </h1>
   </div>
   <!-- /.col-lg-12 -->

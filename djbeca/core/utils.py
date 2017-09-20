@@ -42,6 +42,7 @@ def get_position(tpos):
 
 def get_proposals(user):
 
+    approver = False
     depts = False
     div = False
     dc = None
@@ -66,7 +67,14 @@ def get_proposals(user):
             '-grant_deadline_date'
         )
 
+    # check if user is an approver
+    for p in objects:
+        for a in p.proposal_approvers.all():
+            if a.user == user:
+                approver = True
+                break
+
     return {
         'objects':objects, 'dean_chair':dean_chair, 'dc':dc, 'div':div,
-        'depts':depts
+        'depts':depts, 'approver':approver
     }

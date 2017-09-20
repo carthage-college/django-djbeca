@@ -52,7 +52,7 @@ def home(request):
             'proposals':proposals['objects'],
             'dean_chair':proposals['dean_chair'],
             'group':group,'dc':proposals['dc'],'depts':proposals['depts'],
-            'div':proposals['div']
+            'div':proposals['div'],'approver':proposals['approver']
         }
     )
 
