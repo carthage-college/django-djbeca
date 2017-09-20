@@ -166,7 +166,7 @@ def impact_form(request, pid):
                     )
                     goal.save()
 
-            # Send email to Approvers, Division Dean, VEEP, and Provost
+            # Send email to Approvers, Division Dean, VEEP/CFO, and Provost
             # if the PI is finished with the proposal (i.e. hits 'submit-save'
             # rather than 'save and continue')
             post = request.POST
@@ -211,7 +211,7 @@ def impact_form(request, pid):
                         'impact/email_approve_level3.html', proposal, BCC
                     )
 
-                # Veep (level2) and Provost (level1)
+                # Veep/CFO (level2) and Provost (level1)
                 send_mail(
                     request, [VEEP.email, PROVOST.email], subject,
                     PROPOSAL_EMAIL, 'impact/email_approve_level1.html',
@@ -644,7 +644,7 @@ def proposal_status(request, pid):
                 proposal.proposal_impact.level3 = True
                 proposal.proposal_impact.save()
                 return HttpResponse("Division Dean approved Part B")
-            # VEEP?
+            # Veep/CFO?
             elif user.id == VEEP.id:
                 proposal.proposal_impact.level2 = True
                 proposal.proposal_impact.save()
