@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 
 from djbeca.core.choices import *
-from djbeca.core.utils import get_position
 
 from djtools.utils.users import in_group
 from djtools.fields import BINARY_CHOICES
@@ -17,9 +16,6 @@ from djzbar.utils.hr import chair_departments
 from taggit.managers import TaggableManager
 
 OSP_GROUP = settings.OSP_GROUP
-VEEP = get_position(settings.VEEP_TPOS)
-PROVOST = get_position(settings.PROV_TPOS)
-PRESIDENT = get_position(settings.PREZ_TPOS)
 
 
 class Proposal(models.Model):
@@ -176,6 +172,11 @@ class Proposal(models.Model):
         what can the user access in terms of the proposal
         and viewing it and the approval process
         '''
+
+        from djbeca.core.utils import get_position
+        VEEP = get_position(settings.VEEP_TPOS)
+        PROVOST = get_position(settings.PROV_TPOS)
+        PRESIDENT = get_position(settings.PREZ_TPOS)
 
         perms = {'view':False,'approve':False}
         # in_group includes an exception for superusers
