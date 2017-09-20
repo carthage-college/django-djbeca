@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.db.models import Q
 from django.core.cache import cache
 
 from djbeca.core.models import Proposal
 
 from djtools.utils.users import in_group
+
 from djzbar.utils.informix import do_sql
 from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import department_division_chairs
@@ -58,7 +60,9 @@ def get_proposals(user):
             department__in=[ key for key,val in depts.iteritems() ]
         ).order_by('-grant_deadline_date')
     else:
-        objects = Proposal.objects.filter(user=user).order_by(
+        objects = Proposal.objects.filter(
+            Q(user=user) | Q(proposal_approvers__user=user)
+        ).order_by(
             '-grant_deadline_date'
         )
 

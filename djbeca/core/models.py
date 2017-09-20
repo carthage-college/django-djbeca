@@ -15,8 +15,6 @@ from djzbar.utils.hr import chair_departments
 
 from taggit.managers import TaggableManager
 
-OSP_GROUP = settings.OSP_GROUP
-
 
 class Proposal(models.Model):
     '''
@@ -174,52 +172,56 @@ class Proposal(models.Model):
         '''
 
         from djbeca.core.utils import get_position
+
+        OSP_GROUP = settings.OSP_GROUP
         VEEP = get_position(settings.VEEP_TPOS)
         PROVOST = get_position(settings.PROV_TPOS)
         PRESIDENT = get_position(settings.PREZ_TPOS)
 
-        perms = {'view':False,'approve':False}
+        perms = {
+            'view':False,'approve':False,
+            'superuser': False, 'approver': False,
+            'level3': False, 'level2': False, 'level1': False
+        }
+
         # in_group includes an exception for superusers
         group = in_group(user, OSP_GROUP)
 
         chair_depts = chair_departments(user.id)
+
         # dean or chair?
         dc = chair_depts[1]
 
-        if self.user != user and not group and dc != 'dean':
-            # no permissions
-            return perms
-        else:
+        # Dean?
+        if dc == 'dean':
             perms['view'] = True
-            # can the user see the approve/decline buttons
-            perms['superuser'] = False
-            perms['approver'] = False
-            perms['level3'] = False
-            perms['level2'] = False
-            perms['level1'] = False
-            # Dean?
-            if dc == 'dean':
-                perms['level3'] = True
-                perms['approve'] = 'level3'
-            # Veep/CFO?
-            elif user.id == VEEP.id:
-                perms['level2'] = True
-                perms['approve'] = 'level2'
-            # Provost?
-            elif user.id == PROVOST.id:
-                perms['level1'] = True
-                perms['approve'] = 'level1'
-            # Superuser?
-            elif group:
-                perms['superuser'] = True
-                perms['approve'] = 'superuser'
-            # Ad-hoc approver?
-            else:
-                for a in self.proposal_approvers.all():
-                    if a.user == user:
-                        perms['approver'] = True
-                        perms['approve'] = 'approver'
-                        break
+            perms['level3'] = True
+            perms['approve'] = 'level3'
+        # Veep/CFO?
+        elif user.id == VEEP.id:
+            perms['view'] = True
+            perms['level2'] = True
+            perms['approve'] = 'level2'
+        # Provost?
+        elif user.id == PROVOST.id:
+            perms['view'] = True
+            perms['level1'] = True
+            perms['approve'] = 'level1'
+        # Superuser?
+        elif group:
+            perms['view'] = True
+            perms['superuser'] = True
+            perms['approve'] = 'superuser'
+        elif self.user == user:
+            perms['view'] = True
+        # Ad-hoc approver?
+        else:
+            for a in self.proposal_approvers.all():
+                if a.user == user:
+                    perms['view'] = True
+                    perms['approver'] = True
+                    perms['approve'] = 'approver'
+                    break
 
         return perms
 

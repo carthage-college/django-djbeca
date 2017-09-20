@@ -496,7 +496,7 @@ def proposal_approver(request, pid=0):
                 # send an email to approver
                 prefix = 'Your Review and Authorization Required'
                 subject = '{}: "{}" by {}, {}'.format(
-                    proposal.title,
+                    prefix, proposal.title,
                     proposal.user.last_name, proposal.user.first_name
                 )
 
