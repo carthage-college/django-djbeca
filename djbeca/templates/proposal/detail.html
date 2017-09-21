@@ -363,10 +363,12 @@ $(function() {
         </h3>
         <ul>
         {% for d in proposal.proposal_documents.all %}
+          {% if d.phile %}
           <li>
             <h5><a href="{{d.phile}}">{{d.name}}</a>
             <i class="fa fa-file-pdf-o red" aria-hidden="true"></i></h5>
           </li>
+          {% endif %}
         {% endfor %}
         </ul>
         <!-- fin -->
