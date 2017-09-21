@@ -38,6 +38,9 @@ class Proposal(models.Model):
     email_approved = models.BooleanField(default=False)
     # PI has submitted proposal for final approval
     save_submit = models.BooleanField(default=False)
+    # OSP will close a proposal when they have determined it is
+    # over so that the PI can resubmit if they so choose
+    closed = models.BooleanField(default=False)
 
     # Basic Proposal Elements
     proposal_type = models.CharField(
