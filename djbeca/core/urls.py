@@ -115,7 +115,7 @@ urlpatterns = [
     ),
     # proposal status view for 'approve' or 'decline' actions
     url(
-        r'^proposal/(?P<pid>\d+)/status/$',
+        r'^proposal/status/$',
         views.proposal_status, name='proposal_status'
     ),
     # Home dashboard

@@ -210,18 +210,8 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 {% block content %}
 {% endblock content %}
 {% block extra_javascript %}
-<script src="//www.carthage.edu/static/vendor/dashboard/js/plugins/dataTables/jquery.dataTables.js"></script>
-<script src="//www.carthage.edu/static/vendor/dashboard/js/plugins/dataTables/dataTables.bootstrap.js"></script>
 <script>
 $(function() {
-  /*
-  var table = $('.proposals-data').dataTable({
-    "lengthMenu": [
-      [30, 60, 90, 200, 500, -1],
-      [30, 60, 90, 200, 500]
-    ]
-  });
-  */
   $('[data-toggle="tooltip"]').tooltip();
   $(".required > input").addClass("required");
   $(".required > select").addClass("required");

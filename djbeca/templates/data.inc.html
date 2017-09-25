@@ -15,6 +15,12 @@
         </th>
         <th>Part A</th>
         <th>Part B</th>
+        <th style="text-align:center;">
+          Open/Closed
+          <i class="fa fa-question-circle-o green blue-tooltip"
+            data-toggle="tooltip" data-placement="top" aria-hidden="true"
+            title="Click the icon to open or close a proposal"></i>
+        </th>
         <th>
           Submitted by
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
@@ -131,8 +137,34 @@
           {% else %}
           <td colspan="2" class="red" style="text-align:center;">
             Proposal Declined
+            <i class="fa fa-question-circle-o green blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Click the Recycle icon to reopen this proposal and resubmit it"></i>
           </td>
           {% endif %}
+          <td style="text-align:center;">
+            {% if p.closed %}
+              <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
+                data-placement="top" title="Reopen this proposal"
+                data-pid="{{p.id}}" data-status="open"
+                class="proposal-status blue-tooltip">
+                <i class="fa fa-2x fa-recycle green" aria-hidden="true"></i>
+              </a>
+            {% else %}
+              {% ifusergroup osp_group %}
+              <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
+                data-placement="top" title="Close this proposal"
+                data-pid="{{p.id}}" data-status="close"
+                class="proposal-status blue-tooltip">
+                <i class="fa fa-2x fa-power-off red" aria-hidden="true"></i>
+              </a>
+              {% else %}
+                <i class="fa fa-2x fa-circle-o green" aria-hidden="true"
+                data-toggle="tooltip" data-placement="top"
+                title="This proposal is open" class="blue-tooltip"></i>
+              {% endifusergroup %}
+            {% endif%}
+          </td>
           <td>
             {% if approver %}
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
@@ -173,6 +205,12 @@
         </th>
         <th>Part A</th>
         <th>Part B</th>
+        <th style="text-align:center;">
+          Open/Closed
+          <i class="fa fa-question-circle-o green blue-tooltip"
+            data-toggle="tooltip" data-placement="top" aria-hidden="true"
+            title="Click the icon to open or close a proposal"></i>
+        </th>
         <th>
           Submitted by
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"

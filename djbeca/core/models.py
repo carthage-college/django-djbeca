@@ -182,7 +182,7 @@ class Proposal(models.Model):
         PRESIDENT = get_position(settings.PREZ_TPOS)
 
         perms = {
-            'view':False,'approve':False,
+            'view':False,'approve':False,'close':False,
             'superuser': False, 'approver': False,
             'level3': False, 'level2': False, 'level1': False
         }
@@ -213,6 +213,7 @@ class Proposal(models.Model):
         # Superuser?
         elif group:
             perms['view'] = True
+            perms['close'] = True
             perms['superuser'] = True
             perms['approve'] = 'superuser'
         elif self.user == user:

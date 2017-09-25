@@ -34,8 +34,8 @@ $(function() {
   $(".proposal-status").click(function () {
     $.ajax({
       type: "POST",
-      url: "{% url 'proposal_status' proposal.id %}",
-      data: {'status':$(this).data('status')},
+      url: "{% url 'proposal_status' %}",
+      data: {'status':$(this).data('status'),'pid':'{{proposal.id}}'},
       cache: false,
       beforeSend: function(){
         spinner.spin(target);

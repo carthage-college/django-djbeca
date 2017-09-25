@@ -450,7 +450,7 @@ def proposal_detail(request, pid):
 )
 def proposal_approver(request, pid=0):
     '''
-    Proposal approver form view
+    Add an approver to a proposal
     '''
 
     user = request.user
@@ -571,17 +571,24 @@ def email_investigator(request, pid, action):
 @portal_auth_required(
     session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
 )
-def proposal_status(request, pid):
+def proposal_status(request):
     '''
     approve or decline a proposal via AJAX POST
     '''
 
     # requires POST request
     if request.POST:
+        pid = request.POST.get('pid')
+        try:
+            pid = int(pid)
+        except:
+            return HttpResponse("Access Denied")
         user = request.user
         approver = False
         proposal = get_object_or_404(Proposal, id=pid)
         perms = proposal.permissions(user)
+        # if don't have approve, we can stop here, regardless
+        # of whether we are approving, decling, or closing/opening
         if not perms['approve']:
             return HttpResponse("Access Denied")
         else:
@@ -589,7 +596,35 @@ def proposal_status(request, pid):
             if not status:
                 return HttpResponse("No status")
 
-            # which step?
+            if status == 'close':
+                if perms['close']:
+                    proposal.closed = True
+                    proposal.save()
+                    return HttpResponse("Proposal has been closed")
+                else:
+                    return HttpResponse("You do not have permission to close")
+
+            # simple open or close, not dependent on anything else (e.g. steps)
+            if status == 'open':
+                # reset all booleans back to False
+                proposal.closed = False
+                proposal.decline = False
+                proposal.level3 = False
+                proposal.email_approved = False
+                proposal.save_submit = False
+                proposal.save()
+                # we might not have a proposal impact relationship
+                try:
+                    proposal.proposal_impact.disclosure_assurance = False
+                    proposal.proposal_impact.level3 = False
+                    proposal.proposal_impact.level2 = False
+                    proposal.proposal_impact.level1 = False
+                    proposal.proposal_impact.save()
+                except:
+                    pass
+                return HttpResponse("Proposal has been reopened")
+
+            # find out on which step we are
             decline_template = 'impact/email_decline.html'
             decline_subject = 'Part B: Not approved, requires \
                 additional clarrification: "{}"'.format(proposal.title)
@@ -610,6 +645,7 @@ def proposal_status(request, pid):
             # and thus the data model will have to change.
             if status == 'decline':
                 proposal.decline = True
+                proposal.closed = True
                 proposal.save()
                 if DEBUG:
                     to_list = [SERVER_EMAIL]
