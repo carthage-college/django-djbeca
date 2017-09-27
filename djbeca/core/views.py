@@ -314,6 +314,10 @@ def proposal_form(request, pid=None):
         if form.is_valid():
             data = form.save(commit=False)
             data.user = user
+            # if proposal has been reopened, we set opened to False
+            # so that proposal now is considered a new attempt at approval
+            if proposal.opened:
+                data.opened = False
             data.save()
 
             form_institu.is_valid()
@@ -587,9 +591,9 @@ def proposal_status(request):
         approver = False
         proposal = get_object_or_404(Proposal, id=pid)
         perms = proposal.permissions(user)
-        # if don't have approve, we can stop here, regardless
-        # of whether we are approving, decling, or closing/opening
-        if not perms['approve']:
+        # if user does not have 'approve' permissions, we can stop here,
+        # regardless of whether we are approving, decling, or closing/opening
+        if not perms['approve'] and not perms['open']:
             return HttpResponse("Access Denied")
         else:
             status = request.POST.get('status')
@@ -606,23 +610,27 @@ def proposal_status(request):
 
             # simple open or close, not dependent on anything else (e.g. steps)
             if status == 'open':
-                # reset all booleans back to False
-                proposal.closed = False
-                proposal.decline = False
-                proposal.level3 = False
-                proposal.email_approved = False
-                proposal.save_submit = False
-                proposal.save()
-                # we might not have a proposal impact relationship
-                try:
-                    proposal.proposal_impact.disclosure_assurance = False
-                    proposal.proposal_impact.level3 = False
-                    proposal.proposal_impact.level2 = False
-                    proposal.proposal_impact.level1 = False
-                    proposal.proposal_impact.save()
-                except:
-                    pass
-                return HttpResponse("Proposal has been reopened")
+                if perms['open']:
+                    # reset all booleans back to False
+                    proposal.closed = False
+                    proposal.opened = True
+                    proposal.decline = False
+                    proposal.level3 = False
+                    proposal.email_approved = False
+                    proposal.save_submit = False
+                    proposal.save()
+                    # we might not have a proposal impact relationship
+                    try:
+                        proposal.proposal_impact.disclosure_assurance = False
+                        proposal.proposal_impact.level3 = False
+                        proposal.proposal_impact.level2 = False
+                        proposal.proposal_impact.level1 = False
+                        proposal.proposal_impact.save()
+                    except:
+                        pass
+                    return HttpResponse("Proposal has been reopened")
+                else:
+                    return HttpResponse("You do not have permission to open")
 
             # find out on which step we are
             decline_template = 'impact/email_decline.html'
@@ -644,58 +652,77 @@ def proposal_status(request):
             # anyone can decline, for now. i suspect that will change
             # and thus the data model will have to change.
             if status == 'decline':
-                proposal.decline = True
-                proposal.closed = True
-                proposal.save()
-                if DEBUG:
-                    to_list = [SERVER_EMAIL]
+                if perms['decline']:
+                    proposal.decline = True
+                    proposal.closed = True
+                    proposal.save()
+                    if DEBUG:
+                        to_list = [SERVER_EMAIL]
+                    else:
+                        to_list = [proposal.user.email]
+                    send_mail(
+                        request, to_list, decline_subject,
+                        proposal.user.email, decline_template, proposal, BCC
+                    )
+                    return HttpResponse("Proposal Declined")
                 else:
-                    to_list = [proposal.user.email]
-                send_mail(
-                    request, to_list, decline_subject,
-                    proposal.user.email, decline_template, proposal, BCC
-                )
-                return HttpResponse("Proposal Declined")
+                    return HttpResponse("You don't have permission to decline")
+
+
+            # default email subject
+            subject = '{}: "{}"'.format(
+                'You are Approved to begin Part B:',
+                proposal.title
+            )
+
+            # establish the email distribution list
+            if DEBUG:
+                to_list = [SERVER_EMAIL]
+            else:
+                to_list = [proposal.user.email]
 
             # if step1 and dean stop here
             if step == 'step1' and perms['level3']:
                 proposal.level3 = True
                 proposal.save()
-                subject = '{}: "{}"'.format(
-                    'You are Approved to begin Part B:',
-                    proposal.title
-                )
-                if DEBUG:
-                    to_list = [SERVER_EMAIL]
-                else:
-                    to_list = [proposal.user.email]
                 send_mail(
                     request, to_list, subject,
                     proposal.user.email, "proposal/email_authorized.html",
                     proposal, BCC
                 )
-                return HttpResponse("Dean approved Part A")
+                message = "Dean approved Part A"
             # Dean?
             elif perms['level3']:
                 proposal.proposal_impact.level3 = True
                 proposal.proposal_impact.save()
-                return HttpResponse("Division Dean approved Part B")
+                message = "Division Dean approved Part B"
             # Veep/CFO?
             elif user.id == VEEP.id:
                 proposal.proposal_impact.level2 = True
                 proposal.proposal_impact.save()
-                return HttpResponse("VP for Businees approved Part B")
+                message = "VP for Businees approved Part B"
             # Provost?
             elif user.id == PROVOST.id:
                 proposal.proposal_impact.level1 = True
                 proposal.proposal_impact.save()
-                return HttpResponse("Provost approved Part B")
+                message = "Provost approved Part B"
             else:
                 # approvers
                 for a in proposal.proposal_approvers.all():
                     if a.user == user:
                         a.__dict__[step] = True
                         a.save()
+                        # right now, approvers only replace deans
+                        if a.replace == 'level3':
+                            proposal.level3 = True
+                            proposal.save()
+                            if step != 'step2':
+                                send_mail(
+                                    request, to_list, subject,
+                                    proposal.user.email,
+                                    "proposal/email_authorized.html",
+                                    proposal, BCC
+                                )
                         approver = True
                         break
 
@@ -706,7 +733,7 @@ def proposal_status(request):
             else:
                 message = "Who dat tryin' to 'prove?"
     else:
-        message = "Requies POST request"
+        message = "Requires POST request"
 
     return HttpResponse(message)
 

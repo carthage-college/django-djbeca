@@ -41,6 +41,8 @@ class Proposal(models.Model):
     # OSP will close a proposal when they have determined it is
     # over so that the PI can resubmit if they so choose
     closed = models.BooleanField(default=False)
+    # signifies that it has been reopened
+    opened = models.BooleanField(default=False)
 
     # Basic Proposal Elements
     proposal_type = models.CharField(
@@ -182,7 +184,8 @@ class Proposal(models.Model):
         PRESIDENT = get_position(settings.PREZ_TPOS)
 
         perms = {
-            'view':False,'approve':False,'close':False,
+            'view':False,'approve':False,'decline':False,
+            'close':False,'open':False,
             'superuser': False, 'approver': False,
             'level3': False, 'level2': False, 'level1': False
         }
@@ -199,31 +202,38 @@ class Proposal(models.Model):
         if dc == 'dean':
             perms['view'] = True
             perms['level3'] = True
+            perms['decline'] = True
             perms['approve'] = 'level3'
         # Veep/CFO?
         elif user.id == VEEP.id:
             perms['view'] = True
             perms['level2'] = True
+            perms['decline'] = True
             perms['approve'] = 'level2'
         # Provost?
         elif user.id == PROVOST.id:
             perms['view'] = True
             perms['level1'] = True
+            perms['decline'] = True
             perms['approve'] = 'level1'
         # Superuser?
         elif group:
             perms['view'] = True
+            perms['open'] = True
             perms['close'] = True
             perms['superuser'] = True
+            perms['decline'] = True
             perms['approve'] = 'superuser'
         elif self.user == user:
             perms['view'] = True
+            perms['open'] = True
         # Ad-hoc approver?
         else:
             for a in self.proposal_approvers.all():
                 if a.user == user:
                     perms['view'] = True
                     perms['approver'] = True
+                    perms['decline'] = True
                     perms['approve'] = 'approver'
                     break
 

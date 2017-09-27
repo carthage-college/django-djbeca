@@ -38,9 +38,23 @@
             data-placement="top" class="blue-tooltip"
             title="View Proposal">{{p.title}}</a>
           </td>
-          {% if not p.decline %}
+          {% if p.decline %}
+          <td colspan="2" class="red" style="text-align:center;">
+            Proposal Declined
+            <i class="fa fa-question-circle-o green blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Click the Recycle icon to reopen this proposal and resubmit it"></i>
+          </td>
+          {% else %}{% if p.closed %}
+          <td colspan="2" class="red" style="text-align:center;">
+            Proposal Closed
+            <i class="fa fa-question-circle-o green blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Click the Recycle icon to reopen this proposal and resubmit it"></i>
+          </td>
+          {% else %}
           <td>
-            {% if p.step1 or group or request.user.is_superuser %}
+            {% if p.step1 or group or request.user.is_superuser or p.opened %}
               {% if p.user.id == request.user.id or group or request.user.is_superuser %}
                 {% if not p.save_submit %}
                 <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
@@ -88,12 +102,7 @@
                 </a>
                 {% endif %}
               {% endif %}
-            {% else %}
-              <i class="fa fa-2x fa-exclamation-circle yellow blue-tooltip"
-              data-toggle="tooltip" data-placement="top" aria-hidden='true'
-              title="Part A must be approved before proceeding to Part B"></i>
-            {% endif %}
-            {% for a in p.proposal_approvers.all %}
+              {% for a in p.proposal_approvers.all %}
               {% if a.replace != 'level3' %}
                 {% if a.step2 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
@@ -105,43 +114,41 @@
                 title="{{a.user.last_name}}, {{a.user.first_name}} has NOT Approved Part B"></i>
                 {% endif %}
               {% endif %}
-            {% endfor %}
-            {% if p.proposal_impact.level3 %}
+              {% endfor %}
+              {% if p.proposal_impact.level3 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Division Dean or Department VP Approved"></i>
-            {% else %}
+              {% else %}
                 <i class="fa fa-2x fa-times red blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Dean or Department VP has NOT approved Part B"></i>
-            {% endif %}
-            {% if p.proposal_impact.level2 %}
+              {% endif %}
+              {% if p.proposal_impact.level2 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="CFO Approved"></i>
-            {% else %}
+              {% else %}
                 <i class="fa fa-2x fa-times red blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="CFO has NOT approved Part B"></i>
-            {% endif %}
-            {% if p.proposal_impact.level1 %}
+              {% endif %}
+              {% if p.proposal_impact.level1 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Provost Approved"></i>
-            {% else %}
+              {% else %}
                 <i class="fa fa-2x fa-times red blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Provost has NOT approved Part B"></i>
+              {% endif %}
+            {% else %}
+              <i class="fa fa-2x fa-exclamation-circle yellow blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden='true'
+              title="Part A must be approved before proceeding to Part B"></i>
             {% endif %}
           </td>
-          {% else %}
-          <td colspan="2" class="red" style="text-align:center;">
-            Proposal Declined
-            <i class="fa fa-question-circle-o green blue-tooltip"
-              data-toggle="tooltip" data-placement="top" aria-hidden="true"
-              title="Click the Recycle icon to reopen this proposal and resubmit it"></i>
-          </td>
-          {% endif %}
+          {% endif %}{% endif %}
           <td style="text-align:center;">
             {% if p.closed %}
               <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
