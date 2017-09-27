@@ -59,7 +59,7 @@ class ProposalForm(forms.ModelForm):
     class Meta:
         model = Proposal
         exclude = (
-            'user','created_at','updated_at',
+            'opened','closed','user','created_at','updated_at',
             'email_approved','save_submit','decline','level3','comments'
         )
 
