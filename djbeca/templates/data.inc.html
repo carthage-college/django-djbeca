@@ -157,8 +157,16 @@
                 class="proposal-status blue-tooltip">
                 <i class="fa fa-2x fa-recycle green" aria-hidden="true"></i>
               </a>
+              {% ifusergroup osp_group %}
+                <i class="fa fa-2x fa-power-off grey" data-toggle="tooltip"
+                data-placement="top" title="This proposal is closed"
+                aria-hidden="true"></i>
+              {% endifusergroup %}
             {% else %}
               {% ifusergroup osp_group %}
+              <i class="fa fa-2x fa-circle-o green" data-toggle="tooltip"
+                data-placement="top" title="This proposal is open"
+                aria-hidden="true"></i>
               <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
                 data-placement="top" title="Close this proposal"
                 data-pid="{{p.id}}" data-status="close"
