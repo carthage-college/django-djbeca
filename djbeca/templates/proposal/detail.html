@@ -261,7 +261,7 @@ $(function() {
         <h2>
           Part B
           {% if request.user.id == proposal.user.id or perms.superuser %}
-          {% if not proposal.save_submit or perms.superuser %}
+          {% if not proposal.save_submit and not proposal.opened and proposal.step1 or perms.superuser %}
           <a href="{% url 'impact_form' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
