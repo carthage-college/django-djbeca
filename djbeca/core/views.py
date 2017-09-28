@@ -197,8 +197,8 @@ def impact_form(request, pid):
                 chairs = department_division_chairs(where)
                 # staff do not have deans so len will be 0 in that case
                 if len(chairs) > 0:
-                    # temporarily assign department to full name
-                    proposal.department = chairs[0][0]
+                    # we need department full name in email
+                    proposal.department_name = chairs[0][0]
                     if DEBUG:
                         to_list = [SERVER_EMAIL]
                     else:
@@ -313,11 +313,10 @@ def proposal_form(request, pid=None):
         )
         if form.is_valid():
             data = form.save(commit=False)
-            data.user = user
-            # if proposal has been reopened, we set opened to False
-            # so that proposal now is considered a new attempt at approval
-            if proposal.opened:
-                data.opened = False
+            # we don't want to change ownership if someone else with
+            # permission is updating the proposal
+            if not proposal:
+                data.user = user
             data.save()
 
             form_institu.is_valid()
@@ -348,13 +347,13 @@ def proposal_form(request, pid=None):
                 investigator.tags.add('Co-Principal Investigators')
 
             # send emails only if we have a new proposal
-            if not proposal:
+            if not proposal or proposal.opened:
                 to_list = []
                 where = 'PT.pcn_03 = "{}"'.format(data.department)
                 chairs = department_division_chairs(where)
                 if len(chairs) > 0:
-                    # temporarily assign department to full name
-                    data.department = chairs[0][0]
+                    # we need department full name in email
+                    data.department_name = chairs[0][0]
                     if DEBUG:
                         data.chairs = chairs
                     else:
@@ -362,11 +361,16 @@ def proposal_form(request, pid=None):
                         to_list.append(chairs[0][8])
                 else:
                     # staff do not have a dean
-                    data.department = depts[0][1]
+                    data.department_name = depts[0][1]
 
                 if not to_list:
                     if DEBUG:
                         to_list = [SERVER_EMAIL]
+                        # we might not have chairs
+                        try:
+                            data.to_list = chairs[0][8]
+                        except:
+                            data.to_list = PROPOSAL_EMAIL
                     else:
                         to_list = [PROPOSAL_EMAIL]
 
@@ -382,10 +386,23 @@ def proposal_form(request, pid=None):
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = "Part A Submission Received: {}".format(data.title)
+
+                if DEBUG:
+                    to_list = [SERVER_EMAIL]
+                    data.to_list = data.user.email
+                else:
+                    to_list = [data.user.email]
+
                 send_mail(
-                    request, [data.user.email], subject, PROPOSAL_EMAIL,
+                    request, to_list, subject, PROPOSAL_EMAIL,
                     'proposal/email_confirmation.html', data, BCC
                 )
+
+            # if proposal has been reopened, we set opened to False
+            # so that proposal now is considered a new attempt at approval
+            if proposal.opened:
+                data.opened = False
+                data.save()
 
             return HttpResponseRedirect(
                 reverse_lazy('proposal_success')
