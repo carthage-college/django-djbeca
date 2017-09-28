@@ -29,8 +29,11 @@
         Department
     </dt>
     <dd style="margin:2px 0;padding:5px 0">
-        {{data.department}}
+        {{data.department_name}}
     </dd>
 </dl>
+{% if data.to_list %}
+to_list = {{data.to_list}}
+{% endif %}
 {% endblock %}
 {% endautoescape %}
