@@ -224,7 +224,7 @@ def impact_form(request, pid):
                     proposal.title
                 )
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL,
+                    request, [proposal.user.email], subject, PROPOSAL_EMAIL,
                     'impact/email_confirmation.html', proposal, BCC
                 )
                 # set the save submit flag so PI cannot update
