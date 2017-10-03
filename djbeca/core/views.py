@@ -548,7 +548,6 @@ def proposal_approver(request, pid=0):
 
 @portal_auth_required(
     session_var='DJBECA_AUTH',
-    group='Sponsored Programs',
     redirect_url=reverse_lazy('access_denied')
 )
 def email_investigator(request, pid, action):
