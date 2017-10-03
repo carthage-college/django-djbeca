@@ -67,34 +67,27 @@ $(function() {
       <a href="#" id="print" class="no-print-icon">
         <i class="fa fa-print green blue-tooltip" aria-hidden="true"
           data-toggle="tooltip" data-placement="top"
-          title="Print to paper or PDF"></i></a>
-      {% ifusergroup osp_group deans_group %}|
+          title="Print to paper or PDF"></i></a> |
+      {% ifusergroup osp_group deans_group %}
       <a href="{% url 'proposal_approver' proposal.id %}"
         class="no-print-icon">
         <i class="fa fa-thumbs-o-up green blue-tooltip" aria-hidden="true"
           data-toggle="tooltip" data-placement="top"
           title="Add Approver to this proposal"></i></a> |
-      <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
-        class="no-print-icon">
-        <i class="fa fa-envelope green blue-tooltip" aria-hidden="true"
-          data-toggle="tooltip" data-placement="top"
-          title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i></a>
       {% endifusergroup %}
-      {% if perms.approver %}
-      |
       <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
         class="no-print-icon">
         <i class="fa fa-envelope green blue-tooltip" aria-hidden="true"
           data-toggle="tooltip" data-placement="top"
           title="Send Email to {{proposal.user.first_name}} {{proposal.user.last_name}}"></i></a>
-      {% endif %}
     </h1>
   </div>
   <!-- /.col-lg-12 -->
 </div>
 <!-- /.row -->
-{% if perms.approve %}
+{% if not proposal.closed %}
 {% if not proposal.step1 or not proposal.step2 %}
+{% if perms.approve %}
 <div class="row">
   <div class="col-lg-12 text-center">
     <div class="panel panel-default">
@@ -103,6 +96,9 @@ $(function() {
         <a href="#" class="btn btn-default btn-success proposal-status"
           style="width:128px;" data-status="approve">Approve</a>
         {% endif %}
+        <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
+          class="btn btn-default btn-warning proposal-email"
+          style="margin-left:24px;width:128px;" data-status="decline">Needs Work</a>
         <a href="#" class="btn btn-default btn-danger proposal-status"
           style="margin-left:24px;width:128px;" data-status="decline">Decline</a>
       </div>
@@ -111,7 +107,7 @@ $(function() {
   <!-- /.col-lg-12 -->
 </div>
 <!-- /.row -->
-{% endif %}{% endif %}
+{% endif %}{% endif %}{% endif %}
 <div class="row">
   {% if proposal.proposal_impact %}
   <div class="col-lg-6">
