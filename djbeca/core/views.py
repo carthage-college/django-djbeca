@@ -697,6 +697,10 @@ def proposal_status(request):
             else:
                 to_list = [proposal.user.email]
 
+
+            # default message for when none of the conditions below are met
+            message = "Who dat tryin' to 'prove?"
+
             # if step1 and dean stop here
             if step == 'step1' and perms['level3']:
                 proposal.level3 = True
@@ -746,8 +750,6 @@ def proposal_status(request):
                 message = "Approved by {} {}".format(
                     a.user.first_name, a.user.last_name
                 )
-            else:
-                message = "Who dat tryin' to 'prove?"
     else:
         message = "Requires POST request"
 
