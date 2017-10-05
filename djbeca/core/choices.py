@@ -55,30 +55,24 @@ PROPOSAL_GOAL_CHOICES = (
 )
 PROPOSAL_TYPE_CHOICES = (
     (
-        'New: never submitted this proposal to this agency before',
+        'new',
         'New: never submitted this proposal to this agency before'
     ),
     (
-        '''
-            Revised Per Funder Request: update of submitted proposal,
-            because funder requested changes
-        ''',
+        'revised',
         '''
             Revised Per Funder Request: update of submitted proposal,
             because funder requested changes
         '''
     ),
     (
-        '''
-            Re-Submission: submitted proposal in prior round of funding,
-            re-submitting proposal for new round
-        ''',
+        'resubmission',
         '''
             Re-Submission: submitted proposal in prior round of funding,
             re-submitting proposal for new round
         '''
     ),
-    ('Other','Other')
+    ('other','Other')
 )
 
 FUNDING_SOURCE_CHOICES = (
