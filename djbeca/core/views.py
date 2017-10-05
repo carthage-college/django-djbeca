@@ -23,7 +23,8 @@ from djtools.fields import NOW
 
 from djauth.LDAPManager import LDAPManager
 
-BCC = [settings.MANAGERS[0][1],settings.PROPOSAL_EMAIL]
+
+DEBUG = settings.DEBUG
 OSP_GROUP = settings.OSP_GROUP
 DEANS_GROUP = settings.DEANS_GROUP
 VEEP = get_position(settings.VEEP_TPOS)
@@ -31,7 +32,11 @@ PROVOST = get_position(settings.PROV_TPOS)
 PRESIDENT = get_position(settings.PREZ_TPOS)
 PROPOSAL_EMAIL = settings.PROPOSAL_EMAIL
 SERVER_EMAIL = settings.SERVER_EMAIL
-DEBUG = settings.DEBUG
+MANAGER = settings.MANAGERS[0][1]
+if DEBUG:
+    BCC = [MANAGER,]
+else:
+    BCC = [MANAGER,settings.PROPOSAL_EMAIL]
 
 
 @portal_auth_required(
@@ -177,9 +182,12 @@ def impact_form(request, pid):
                 )
 
                 # Approvers
-                to_list = []
-                for a in proposal.proposal_approvers.all():
-                    to_list.append(a.user.email)
+                if DEBUG:
+                    to_list = [MANAGER]
+                else:
+                    to_list = []
+                    for a in proposal.proposal_approvers.all():
+                        to_list.append(a.user.email)
 
                 if to_list:
                     # send the email to Approvers
@@ -188,11 +196,11 @@ def impact_form(request, pid):
                         'impact/email_approve_approvers.html', proposal, BCC
                     )
 
+                # Division Dean (level3)
                 subject = 'Review and Provide Final Authorization for PART B: "{}" by {}, {}'.format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
                 )
-                # Division Dean (level3)
                 where = 'PT.pcn_03 = "{}"'.format(proposal.department)
                 chairs = department_division_chairs(where)
                 # staff do not have deans so len will be 0 in that case
@@ -200,7 +208,7 @@ def impact_form(request, pid):
                     # we need department full name in email
                     proposal.department_name = chairs[0][0]
                     if DEBUG:
-                        to_list = [SERVER_EMAIL]
+                        to_list = [MANAGER]
                     else:
                         # Division dean's email
                         to_list = [chairs[0][8]]
@@ -211,12 +219,17 @@ def impact_form(request, pid):
                         'impact/email_approve_level3.html', proposal, BCC
                     )
 
-                # Veep/CFO (level2) and Provost (level1)
-                send_mail(
-                    request, [VEEP.email, PROVOST.email], subject,
-                    PROPOSAL_EMAIL, 'impact/email_approve_level1.html',
-                    proposal, BCC
-                )
+                # Veep/CFO (level1) and Provost (level2)
+                if DEBUG:
+                    to_list = [MANAGER]
+                else:
+                    to_list = [VEEP.email, PROVOST.email]
+
+                for to in to_list:
+                    send_mail(
+                        request, [to], subject, PROPOSAL_EMAIL,
+                        'impact/email_approve_level1.html', proposal, BCC
+                    )
 
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
@@ -365,7 +378,7 @@ def proposal_form(request, pid=None):
 
                 if not to_list:
                     if DEBUG:
-                        to_list = [SERVER_EMAIL]
+                        to_list = [MANAGER]
                         # we might not have chairs
                         try:
                             data.to_list = chairs[0][8]
@@ -388,7 +401,7 @@ def proposal_form(request, pid=None):
                 subject = "Part A Submission Received: {}".format(data.title)
 
                 if DEBUG:
-                    to_list = [SERVER_EMAIL]
+                    to_list = [MANAGER]
                     data.to_list = data.user.email
                 else:
                     to_list = [data.user.email]
@@ -522,7 +535,7 @@ def proposal_approver(request, pid=0):
                 )
 
                 if DEBUG:
-                    to_list = [SERVER_EMAIL]
+                    to_list = [MANAGER]
                 else:
                     to_list = [proposal.user.email, approver.user.email]
 
@@ -593,7 +606,9 @@ def email_investigator(request, pid, action):
 )
 def proposal_status(request):
     '''
-    approve or decline a proposal via AJAX POST
+    scope:    set the status on a proposal.
+    options:  approve, decline, open, close, needs work
+    method:   AJAX POST
     '''
 
     # requires POST request
@@ -608,7 +623,8 @@ def proposal_status(request):
         proposal = get_object_or_404(Proposal, id=pid)
         perms = proposal.permissions(user)
         # if user does not have 'approve' permissions, we can stop here,
-        # regardless of whether we are approving, decling, or closing/opening
+        # regardless of whether we are approving/declining, closing/opening,
+        # or indicating that the proposal "needs work".
         if not perms['approve'] and not perms['open']:
             return HttpResponse("Access Denied")
         else:
@@ -619,6 +635,11 @@ def proposal_status(request):
             if status == 'close':
                 if perms['close']:
                     proposal.closed = True
+                    proposal.opened = False
+                    proposal.decline = False
+                    proposal.level3 = False
+                    proposal.email_approved = False
+                    proposal.save_submit = False
                     proposal.save()
                     return HttpResponse("Proposal has been closed")
                 else:
@@ -634,6 +655,7 @@ def proposal_status(request):
                     proposal.level3 = False
                     proposal.email_approved = False
                     proposal.save_submit = False
+                    proposal.proposal_type = 'resubmission'
                     proposal.save()
                     # we might not have a proposal impact relationship
                     try:
@@ -652,10 +674,16 @@ def proposal_status(request):
             decline_template = 'impact/email_decline.html'
             decline_subject = 'Part B: Not approved, requires \
                 additional clarrification: "{}"'.format(proposal.title)
+            needs_work_template = 'impact/email_needswork.html'
+            needs_work_subject = 'Part B: Needs work, requires \
+                additional clarrification: "{}"'.format(proposal.title)
             if not proposal.step1():
                 step = 'step1'
                 decline_template = 'proposal/email_decline.html'
                 decline_subject = 'Part A: Not approved, requires \
+                    additonal clarrification: "{}"'.format(proposal.title)
+                needs_work_template = 'proposal/email_needswork.html'
+                needs_work_subject = 'Part A: Needs work, requires \
                     additonal clarrification: "{}"'.format(proposal.title)
             elif proposal.step1() and not proposal.impact():
                 return HttpResponse("Step 2 has not been initiated")
@@ -671,19 +699,57 @@ def proposal_status(request):
                 if perms['decline']:
                     proposal.decline = True
                     proposal.closed = True
+                    proposal.opened = False
+                    proposal.level3 = False
+                    proposal.email_approved = False
+                    proposal.save_submit = False
                     proposal.save()
+                    if step2:
+                        proposal.proposal_impact.level1 = False
+                        proposal.proposal_impact.level2 = False
+                        proposal.proposal_impact.level3 = False
+                        proposal.proposal_impact.disclosure_assurance = False
+                        proposal.proposal_impact.save()
                     if DEBUG:
-                        to_list = [SERVER_EMAIL]
+                        to_list = [MANAGER]
                     else:
                         to_list = [proposal.user.email]
                     send_mail(
                         request, to_list, decline_subject,
-                        proposal.user.email, decline_template, proposal, BCC
+                        user.email, decline_template, proposal, BCC
                     )
                     return HttpResponse("Proposal Declined")
                 else:
                     return HttpResponse("You don't have permission to decline")
 
+            # we can stop here if 'needs work', just like decline.
+            if status == 'needswork':
+                if perms['needswork']:
+                    proposal.decline = False
+                    proposal.closed = False
+                    proposal.opened = True
+                    proposal.level3 = False
+                    proposal.email_approved = False
+                    proposal.save_submit = False
+                    proposal.proposal_type = 'revised'
+                    proposal.save()
+                    if step == 'step2':
+                        proposal.proposal_impact.level1 = False
+                        proposal.proposal_impact.level2 = False
+                        proposal.proposal_impact.level3 = False
+                        proposal.proposal_impact.disclosure_assurance = False
+                        proposal.proposal_impact.save()
+                    if DEBUG:
+                        to_list = [MANAGER]
+                    else:
+                        to_list = [proposal.user.email]
+                    send_mail(
+                        request, to_list, needs_work_subject,
+                        user.email, needs_work_template, proposal, BCC
+                    )
+                    return HttpResponse('Proposal "needs work" email sent')
+                else:
+                    return HttpResponse("Permission denied")
 
             # default email subject
             subject = '{}: "{}"'.format(
@@ -693,7 +759,7 @@ def proposal_status(request):
 
             # establish the email distribution list
             if DEBUG:
-                to_list = [SERVER_EMAIL]
+                to_list = [MANAGER]
             else:
                 to_list = [proposal.user.email]
 
@@ -716,13 +782,13 @@ def proposal_status(request):
                 proposal.proposal_impact.level3 = True
                 proposal.proposal_impact.save()
                 message = "Division Dean approved Part B"
-            # Veep/CFO?
-            elif user.id == VEEP.id:
+            # Provost?
+            elif user.id == PROVOST.id:
                 proposal.proposal_impact.level2 = True
                 proposal.proposal_impact.save()
                 message = "VP for Businees approved Part B"
-            # Provost?
-            elif user.id == PROVOST.id:
+            # Veep/CFO?
+            elif user.id == VEEP.id:
                 proposal.proposal_impact.level1 = True
                 proposal.proposal_impact.save()
                 message = "Provost approved Part B"
