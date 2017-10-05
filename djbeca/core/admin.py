@@ -70,6 +70,10 @@ class ProposalGoalAdmin(admin.ModelAdmin):
 class ProposalImpactAdmin(admin.ModelAdmin):
     list_per_page = 500
     raw_id_fields = ('proposal',)
+    list_display = (
+        'title','created_at','updated_at',
+        'level3','level2','level1','disclosure_assurance'
+    )
 
 
 admin.site.register(Proposal, ProposalAdmin)

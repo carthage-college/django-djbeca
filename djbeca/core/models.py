@@ -202,6 +202,7 @@ class Proposal(models.Model):
         if dc == 'dean':
             perms['view'] = True
             perms['level3'] = True
+            perms['open'] = True
             perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level3'
@@ -417,6 +418,9 @@ class ProposalImpact(models.Model):
         ordering  = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_impact'
+
+    def title(self):
+        return self.proposal.title
 
     def get_slug(self):
         return 'proposal-impact/'

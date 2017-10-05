@@ -54,13 +54,19 @@
           </td>
           {% else %}
           <td>
-            {% if p.step1 or group or request.user.is_superuser or p.opened %}
+            {% if p.step1 or p.opened or group or request.user.is_superuser %}
               {% if p.user.id == request.user.id or group or request.user.is_superuser %}
                 {% if not p.save_submit %}
                 <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
                 data-placement="top" title="Update Part A" class="blue-tooltip">
                   <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
                 </a>
+                {% endif %}
+              {% else %}
+                {% if p.opened and p.proposal_type == 'revised' %}
+                <i class="fa fa-2x fa-meh-o green blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden='true'
+                title="Part A needs work"></i>
                 {% endif %}
               {% endif %}
             {% else %}

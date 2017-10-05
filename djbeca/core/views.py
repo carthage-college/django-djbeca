@@ -23,6 +23,8 @@ from djtools.fields import NOW
 
 from djauth.LDAPManager import LDAPManager
 
+import logging
+logger = logging.getLogger(__name__)
 
 DEBUG = settings.DEBUG
 OSP_GROUP = settings.OSP_GROUP
@@ -645,6 +647,7 @@ def proposal_status(request):
                 else:
                     return HttpResponse("You do not have permission to close")
 
+
             # simple open or close, not dependent on anything else (e.g. steps)
             if status == 'open':
                 if perms['open']:
@@ -704,7 +707,7 @@ def proposal_status(request):
                     proposal.email_approved = False
                     proposal.save_submit = False
                     proposal.save()
-                    if step2:
+                    if step == 'step2':
                         proposal.proposal_impact.level1 = False
                         proposal.proposal_impact.level2 = False
                         proposal.proposal_impact.level3 = False
