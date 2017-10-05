@@ -96,9 +96,8 @@ $(function() {
         <a href="#" class="btn btn-default btn-success proposal-status"
           style="width:128px;" data-status="approve">Approve</a>
         {% endif %}
-        <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
-          class="btn btn-default btn-warning proposal-email"
-          style="margin-left:24px;width:128px;" data-status="decline">Needs Work</a>
+        <a href="#" class="btn btn-default btn-warning proposal-status"
+          style="margin-left:24px;width:128px;" data-status="needswork">Needs Work</a>
         <a href="#" class="btn btn-default btn-danger proposal-status"
           style="margin-left:24px;width:128px;" data-status="decline">Decline</a>
       </div>
@@ -119,7 +118,7 @@ $(function() {
         <h2>
           Part A
           {% if request.user.id == proposal.user.id or perms.superuser %}
-          {% if proposal.step1 or perms.superuser %}
+          {% if proposal.step1 or proposal.opened or perms.superuser %}
           {% if not proposal.save_submit or perms.superuser %}
           <a href="{% url 'proposal_update' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">

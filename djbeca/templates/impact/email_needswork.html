@@ -1,7 +1,7 @@
 {% load livewhale_api %}
 {% autoescape off %}
 {% block message %}
-  {% get_lw_content as email blurbs 2526 %}
+  {% get_lw_content as email blurbs 2584 %}
   {{email.body}}
   <h4>
     <a href="mailto:{{request.user.email}}">
