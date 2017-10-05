@@ -185,7 +185,7 @@ class Proposal(models.Model):
 
         perms = {
             'view':False,'approve':False,'decline':False,
-            'close':False,'open':False,
+            'close':False,'open':False,'needswork':False,
             'superuser': False, 'approver': False,
             'level3': False, 'level2': False, 'level1': False
         }
@@ -202,18 +202,21 @@ class Proposal(models.Model):
         if dc == 'dean':
             perms['view'] = True
             perms['level3'] = True
+            perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level3'
         # Veep/CFO?
         elif user.id == VEEP.id:
             perms['view'] = True
             perms['level2'] = True
+            perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level2'
         # Provost?
         elif user.id == PROVOST.id:
             perms['view'] = True
             perms['level1'] = True
+            perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level1'
         # Superuser?
@@ -222,6 +225,7 @@ class Proposal(models.Model):
             perms['open'] = True
             perms['close'] = True
             perms['superuser'] = True
+            perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'superuser'
         elif self.user == user:
@@ -233,6 +237,7 @@ class Proposal(models.Model):
                 if a.user == user:
                     perms['view'] = True
                     perms['approver'] = True
+                    perms['needswork'] = True
                     perms['decline'] = True
                     perms['approve'] = 'approver'
                     break
@@ -280,7 +285,8 @@ class ProposalImpact(models.Model):
         "Date Updated", auto_now=True
     )
     proposal = models.OneToOneField(
-        Proposal, editable=False,
+        Proposal,
+        #editable=False,
         related_name='proposal_impact'
     )
 
