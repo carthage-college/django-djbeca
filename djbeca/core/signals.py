@@ -7,8 +7,14 @@ from djtools.utils.mail import send_mail
 
 
 @receiver(post_save, sender=ProposalImpact)
-def proposal_impact_poste_save(sender, **kwargs):
+def proposal_impact_post_save_notify_osp(sender, **kwargs):
+    """
+    send an email to the OSP when all approvals for a proposal
+    have been met
+    """
+
     obj = kwargs['instance'].proposal
+
     if not obj.decline and obj.step1() and obj.step2() \
       and not obj.email_approved:
 
@@ -17,7 +23,7 @@ def proposal_impact_poste_save(sender, **kwargs):
         else:
             to_list = [settings.PROPOSAL_EMAIL,]
 
-        # send the email
+        # send the email OSP
         subject = "Proposal approved {}: {}, {}".format(
             obj.title, obj.user.last_name, obj.user.first_name
         )
@@ -28,3 +34,4 @@ def proposal_impact_poste_save(sender, **kwargs):
         )
         if sent:
             obj.email_approved = True
+
