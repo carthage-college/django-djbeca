@@ -173,16 +173,18 @@ def impact_form(request, pid):
                     )
                     goal.save()
 
-            # Send email to Approvers, Division Dean, VEEP/CFO, and Provost
-            # if the PI is finished with the proposal (i.e. hits 'submit-save'
-            # rather than 'save and continue')
+            # Send email to Approvers and Division Dean if the PI is finished
+            # with the proposal
+            # (i.e. hits 'submit-save' rather than 'save and continue')
             post = request.POST
             if post.get('save_submit') and not proposal.save_submit:
-                subject = 'Routing & Authorization Form Part B: Your Approval Needed for "{}" by {}, {}'.format(
+                subject = (
+                    'Routing & Authorization Form Part B: '
+                    'Your Approval Needed for "{}" by {}, {}'
+                ).format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
                 )
-
                 # Approvers
                 if DEBUG:
                     to_list = [MANAGER]
@@ -199,7 +201,10 @@ def impact_form(request, pid):
                     )
 
                 # Division Dean (level3)
-                subject = 'Review and Provide Final Authorization for PART B: "{}" by {}, {}'.format(
+                subject = (
+                    'Review and Provide Final Authorization for PART B: '
+                    '"{}" by {}, {}'
+                ).format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
                 )
@@ -221,25 +226,17 @@ def impact_form(request, pid):
                         'impact/email_approve_level3.html', proposal, BCC
                     )
 
-                # Veep/CFO (level1) and Provost (level2)
-                if DEBUG:
-                    to_list = [MANAGER]
-                else:
-                    to_list = [VEEP.email, PROVOST.email]
-
-                for to in to_list:
-                    send_mail(
-                        request, [to], subject, PROPOSAL_EMAIL,
-                        'impact/email_approve_level1.html', proposal, BCC
-                    )
-
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = "[Part B] Submission Received: {}".format(
                     proposal.title
                 )
+                if DEBUG:
+                    to_list = [MANAGER]
+                else:
+                    to_list = [proposal.user.email]
                 send_mail(
-                    request, [proposal.user.email], subject, PROPOSAL_EMAIL,
+                    request, to_list, subject, PROPOSAL_EMAIL,
                     'impact/email_confirmation.html', proposal, BCC
                 )
                 # set the save submit flag so PI cannot update
@@ -363,7 +360,6 @@ def proposal_form(request, pid=None):
 
             # send emails only if we have a new proposal
             if not proposal or proposal.opened:
-                to_list = []
                 where = 'PT.pcn_03 = "{}"'.format(data.department)
                 chairs = department_division_chairs(where)
                 if len(chairs) > 0:
@@ -371,14 +367,13 @@ def proposal_form(request, pid=None):
                     data.department_name = chairs[0][0]
                     if DEBUG:
                         data.chairs = chairs
+                        to_list = [MANAGER]
                     else:
                         # Division dean's email
-                        to_list.append(chairs[0][8])
+                        to_list = [chairs[0][8]]
                 else:
-                    # staff do not have a dean
-                    data.department_name = depts[0][1]
-
-                if not to_list:
+                    # staff do not have a dean so we send the email
+                    # to OSP folks
                     if DEBUG:
                         to_list = [MANAGER]
                         # we might not have chairs
@@ -389,7 +384,10 @@ def proposal_form(request, pid=None):
                     else:
                         to_list = [PROPOSAL_EMAIL]
 
-                # send the email
+                    # for display purposes only in the email
+                    data.department_name = depts[0][1]
+
+                # send the email to Dean or OSP
                 subject = 'Review and Authorization Required for Part A: \
                     Your Approval Needed for "{}" by {}, {}'.format(
                     data.title, data.user.last_name, data.user.first_name
@@ -577,8 +575,12 @@ def email_investigator(request, pid, action):
         if form.is_valid():
             form_data = form.cleaned_data
             if 'execute' in request.POST:
+                if DEBUG:
+                    to_list = [MANAGER]
+                else:
+                    to_list = [proposal.user.email]
                 send_mail (
-                    request, [proposal.user.email,],
+                    request, to_list,
                     "[Office of Sponsored Programs] Grant Proposal: {}".format(
                         proposal.title
                     ),
@@ -756,8 +758,7 @@ def proposal_status(request):
 
             # default email subject
             subject = '{}: "{}"'.format(
-                'You are Approved to begin Part B:',
-                proposal.title
+                'You are Approved to begin Part B:', proposal.title
             )
 
             # establish the email distribution list
@@ -766,42 +767,61 @@ def proposal_status(request):
             else:
                 to_list = [proposal.user.email]
 
-
             # default message for when none of the conditions below are met
-            message = "Who dat tryin' to 'prove?"
+            message = "You do not have permission to '{}'".format(status)
 
-            # if step1 and dean stop here
+            # if step1 and Division Dean
             if step == 'step1' and perms['level3']:
                 proposal.level3 = True
                 proposal.save()
+                # send email to PI informing them that they are approved
+                # to begin Part B
                 send_mail(
-                    request, to_list, subject,
-                    proposal.user.email, "proposal/email_authorized.html",
-                    proposal, BCC
+                    request, to_list, subject, proposal.user.email,
+                    'proposal/email_authorized.html', proposal, BCC
                 )
                 message = "Dean approved Part A"
-            # Dean?
-            elif perms['level3']:
+            # if step2 and Division Dean?
+            elif step == 'step2' and perms['level3']:
                 proposal.proposal_impact.level3 = True
                 proposal.proposal_impact.save()
                 message = "Division Dean approved Part B"
-            # Provost?
-            elif user.id == PROVOST.id:
+                # send email to Provost and VP for Business informing
+                # them that the Division Dean has approved Part B
+                # and the proposal is awaiting their approval.
+                if DEBUG:
+                    to_list = [MANAGER]
+                else:
+                    to_list = [VEEP.email, PROVOST.email]
+                subject = (
+                    'Review and Provide Final Authorization for PART B: '
+                    '"{}" by {}, {}'
+                ).format(
+                    proposal.title, proposal.user.last_name,
+                    proposal.user.first_name
+                )
+
+                send_mail(
+                    request, to_list, subject, PROPOSAL_EMAIL,
+                    'impact/email_approve_level1.html', proposal, BCC
+                )
+            # VP for Business?
+            elif user.id == VEEP.id and step == 'step2':
                 proposal.proposal_impact.level2 = True
                 proposal.proposal_impact.save()
-                message = "VP for Businees approved Part B"
-            # Veep/CFO?
-            elif user.id == VEEP.id:
+                message = "VP for Business approved Part B"
+            # Provost?
+            elif user.id == PROVOST.id and step == 'step2':
                 proposal.proposal_impact.level1 = True
                 proposal.proposal_impact.save()
                 message = "Provost approved Part B"
+            # approvers
             else:
-                # approvers
                 for a in proposal.proposal_approvers.all():
                     if a.user == user:
                         a.__dict__[step] = True
                         a.save()
-                        # right now, approvers only replace deans
+                        # right now, approvers only replace division deans
                         if a.replace == 'level3':
                             proposal.level3 = True
                             proposal.save()
