@@ -29,7 +29,7 @@ class Proposal(models.Model):
         "Date Updated", auto_now=True
     )
     user = models.ForeignKey(User, editable=settings.DEBUG)
-    # Division Dean or VP approval
+    # Division Dean or Department VP approval
     level3 = models.BooleanField(default=False)
     # anyone in the workflow decline the proposal at this point
     decline = models.BooleanField(default=False)
@@ -206,7 +206,7 @@ class Proposal(models.Model):
             perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level3'
-        # Veep/CFO?
+        # VP for Business?
         elif user.id == VEEP.id:
             perms['view'] = True
             perms['level2'] = True
@@ -255,6 +255,7 @@ class Proposal(models.Model):
     # at the moment, we assume all approvers will be responsible for
     # step 1 AND step 2. in the future, i suspect that this might change.
     def step1(self):
+        # Dean or Department VP
         approved = self.level3
         for a in self.proposal_approvers.all():
             if not a.step1:
@@ -273,6 +274,7 @@ class Proposal(models.Model):
                     approved = False
                     break
         return approved
+
 
 class ProposalImpact(models.Model):
     '''
@@ -293,7 +295,7 @@ class ProposalImpact(models.Model):
 
     # status
     level3 = models.BooleanField(default=False) # Division Dean
-    level2 = models.BooleanField(default=False) # CFO
+    level2 = models.BooleanField(default=False) # VP for Business
     level1 = models.BooleanField(default=False) # Provost
 
     # Project Impact
