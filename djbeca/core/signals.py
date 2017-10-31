@@ -16,15 +16,15 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
     obj = kwargs['instance'].proposal
 
     if not obj.decline and obj.step1() and obj.step2() \
-      and not obj.email_approved:
+    and not obj.email_approved:
 
+        to_list = [settings.PROPOSAL_EMAIL,]
         if settings.DEBUG:
+            obj.to_list = to_list
             to_list = [settings.MANAGERS[0][1],]
-        else:
-            to_list = [settings.PROPOSAL_EMAIL,]
 
         # send the email OSP
-        subject = "Proposal approved {}: {}, {}".format(
+        subject = "[Final] Proposal approved: '{}' by {}, {}".format(
             obj.title, obj.user.last_name, obj.user.first_name
         )
         sent = send_mail(
@@ -34,4 +34,4 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
         )
         if sent:
             obj.email_approved = True
-
+            obj.save()

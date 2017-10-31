@@ -9,5 +9,8 @@
       {{request.user.last_name}}, {{request.user.first_name}}
     </a>
   </p>
+{% if data.to_list %}
+to_list = {{data.to_list}}
+{% endif %}
 {% endblock %}
 {% endautoescape %}

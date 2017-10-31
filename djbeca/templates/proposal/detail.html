@@ -85,27 +85,25 @@ $(function() {
   <!-- /.col-lg-12 -->
 </div>
 <!-- /.row -->
-{% if not proposal.closed %}
-{% if not proposal.step1 or not proposal.step2 %}
 {% if perms.approve %}
-<div class="row">
-  <div class="col-lg-12 text-center">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        {% if not proposal.step1 or not proposal.step2 and proposal.proposal_impact %}
+{% if not proposal.closed or not proposal.decline %}
+{% if not proposal.step1 or not proposal.step2 and proposal.save_submit %}
+  <div class="row">
+    <div class="col-lg-12 text-center">
+      <div class="panel panel-default">
+        <div class="panel-body">
         <a href="#" class="btn btn-default btn-success proposal-status"
           style="width:128px;" data-status="approve">Approve</a>
-        {% endif %}
         <a href="#" class="btn btn-default btn-warning proposal-status"
           style="margin-left:24px;width:128px;" data-status="needswork">Needs Work</a>
         <a href="#" class="btn btn-default btn-danger proposal-status"
           style="margin-left:24px;width:128px;" data-status="decline">Decline</a>
+        </div>
       </div>
     </div>
+    <!-- /.col-lg-12 -->
   </div>
-  <!-- /.col-lg-12 -->
-</div>
-<!-- /.row -->
+  <!-- /.row -->
 {% endif %}{% endif %}{% endif %}
 <div class="row">
   {% if proposal.proposal_impact %}
@@ -256,7 +254,7 @@ $(function() {
         <h2>
           Part B
           {% if request.user.id == proposal.user.id or perms.superuser %}
-          {% if not proposal.save_submit and not proposal.opened and proposal.step1 or perms.superuser %}
+          {% if not proposal.save_submit and proposal.step1 or perms.superuser %}
           <a href="{% url 'impact_form' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
@@ -360,7 +358,7 @@ $(function() {
         {% for d in proposal.proposal_documents.all %}
           {% if d.phile %}
           <li>
-            <h5><a href="{{d.phile}}">{{d.name}}</a>
+            <h5><a href="https://{{server_url}}{{media_url}}{{d.phile}}">{{d.name}}</a>
             <i class="fa fa-file-pdf-o red" aria-hidden="true"></i></h5>
           </li>
           {% endif %}

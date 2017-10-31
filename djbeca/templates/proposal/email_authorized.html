@@ -3,5 +3,8 @@
 {% block message %}
   {% get_lw_content as email blurbs 2245 %}
   {{email.body}}
+{% if data.to_list %}
+to_list = {{data.to_list}}
+{% endif %}
 {% endblock %}
 {% endautoescape %}

@@ -43,7 +43,7 @@
             Proposal Declined
             <i class="fa fa-question-circle-o green blue-tooltip"
               data-toggle="tooltip" data-placement="top" aria-hidden="true"
-              title="Click the Recycle icon to reopen this proposal and resubmit it"></i>
+              title="Click the Recycle icon to reopen this proposal"></i>
           </td>
           {% else %}{% if p.closed %}
           <td colspan="2" class="red" style="text-align:center;">
@@ -156,7 +156,7 @@
           </td>
           {% endif %}{% endif %}
           <td style="text-align:center;">
-            {% if p.closed %}
+            {% if p.closed or p.decline %}
               <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
                 data-placement="top" title="Reopen this proposal"
                 data-pid="{{p.id}}" data-status="open"
@@ -170,9 +170,15 @@
               {% endifusergroup %}
             {% else %}
               {% ifusergroup osp_group %}
+              {% if p.step1 and p.step2 %}
+              <i class="fa fa-2x fa-smile-o green" data-toggle="tooltip"
+                data-placement="top" title="This proposal is complete"
+                aria-hidden="true"></i>
+              {% else %}
               <i class="fa fa-2x fa-circle-o green" data-toggle="tooltip"
                 data-placement="top" title="This proposal is open"
                 aria-hidden="true"></i>
+              {% endif %}
               <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
                 data-placement="top" title="Close this proposal"
                 data-pid="{{p.id}}" data-status="close"
@@ -180,9 +186,15 @@
                 <i class="fa fa-2x fa-power-off red" aria-hidden="true"></i>
               </a>
               {% else %}
-                <i class="fa fa-2x fa-circle-o green" aria-hidden="true"
-                data-toggle="tooltip" data-placement="top"
-                title="This proposal is open" class="blue-tooltip"></i>
+              {% if p.step1 and p.step2 %}
+              <i class="fa fa-2x fa-smile-o green" data-toggle="tooltip"
+                data-placement="top" title="This proposal is complete"
+                aria-hidden="true"></i>
+              {% else %}
+              <i class="fa fa-2x fa-circle-o green" data-toggle="tooltip"
+                data-placement="top" title="This proposal is open"
+                aria-hidden="true"></i>
+              {% endif %}
               {% endifusergroup %}
             {% endif%}
           </td>

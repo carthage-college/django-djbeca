@@ -3,11 +3,20 @@
 {% block message %}
   {% get_lw_content as email blurbs 2583 %}
   {{email.body}}
+<h3>
+  <a href="{{data.get_update_url}}">
+    Click Here to Update This Proposal
+  </a>
+</h3>
+
   <h4>This action  was executed by:</h4>
   <p>
     <a href="mailto:{{request.user.email}}">
       {{request.user.last_name}}, {{request.user.first_name}}
     </a>
   </p>
+{% if data.to_list %}
+to_list = {{data.to_list}}
+{% endif %}
 {% endblock %}
 {% endautoescape %}

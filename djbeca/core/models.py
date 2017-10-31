@@ -265,15 +265,40 @@ class Proposal(models.Model):
 
     def step2(self):
         approved = False
-        if self.proposal_impact.level1 and self.proposal_impact.level2 \
-          and self.proposal_impact.level3:
-            approved = True
+        try:
+            if self.proposal_impact.level1 and self.proposal_impact.level2 \
+            and self.proposal_impact.level3:
+                approved = True
+        except:
+            approved = False
+
         if approved:
             for a in self.proposal_approvers.all():
                 if not a.step2:
                     approved = False
                     break
         return approved
+
+    def ready_level1(self):
+        """
+        Are we ready for:
+        VP for Business (level2) and Provost (level1) to approve?
+        """
+        approved = False
+        try:
+            if self.proposal_impact.level3:
+                approved = True
+        except:
+            approved = False
+
+        if approved:
+            for a in self.proposal_approvers.all():
+                if not a.step2:
+                    approved = False
+                    break
+
+        return approved
+
 
 
 class ProposalImpact(models.Model):
@@ -462,14 +487,14 @@ class ProposalBudget(models.Model):
     budget_final = models.FileField(
         "Final Budget for Review",
         upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
+        validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format"
     )
     budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
         upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
+        validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format",
         null=True,blank=True
@@ -482,6 +507,9 @@ class ProposalBudget(models.Model):
 
     def get_slug(self):
         return 'proposal-budget/'
+
+    def __unicode__(self):
+        return u'{}'.format(self.proposal.title)
 
 
 class ProposalDocument(models.Model):
@@ -504,7 +532,7 @@ class ProposalDocument(models.Model):
     phile = models.FileField(
         "Supporting Document",
         upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
+        validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format",
         null=True,blank=True
@@ -518,6 +546,9 @@ class ProposalDocument(models.Model):
 
     def get_slug(self):
         return 'proposal-document/'
+
+    def __unicode__(self):
+        return u'{}: {}'.format(self.name, self.proposal.title)
 
 
 class ProposalContact(models.Model):
@@ -592,7 +623,7 @@ class ProposalGoal(models.Model):
         return 'proposal-goal/'
 
     def __unicode__(self):
-        return u'{}'.format(self.name)
+        return u'{}: {}'.format(self.name, self.proposal.title)
 
 
 class ProposalApprover(models.Model):

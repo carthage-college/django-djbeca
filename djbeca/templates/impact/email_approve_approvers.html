@@ -9,4 +9,7 @@
     <a href="{{data.get_absolute_url}}">
       Click here to approve and certify</a>.
   </h3>
+{% if data.to_list %}
+to_list = {{data.to_list}}
+{% endif %}
 {% endblock %}

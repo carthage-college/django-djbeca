@@ -13,4 +13,7 @@ Principal Investigator:
       Review this Proposal
   </a>
 </p>
+{% if data.proposal.to_list %}
+to_list = {{data.proposal.to_list}}
+{% endif %}
 {% endautoescape %}

@@ -4,7 +4,8 @@ from django.utils.safestring import mark_safe
 
 from djzbar.utils.hr import department
 from djbeca.core.models import Proposal, ProposalBudget, ProposalContact
-from djbeca.core.models import ProposalGoal, ProposalImpact, ProposalApprover
+from djbeca.core.models import ProposalDocument, ProposalGoal
+from djbeca.core.models import ProposalImpact, ProposalApprover
 
 
 class ProposalAdmin(admin.ModelAdmin):
@@ -62,6 +63,11 @@ class ProposalBudgetAdmin(admin.ModelAdmin):
     raw_id_fields = ('proposal',)
 
 
+class ProposalDocumentAdmin(admin.ModelAdmin):
+    list_per_page = 500
+    raw_id_fields = ('proposal',)
+
+
 class ProposalGoalAdmin(admin.ModelAdmin):
     list_per_page = 500
     raw_id_fields = ('proposal',)
@@ -79,6 +85,7 @@ class ProposalImpactAdmin(admin.ModelAdmin):
 admin.site.register(Proposal, ProposalAdmin)
 admin.site.register(ProposalApprover, ProposalApproverAdmin)
 admin.site.register(ProposalBudget, ProposalBudgetAdmin)
+admin.site.register(ProposalDocument, ProposalDocumentAdmin)
 admin.site.register(ProposalContact, ProposalContactAdmin)
 admin.site.register(ProposalGoal, ProposalGoalAdmin)
 admin.site.register(ProposalImpact, ProposalImpactAdmin)

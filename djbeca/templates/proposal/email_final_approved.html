@@ -4,4 +4,36 @@
   {% get_lw_content as email blurbs 2556 %}
   {{email.body}}
 {% endblock %}
+{% block proposal %}
+<h3>Title</h3>
+<p>{{data.title}}</p>
+<dl style="margin-bottom:5px">
+    <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
+        First name
+    </dt>
+    <dd style="margin:2px 0;padding:5px 0">
+        {{data.user.first_name}}
+    </dd>
+    <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
+        Last name
+    </dt>
+    <dd style="margin:2px 0;padding:5px 0">
+        {{data.user.last_name}}
+    </dd>
+    <dt style="background:#3ab0c8;color:#fff;float:left;font-weight:bold;margin-right:10px;padding:5px;width:200px">
+        Department
+    </dt>
+    <dd style="margin:2px 0;padding:5px 0">
+        {{data.department}}
+    </dd>
+</dl>
+<br>
+<h3>
+  <a href="{{data.get_absolute_url}}">
+    Click here to view the proposal</a>.
+</h3>
+{% if data.to_list %}
+to_list = {{data.to_list}}
+{% endif %}
+{% endblock %}
 {% endautoescape %}
