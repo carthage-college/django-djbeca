@@ -117,7 +117,7 @@ $(function() {
           Part A
           {% if request.user.id == proposal.user.id or perms.superuser %}
           {% if proposal.step1 or proposal.opened or perms.superuser %}
-          {% if not proposal.save_submit or perms.superuser %}
+          {% if not proposal.decline and not proposal.closed %}
           <a href="{% url 'proposal_update' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
@@ -246,7 +246,7 @@ $(function() {
     </div>
     <!-- /.panel -->
   </div>
-  {% if proposal.proposal_impact and proposal.level3 %}
+  {% if proposal.proposal_impact %}
   <!-- /.col-lg-6 -->
   <div class="col-lg-6">
     <div class="panel panel-default">
@@ -254,7 +254,7 @@ $(function() {
         <h2>
           Part B
           {% if request.user.id == proposal.user.id or perms.superuser %}
-          {% if not proposal.save_submit and proposal.step1 or perms.superuser %}
+          {% if not proposal.save_submit and proposal.step1 and not proposal.decline and not proposal.closed %}
           <a href="{% url 'impact_form' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"

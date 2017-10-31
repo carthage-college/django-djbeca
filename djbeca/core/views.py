@@ -79,7 +79,10 @@ def impact_form(request, pid):
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
     if (proposal.save_submit and not group) or \
-       (user != proposal.user) or (proposal.decline and user == proposal.user):
+       (user != proposal.user and not group) or \
+       (proposal.decline and user == proposal.user) or \
+       (proposal.closed and user == proposal.user) or \
+       (proposal.closed or proposal.decline and group):
         return HttpResponseRedirect(reverse_lazy('home'))
     # budget and impact
     try:
