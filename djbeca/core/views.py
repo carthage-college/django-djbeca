@@ -33,13 +33,14 @@ DEANS_GROUP = settings.DEANS_GROUP
 VEEP = get_position(settings.VEEP_TPOS)
 PROVOST = get_position(settings.PROV_TPOS)
 PRESIDENT = get_position(settings.PREZ_TPOS)
-PROPOSAL_EMAIL = settings.PROPOSAL_EMAIL
+PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL
 MANAGER = settings.MANAGERS[0][1]
 if DEBUG:
     BCC = [MANAGER,]
 else:
-    BCC = [MANAGER,settings.PROPOSAL_EMAIL]
+    BCC = settings.PROPOSAL_EMAIL_LIST
+    BCC.append(MANAGER)
 
 
 @portal_auth_required(
@@ -250,7 +251,7 @@ def impact_form(request, pid):
 
                 # send the email
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
                     'impact/email_confirmation.html', proposal, BCC
                 )
                 return HttpResponseRedirect(
@@ -413,7 +414,7 @@ def proposal_form(request, pid=None):
                 else:
                     # staff do not have a dean so we send the email
                     # to OSP folks
-                    to_list.append(PROPOSAL_EMAIL)
+                    to_list.append(PROPOSAL_EMAIL_LIST)
                     if DEBUG:
                         data.to_list = to_list
                         to_list = [MANAGER]
@@ -432,7 +433,7 @@ def proposal_form(request, pid=None):
                     data.title, data.user.last_name, data.user.first_name
                 )
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST),
                     'proposal/email_approve.html', data, BCC
                 )
                 # send confirmation to the Primary Investigator (PI)
@@ -446,7 +447,7 @@ def proposal_form(request, pid=None):
                     to_list = [data.user.email]
 
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
                     'proposal/email_confirmation.html', data, BCC
                 )
                 return HttpResponseRedirect(
@@ -596,7 +597,7 @@ def proposal_approver(request, pid=0):
                     BCC = [MANAGER, proposal.user.email]
 
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
                     'approver/email.html', {'proposal':proposal,},BCC
                 )
 
@@ -905,7 +906,7 @@ def proposal_status(request):
                     )
 
                     send_mail(
-                        request, to_list, subject, PROPOSAL_EMAIL,
+                        request, to_list, subject, PROPOSAL_EMAIL_LIST,
                         'impact/email_approve_level1.html', proposal, BCC
                     )
             # VP for Business?
@@ -955,7 +956,7 @@ def proposal_status(request):
                         )
 
                         send_mail(
-                            request, to_list, subject, PROPOSAL_EMAIL,
+                            request, to_list, subject, PROPOSAL_EMAIL_LIST,
                             'impact/email_approve_level1.html', proposal, BCC
                         )
 
