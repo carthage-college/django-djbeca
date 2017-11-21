@@ -433,7 +433,7 @@ def proposal_form(request, pid=None):
                     data.title, data.user.last_name, data.user.first_name
                 )
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST),
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
                     'proposal/email_approve.html', data, BCC
                 )
                 # send confirmation to the Primary Investigator (PI)
