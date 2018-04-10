@@ -5,6 +5,12 @@ from django.dispatch import receiver
 from djbeca.core.models import ProposalImpact
 from djtools.utils.mail import send_mail
 
+"""
+If an approver has not approved the proposal before the
+level1, level2, and level3 folks have done so, no email
+is sent. we should create a new signal receiver for
+ProposalApprover
+"""
 
 @receiver(post_save, sender=ProposalImpact)
 def proposal_impact_post_save_notify_osp(sender, **kwargs):
