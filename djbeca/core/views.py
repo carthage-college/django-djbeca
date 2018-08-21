@@ -240,7 +240,7 @@ def impact_form(request, pid):
 
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "[Part B] Submission Received: {}".format(
+                subject = u"[Part B] Submission Received: {}".format(
                     proposal.title
                 )
 
@@ -251,7 +251,7 @@ def impact_form(request, pid):
 
                 # send the email
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
                     'impact/email_confirmation.html', proposal, BCC
                 )
                 return HttpResponseRedirect(
@@ -428,17 +428,17 @@ def proposal_form(request, pid=None):
                 data.save()
 
                 # send the email to Dean or OSP
-                subject = 'Review and Authorization Required for Part A: \
+                subject = u'Review and Authorization Required for Part A: \
                     Your Approval Needed for "{}" by {}, {}'.format(
                     data.title, data.user.last_name, data.user.first_name
                 )
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
                     'proposal/email_approve.html', data, BCC
                 )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
-                subject = "Part A Submission Received: {}".format(data.title)
+                subject = u"Part A Submission Received: {}".format(data.title)
 
                 if DEBUG:
                     to_list = [MANAGER]
@@ -447,7 +447,7 @@ def proposal_form(request, pid=None):
                     to_list = [data.user.email]
 
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
                     'proposal/email_confirmation.html', data, BCC
                 )
                 return HttpResponseRedirect(
@@ -582,7 +582,7 @@ def proposal_approver(request, pid=0):
 
                 # send an email to approver
                 prefix = 'Your Review and Authorization Required'
-                subject = '{}: "{}" by {}, {}'.format(
+                subject = u'{}: "{}" by {}, {}'.format(
                     prefix, proposal.title,
                     proposal.user.last_name, proposal.user.first_name
                 )
@@ -597,7 +597,7 @@ def proposal_approver(request, pid=0):
                     BCC = [MANAGER, proposal.user.email]
 
                 send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST,
+                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
                     'approver/email.html', {'proposal':proposal,},BCC
                 )
 
@@ -753,18 +753,18 @@ def proposal_status(request):
 
             # find out on which step we are
             decline_template = 'impact/email_decline.html'
-            decline_subject = 'Part B: Not approved, requires \
+            decline_subject = u'Part B: Not approved, requires \
                 additional clarrification: "{}"'.format(proposal.title)
             needs_work_template = 'impact/email_needswork.html'
-            needs_work_subject = 'Part B: Needs work, requires \
+            needs_work_subject = u'Part B: Needs work, requires \
                 additional clarrification: "{}"'.format(proposal.title)
             if not proposal.step1():
                 step = 'step1'
                 decline_template = 'proposal/email_decline.html'
-                decline_subject = 'Part A: Not approved, requires \
+                decline_subject = u'Part A: Not approved, requires \
                     additonal clarrification: "{}"'.format(proposal.title)
                 needs_work_template = 'proposal/email_needswork.html'
-                needs_work_subject = 'Part A: Needs work, requires \
+                needs_work_subject = u'Part A: Needs work, requires \
                     additonal clarrification: "{}"'.format(proposal.title)
             elif proposal.step1() and not proposal.impact():
                 return HttpResponse("Step 2 has not been initiated")
@@ -860,7 +860,7 @@ def proposal_status(request):
             #
 
             # default email subject
-            subject = '{}: "{}"'.format(
+            subject = u'{}: "{}"'.format(
                 'You are Approved to begin Part B', proposal.title
             )
 
@@ -897,12 +897,8 @@ def proposal_status(request):
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = [MANAGER]
-                    subject = (
-                        'Review and Provide Final Authorization for PART B: '
-                        '"{}" by {}, {}'
-                    ).format(
-                        proposal.title, proposal.user.last_name,
-                        proposal.user.first_name
+                    subject = u'Review and Provide Final Authorization for PART B: "{}" by {}, {}'.format(
+                        proposal.title, proposal.user.last_name, proposal.user.first_name
                     )
 
                     send_mail(
