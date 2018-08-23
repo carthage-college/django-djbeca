@@ -15,6 +15,9 @@ def get_position(tpos):
     '''
     obtains some user information based on job title position number and
     caches the results
+
+    NOTE: this is not very reliable when the position is vacant and
+    there is an interim appointment
     '''
 
     key = 'TPOS_{}'.format(tpos)
@@ -36,6 +39,8 @@ def get_position(tpos):
                 job_rec.end_date IS NULL
         '''.format(tpos)
         results = do_sql(sql).first()
+        if not results:
+            results = settings.TPOS_DEFAULT[tpos]
         cache.set(key, results, None)
     return results
 

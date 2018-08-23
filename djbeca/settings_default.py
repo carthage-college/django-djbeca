@@ -168,6 +168,16 @@ DEFAULT_FROM_EMAIL = ''
 SERVER_EMAIL = ''
 SERVER_MAIL=""
 PROPOSAL_EMAIL = ""
+# approval level positions
+TposStruct = namedtuple('TposStruct', 'id email')
+PROV_TPOS=2877
+VEEP_TPOS=2760
+PREZ_TPOS=2674
+TPOS_DEFAULT = {
+    PROV_TPOS: TposStruct(id='', email=''),
+    VEEP_TPOS: TposStruct(id='', email=''),
+    PREZ_TPOS: TposStruct(id='', email='')
+}
 # logging
 LOG_FILEPATH = os.path.join(os.path.dirname(__file__), "logs/")
 LOG_FILENAME = LOG_FILEPATH + "debug.log"
