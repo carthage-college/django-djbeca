@@ -12,9 +12,9 @@ from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
 from djbeca.core.models import ProposalContact, ProposalGoal
 from djbeca.core.choices import PROPOSAL_GOAL_CHOICES
 from djbeca.core.forms import *
-from djbeca.core.utils import get_position, get_proposals
+from djbeca.core.utils import get_proposals
 
-from djzbar.utils.hr import person_departments
+from djzbar.utils.hr import get_position, person_departments
 from djzbar.utils.hr import department_division_chairs
 from djzbar.decorators.auth import portal_auth_required
 

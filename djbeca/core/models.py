@@ -11,7 +11,7 @@ from djtools.utils.users import in_group
 from djtools.fields import BINARY_CHOICES
 from djtools.fields.helpers import upload_to_path
 from djtools.fields.validators import MimetypeValidator
-from djzbar.utils.hr import chair_departments
+from djzbar.utils.hr import chair_departments, get_position
 
 from taggit.managers import TaggableManager
 
@@ -175,8 +175,6 @@ class Proposal(models.Model):
         what can the user access in terms of the proposal
         and viewing it and the approval process
         '''
-
-        from djbeca.core.utils import get_position
 
         OSP_GROUP = settings.OSP_GROUP
         VEEP = get_position(settings.VEEP_TPOS)

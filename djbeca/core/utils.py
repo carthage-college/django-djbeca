@@ -11,40 +11,6 @@ from djzbar.utils.hr import chair_departments
 from djzbar.utils.hr import department_division_chairs
 
 
-def get_position(tpos):
-    '''
-    obtains some user information based on job title position number and
-    caches the results
-
-    NOTE: this is not very reliable when the position is vacant and
-    there is an interim appointment
-    '''
-
-    key = 'TPOS_{}'.format(tpos)
-    results = cache.get(key)
-    if not results:
-        sql = '''
-            SELECT
-                id_rec.id,
-                email_rec.line1 as email,
-                job_rec.tpos_no
-            FROM
-                id_rec
-            LEFT JOIN job_rec on id_rec.id = job_rec.id
-            LEFT JOIN aa_rec as email_rec on
-                (id_rec.id = email_rec.id AND email_rec.aa = "EML1")
-            WHERE
-                job_rec.tpos_no = {}
-            AND
-                job_rec.end_date IS NULL
-        '''.format(tpos)
-        results = do_sql(sql).first()
-        if not results:
-            results = settings.TPOS_DEFAULT[tpos]
-        cache.set(key, results, None)
-    return results
-
-
 def get_proposals(user):
 
     approver = False
