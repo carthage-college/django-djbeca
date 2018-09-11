@@ -4,6 +4,7 @@ Django settings for project.
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from collections import namedtuple
 
 # Debug
 DEBUG = True
