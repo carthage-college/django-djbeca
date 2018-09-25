@@ -902,7 +902,7 @@ def proposal_status(request):
                     )
 
                     send_mail(
-                        request, to_list, subject, PROPOSAL_EMAIL_LIST,
+                        request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
                         'impact/email_approve_level1.html', proposal, BCC
                     )
             # VP for Business?
@@ -952,7 +952,7 @@ def proposal_status(request):
                         )
 
                         send_mail(
-                            request, to_list, subject, PROPOSAL_EMAIL_LIST,
+                            request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
                             'impact/email_approve_level1.html', proposal, BCC
                         )
 
