@@ -152,7 +152,7 @@ class Proposal(models.Model):
         '''
         Default data for display
         '''
-        return "{} ({})".format(self.title, self.id)
+        return u"{} ({})".format(self.title, self.id)
 
     def get_absolute_url(self):
         return 'https://{}{}'.format(
