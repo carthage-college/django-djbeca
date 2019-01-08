@@ -306,7 +306,7 @@ $(function() {
         </h3>
         <div>
           <h4>Does this proposal require course release or overload?</h4>
-          <h5>{{proposal.proposal_impact.course_release}}</h5>
+          <h5>{{proposal.proposal_impact.course_relief}}</h5>
           <h4>Does this proposal require additional pay?</h4>
           <h5>{{proposal.proposal_impact.additional_pay}}</h5>
           <h4>Does this proposal require payout to Carthage students?</h4>
@@ -331,6 +331,14 @@ $(function() {
           <h4>If 'Yes', please provide the approval date</h4>
           <h5>{{proposal.proposal_impact.institutional_review_date}}</h5>
           {% endif %}
+
+          <h4>
+            Does this proposal involve international travel, collaboration,
+            export, international student participation?
+          </h4>
+          <h5>{{proposal.proposal_impact.international}}</h5>
+
+
           <h4>Does this proposal require cost share/match?</h4>
           <h5>{{proposal.proposal_impact.cost_share_match}}</h5>
           <h4>Does this proposal contain any voluntary commitment?</h4>

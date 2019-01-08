@@ -115,19 +115,21 @@ def impact_form(request, pid):
         form_goals = GoalsForm(
             request.POST, prefix='goal'
         )
-        form_doc1 = DocumentForm1(
+        form_doc1 = DocumentForm(
             request.POST, request.FILES,
             instance=docs[0], prefix='doc1', label_suffix=''
         )
-        form_doc2 = DocumentForm1(
+        form_doc2 = DocumentForm(
             request.POST, request.FILES,
             instance=docs[1], prefix='doc2', label_suffix=''
         )
-        form_doc3 = DocumentForm1(
+        form_doc3 = DocumentForm(
             request.POST, request.FILES,
             instance=docs[2], prefix='doc3', label_suffix=''
         )
-        if form_impact.is_valid() and form_budget.is_valid():
+        if form_impact.is_valid() and form_budget.is_valid() and \
+          form_doc1.is_valid() and form_doc2.is_valid() and \
+          form_doc3.is_valid():
             # proposal impact
             impact = form_impact.save(commit=False)
             impact.proposal = proposal
@@ -148,17 +150,14 @@ def impact_form(request, pid):
                 proposal.save()
 
             # document 1
-            form_doc1.is_valid()
             doc1 = form_doc1.save(commit=False)
             doc1.proposal = proposal
             doc1.save()
             # document 2
-            form_doc2.is_valid()
             doc2 = form_doc2.save(commit=False)
             doc2.proposal = proposal
             doc2.save()
             # document 3
-            form_doc3.is_valid()
             doc3 = form_doc3.save(commit=False)
             doc3.proposal = proposal
             doc3.save()
@@ -279,13 +278,13 @@ def impact_form(request, pid):
             initial={'comments':proposal.comments},
             prefix='comments', label_suffix=''
         )
-        form_doc1 = DocumentForm1(
+        form_doc1 = DocumentForm(
             instance=docs[0], prefix='doc1', label_suffix=''
         )
-        form_doc2 = DocumentForm1(
+        form_doc2 = DocumentForm(
             instance=docs[1], prefix='doc2', label_suffix=''
         )
-        form_doc3 = DocumentForm1(
+        form_doc3 = DocumentForm(
             instance=docs[2], prefix='doc3', label_suffix=''
         )
 

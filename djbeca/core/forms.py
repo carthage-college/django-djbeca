@@ -289,20 +289,15 @@ class ImpactForm(forms.ModelForm):
         )
 
 
-class DocumentForm1(forms.ModelForm):
+class DocumentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(DocumentForm1, self).__init__(*args, **kwargs)
+        super(DocumentForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs['placeholder'] = \
           'Name or short description'
 
     class Meta:
         model = ProposalDocument
         fields = ('name','phile',)
-
-class DocumentForm2(DocumentForm1):
-    pass
-class DocumentForm3(DocumentForm1):
-    pass
 
 
 class CommentsForm(forms.Form):
