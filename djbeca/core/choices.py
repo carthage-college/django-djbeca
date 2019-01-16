@@ -80,6 +80,7 @@ FUNDING_SOURCE_CHOICES = (
     ('Foundation','Foundation'),
     ('State','State'),
     ('Corporation','Corporation'),
+    ('International','International'),
     ('Other','Other'),
 )
 

@@ -87,7 +87,7 @@ class Proposal(models.Model):
     # are ProposalContact() FK relationships.
     # Name field [limit 5]
     lead_institution = models.CharField(
-        "Is Carthage College the lead institution on this project?",
+        "In this proposal, Carthage is considered:",
         max_length=4,
         choices=BINARY_CHOICES,
         null=True,blank=True
@@ -116,9 +116,10 @@ class Proposal(models.Model):
     summary = models.TextField(
         "Program summary (~500 words)",
         help_text="""
-            Provide a brief description of your proposed project
-            and how the proposed project addresses one or more
-            strategies/goals in Carthage’s strategic plan.
+            Provide a brief description of your proposed project.
+            How does your project address one or more strategies/goals
+            in Carthage’s strategic plan? Include subrecipient/subaward
+            details, if applicable.
         """
     )
     # Project Funding / Budget Overview
@@ -135,7 +136,11 @@ class Proposal(models.Model):
     )
     budget_summary = models.TextField(
         "Budget Summary (~500 words)",
-        help_text="Briefly describe your funding plan"
+        help_text="""
+            Describe your funding plan. Include brief responses regarding the
+            use of new/existing funds and cost share/match requirements, if
+            applicable.
+        """
     )
     # additional comments
     comments = models.TextField(
@@ -487,14 +492,14 @@ class ProposalBudget(models.Model):
         upload_to=upload_to_path,
         validators=[MimetypeValidator('application/pdf')],
         max_length=768,
-        help_text="PDF format"
+        help_text="PDF format Only"
     )
     budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
         upload_to=upload_to_path,
         validators=[MimetypeValidator('application/pdf')],
         max_length=768,
-        help_text="PDF format",
+        help_text="PDF format Only",
         null=True,blank=True
     )
 
@@ -532,7 +537,7 @@ class ProposalDocument(models.Model):
         upload_to=upload_to_path,
         validators=[MimetypeValidator('application/pdf')],
         max_length=768,
-        help_text="PDF format",
+        help_text="PDF Format Only",
         null=True,blank=True
     )
     tags = TaggableManager(blank=True)
