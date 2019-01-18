@@ -9,8 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
-from djbeca.core.models import ProposalContact, ProposalGoal
-from djbeca.core.choices import PROPOSAL_GOAL_CHOICES
+from djbeca.core.models import ProposalContact
 from djbeca.core.forms import *
 from djbeca.core.utils import get_proposals
 
@@ -91,11 +90,6 @@ def impact_form(request, pid):
         budget = proposal.proposal_budget
     except:
         impact = budget = None
-    # goals
-    try:
-        goals = proposal.proposal_goal.all()
-    except:
-        goals = None
     # documents
     docs = [None,None,None]
     for c, d in enumerate(proposal.proposal_documents.all()):
@@ -111,9 +105,6 @@ def impact_form(request, pid):
         )
         form_comments = CommentsForm(
             request.POST, prefix='comments', label_suffix=''
-        )
-        form_goals = GoalsForm(
-            request.POST, prefix='goal'
         )
         form_doc1 = DocumentForm(
             request.POST, request.FILES,
@@ -161,23 +152,6 @@ def impact_form(request, pid):
             doc3 = form_doc3.save(commit=False)
             doc3.proposal = proposal
             doc3.save()
-
-            # delete the old goals because it's just easier this way
-            if impact:
-                if goals:
-                    goals.delete()
-            # obtain our new set of goals
-            form_goals.is_valid()
-            goals = form_goals.cleaned_data
-            # create the new goals
-            for i in list(range(1,8)):
-                name = goals['name_{}'.format(i)]
-                desc = goals['description_{}'.format(i)]
-                if name and desc:
-                    goal = ProposalGoal(
-                        proposal=proposal, name=name, description=desc
-                    )
-                    goal.save()
 
             # Send email to Approvers and Division Dean if the PI is finished
             # with the proposal
@@ -296,9 +270,6 @@ def impact_form(request, pid):
             'form_doc1': form_doc1,
             'form_doc2': form_doc2,
             'form_doc3': form_doc3,
-            'goals': goals,
-            'goal_choices':[p[1] for p in PROPOSAL_GOAL_CHOICES],
-            'copies':len(goals)
         }
     )
 

@@ -183,22 +183,9 @@
           <ol>
           {% for field in form.visible_fields %}
             {% if field.name == "title" %}
-            <li class="form-group ctrlHolder" style="margin-bottom:16px;margin-left:3px;padding-right:16px;">
-                <h3>List all institutions involved</h3>
-                <input type="text" name="institu-institution_1" style="width:75%"
-                  value="{{form_institu.institution_1.value|default_if_none:""}}">
-                <input type="text" name="institu-institution_2" style="width:75%"
-                  value="{{form_institu.institution_2.value|default_if_none:""}}">
-                <input type="text" name="institu-institution_3" style="width:75%"
-                  value="{{form_institu.institution_3.value|default_if_none:""}}">
-                <input type="text" name="institu-institution_4" style="width:75%"
-                  value="{{form_institu.institution_4.value|default_if_none:""}}">
-                <input type="text" name="institu-institution_5" style="width:75%"
-                  value="{{form_institu.institution_5.value|default_if_none:""}}">
-            </li>
             <li style="padding-left:3px;">
               <h3>
-                List Co-Principal Investigators & Associated Institution
+                List all associated institutions and co-PIs
               </h3>
               <div class="col-md-3" style="padding-left:0px;">
                 <h3>Name</h3>

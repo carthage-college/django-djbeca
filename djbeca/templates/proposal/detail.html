@@ -270,8 +270,8 @@ $(function() {
           <h5>${{proposal.proposal_budget.total|intcomma}}</h5>
           <h4>Total Cost Share / Match Amount</h4>
           <h5>
-            {% if proposal.proposal_budget.cost_match_amount %}
-            ${{proposal.proposal_budget.cost_match_amount|intcomma}}
+            {% if proposal.proposal_budget.total_match_amount %}
+            ${{proposal.proposal_budget.total_match_amount|intcomma}}
             {% else %}
              0
             {% endif %}

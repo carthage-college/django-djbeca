@@ -49,6 +49,23 @@ class Proposal(models.Model):
         "What type of proposal submission is this?",
         max_length=128,
         choices=PROPOSAL_TYPE_CHOICES,
+        help_text = mark_safe(
+            """
+            <ul class='block'>
+            <li>
+              <b>New</b>: never submitted this proposal to this agency before
+            </li>
+            <li>
+              <b>Revised</b>: per Funder Request: update of submitted proposal,
+              because funder requested changes
+            </li>
+            <li>
+              <b>Re-Submission</b>: submitted proposal in prior round of
+              funding, re-submitting proposal for new round
+            </li>
+            </ul>
+        """
+        )
     )
     proposal_type_other = models.CharField(
         "If 'Other', please provide details",
@@ -56,7 +73,7 @@ class Proposal(models.Model):
         null=True,blank=True
     )
     funding_agency_program_name = models.CharField(
-        verbose_name="Funding Agency Name and Grant Program Name",
+        verbose_name="Funding/Sponsor Agency Name and Grant Program Name",
         max_length=128
     )
     grant_agency_funding_source = models.CharField(
@@ -89,7 +106,7 @@ class Proposal(models.Model):
     lead_institution = models.CharField(
         "In this proposal, Carthage is considered:",
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=LEAD_INSTITUTION_CHOICES,
         null=True,blank=True
     )
     # NOTE: if 'No', provide the following
@@ -123,13 +140,15 @@ class Proposal(models.Model):
         """
     )
     # Project Funding / Budget Overview
+    '''
     time_frame = models.CharField(
         "Is this one year funding or multi-year?",
         max_length=128,
         choices=TIME_FRAME_CHOICES
     )
+    '''
     budget_total = models.DecimalField(
-        "Total Budget Request",
+        "Total Program Cost",
         decimal_places=2,
         max_digits=16,
         help_text="List the total amount budgeted for this project"
@@ -146,6 +165,14 @@ class Proposal(models.Model):
     comments = models.TextField(
         null=True, blank=True,
         help_text="Provide any additional comments if need be"
+    )
+    # administrative comments
+    admin_comments = models.TextField(
+        null=True, blank=True,
+        help_text="""
+            Provide any administrative comments that you might want
+            others to consider.
+        """
     )
 
     class Meta:
@@ -301,7 +328,6 @@ class Proposal(models.Model):
                     break
 
         return approved
-
 
 
 class ProposalImpact(models.Model):
@@ -472,16 +498,22 @@ class ProposalBudget(models.Model):
         related_name='proposal_budget'
     )
     # Costs and totals
-
     total = models.DecimalField(
-        "Total budget request",
+        "Total Program Cost",
         decimal_places=2,
         max_digits=16,
-        help_text="List the total amount budgeted for this project",
+        help_text="Provide the total amount budgeted for this project",
         null=True,blank=True
     )
-    cost_match_amount = models.DecimalField(
-        "Total Cost Share / Match Amount",
+    total_funding = models.DecimalField(
+        "Total Funding Request",
+        decimal_places=2,
+        max_digits=16,
+        help_text="Provide the total amount of the funding request",
+        null=True,blank=True
+    )
+    total_match_amount = models.DecimalField(
+        "Total Cost Share / Match",
         decimal_places=2,
         max_digits=16,
         null=True,blank=True
@@ -490,14 +522,14 @@ class ProposalBudget(models.Model):
     budget_final = models.FileField(
         "Final Budget for Review",
         upload_to=upload_to_path,
-        validators=[MimetypeValidator('application/pdf')],
+        #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format Only"
     )
     budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
         upload_to=upload_to_path,
-        validators=[MimetypeValidator('application/pdf')],
+        #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF format Only",
         null=True,blank=True
@@ -535,7 +567,7 @@ class ProposalDocument(models.Model):
     phile = models.FileField(
         "Supporting Document",
         upload_to=upload_to_path,
-        validators=[MimetypeValidator('application/pdf')],
+        #validators=[MimetypeValidator('application/pdf')],
         max_length=768,
         help_text="PDF Format Only",
         null=True,blank=True

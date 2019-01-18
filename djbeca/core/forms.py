@@ -35,12 +35,7 @@ class ProposalForm(forms.ModelForm):
     # NOTE: "List all institutions involved"
     # are GenericContact() FK relationships.
     # Name field [limit 5]
-    lead_institution = forms.TypedChoiceField(
-        label = "Is Carthage College the lead institution on this project?",
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-        required=False
-    )
+
     # Project Overview
     start_date = forms.DateField(
         label = "Project start date",
@@ -50,11 +45,13 @@ class ProposalForm(forms.ModelForm):
     )
 
     # Project Funding/ Budget Overview
+    '''
     time_frame = forms.TypedChoiceField(
         label = "Is this one year funding or multi-year?",
         choices=TIME_FRAME_CHOICES,
         widget=forms.RadioSelect()
     )
+    '''
 
     class Meta:
         model = Proposal

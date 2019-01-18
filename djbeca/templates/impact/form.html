@@ -11,30 +11,6 @@
 <script type="text/javascript">
   $(function() {
     $('#id_comments-comments').summernote({height: 200});
-    var copies = {{copies|default:1}};
-    $("#clone").click(function () {
-        if (copies < 8) {
-            copies++;
-            newId = 'doop-' + copies;
-            $('#goal-master').clone().attr('id',newId).appendTo('#duplicates');
-            $('#' + newId).find('select').attr('name','goal-name_' + copies);
-            $('#' + newId).find('textarea').attr('name','goal-description_' + copies);
-            $.growlUI('Goals: ', copies);
-        }else{
-            $.growlUI('Warning', 'Goals Limit: 8');
-        }
-    });
-    $("#destroy").click(function () {
-        if (copies > 1) {
-            delid = 'doop-' + copies;
-            console.log(delid);
-            $('#doop-' + copies ).remove();
-            copies--;
-            $.growlUI('Goals: ', copies);
-        }else{
-            $.growlUI('Warning', 'No Goals to delete');
-        }
-    });
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -122,7 +98,7 @@
           <ol>
           {% for field in form_budget.visible_fields %}
             {% include "form_field.inc.html" %}
-            {% if field.name == "cost_match_amount" %}
+            {% if field.name == "total_match_amount" %}
               {% get_lw_content as help blurbs 2502 %}
               {{help.body}}
             {% endif %}
@@ -138,52 +114,6 @@
             {% endif %}
           {% endfor %}
           </ol>
-        </fieldset>
-        <fieldset class="blockLabels">
-          <legend>Project Goals</legend>
-          <div>
-            Click on the "plus" symbol to add goals, and
-            use the "minus" symbol to remove goals.
-            <div class="ctrlcx">
-              <a href="javascript:void" id="clone"><i class="fa fa-plus-circle fa-lg green" aria-hidden="true"></i></a>
-              <a href="javascript:void" id="destroy"><i class="fa fa-minus-circle fa-lg red" aria-hidden="true"></i></a>
-            </div>
-          </div>
-          <div id="duplicates">
-            {% if goals %}
-              {% for g in goals %}
-              <dl class="goals" id="doop-{{forloop.counter}}">
-              <dt>
-                <select name="goal-name_{{forloop.counter}}">
-                  <option value="" selected>----------------</option>
-                  {% for c in goal_choices %}
-                    <option value="{{c}}"{% if g.name == c %} selected{% endif %}>
-                    {{c}}
-                    </option>
-                  {% endfor %}
-                </select>
-              </dt>
-              <dd>
-                <textarea name="goal-description_{{forloop.counter}}">{{g.description}}</textarea>
-              </dd>
-              {% endfor %}
-            {% else %}
-              <dl class="goals" id="doop-1">
-              <dt>
-                <select name="goal-name_1">
-                  <option value="" selected="">----------------</option>
-                  <option value="Goal"> Goal </option>
-                  <option value="Objective"> Objective </option>
-                  <option value="Outcome"> Outcome </option>
-                  <option value="Priority"> Priority </option>
-                </select>
-              </dt>
-              <dd>
-                <textarea name="goal-description_1"></textarea>
-              </dd>
-            </dl>
-            {% endif %}
-          </div>
         </fieldset>
         <fieldset class="blockLabels">
           <legend>Additional Information</legend>

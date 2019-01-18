@@ -45,8 +45,6 @@ APPROVAL_LEVEL_CHOICES = (
     ('level2','CFO'),
     ('level1','Provost')
 )
-
-
 PROPOSAL_GOAL_CHOICES = (
     ('Goal','Goal'),
     ('Objective','Objective'),
@@ -54,27 +52,11 @@ PROPOSAL_GOAL_CHOICES = (
     ('Priority','Priority')
 )
 PROPOSAL_TYPE_CHOICES = (
-    (
-        'new',
-        'New: never submitted this proposal to this agency before'
-    ),
-    (
-        'revised',
-        '''
-            Revised Per Funder Request: update of submitted proposal,
-            because funder requested changes
-        '''
-    ),
-    (
-        'resubmission',
-        '''
-            Re-Submission: submitted proposal in prior round of funding,
-            re-submitting proposal for new round
-        '''
-    ),
+    ('new', 'New'),
+    ('revised', 'Revised'),
+    ('resubmission', 'Re-Submission'),
     ('other','Other')
 )
-
 FUNDING_SOURCE_CHOICES = (
     ('Federal','Federal'),
     ('Foundation','Foundation'),
@@ -83,7 +65,6 @@ FUNDING_SOURCE_CHOICES = (
     ('International','International'),
     ('Other','Other'),
 )
-
 INDIRECT_COST_RATE_CHOICES = (
     (
         'Carthage College Federally Negotiated Indirect Rate',
@@ -95,5 +76,10 @@ INDIRECT_COST_RATE_CHOICES = (
     ),
     ('Other','Other'),
 )
-
+LEAD_INSTITUTION_CHOICES = (
+    ('lead','Lead Institution'),
+    ('collaborative','Collaborative Partner'),
+    ('subrecipient','Subrecipient'),
+    ('contractual', 'Contractual Partner'),
+)
 #    ('',''),
