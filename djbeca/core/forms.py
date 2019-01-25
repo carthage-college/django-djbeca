@@ -325,7 +325,7 @@ class ProposalApproverForm(forms.Form):
         cid = None
         for r in facstaff:
             if cid != r.id:
-                name = '{}, {}'.format(r.lastname, r.firstname)
+                name = u'{}, {}'.format(r.lastname, r.firstname)
                 approvers.append((r.id, name))
                 cid = r.id
         self.fields['user'].choices = approvers
@@ -335,7 +335,7 @@ class ProposalApproverForm(forms.Form):
         if proposals['objects']:
             props = [('','-----------')]
             for p in proposals['objects']:
-                title = '{}: by {}, {}'.format(
+                title = u'{}: by {}, {}'.format(
                     p.title, p.user.last_name, p.user.first_name
                 )
                 props.append((p.id,title))

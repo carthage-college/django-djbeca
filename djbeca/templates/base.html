@@ -187,15 +187,6 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
                   Submit Proposal
                 </a>
             </li>
-            {% ifusergroup osp_group deans_group %}
-            <li>
-                <a href="{% url 'proposal_approver_manager' %}"
-                  title="Add an Approver to a proposal">
-                  <i class="fa fa-thumbs-o-up fa-fw" aria-hidden="true"></i>
-                  Approvers
-                </a>
-            </li>
-            {% endifusergroup %}
             {% if user.is_superuser %}
             <li>
                 <a href="{% url 'admin:index' %}" title="Administration">

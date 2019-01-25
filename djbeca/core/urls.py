@@ -91,15 +91,15 @@ urlpatterns = [
         views.proposal_approver, name='proposal_approver'
     ),
     url(
-        r'^proposal/approver/$',
-        views.proposal_approver, name='proposal_approver_manager'
-    ),
-    url(
         r'^proposal/approver/success/$',
         TemplateView.as_view(
             template_name='approver/done.html'
         ),
         name='proposal_approver_success'
+    ),
+    url(
+        r'^proposal/approver/$',
+        views.proposal_approver, name='proposal_approver_manager'
     ),
     # Send an email to primary investigator
     url(
