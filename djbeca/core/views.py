@@ -75,6 +75,7 @@ def impact_form(request, pid):
 
     proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
+    perms = proposal.permissions(user)
     # we do not allow PIs to update their proposals after save-submit
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
@@ -264,12 +265,9 @@ def impact_form(request, pid):
 
     return render(
         request, 'impact/form.html', {
-            'form_budget': form_budget,
-            'form_comments': form_comments,
-            'form_impact': form_impact,
-            'form_doc1': form_doc1,
-            'form_doc2': form_doc2,
-            'form_doc3': form_doc3,
+            'form_budget': form_budget, 'form_comments': form_comments,
+            'form_impact': form_impact, 'form_doc1': form_doc1,
+            'form_doc2': form_doc2, 'form_doc3': form_doc3, 'perms': perms
         }
     )
 
@@ -285,10 +283,12 @@ def proposal_form(request, pid=None):
     institu = None
     investi = None
     proposal = None
+    perms = None
     user = request.user
 
     if pid:
         proposal = get_object_or_404(Proposal, id=pid)
+        perms = proposal.permissions(user)
         group = in_group(user, OSP_GROUP)
         # we do not allow anyone but the PI to update a proposal
         if proposal.user != user and not group:
@@ -456,7 +456,7 @@ def proposal_form(request, pid=None):
         form_investi = InvestigatorsForm(initial=investi, prefix='investi')
     return render(
         request, 'proposal/form.html', {
-            'form': form,
+            'form': form, 'perms': perms,
             'form_institu': form_institu,
             'form_investi': form_investi
         }

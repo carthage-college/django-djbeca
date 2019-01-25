@@ -187,7 +187,7 @@
               <h3>
                 List all associated institutions and co-PIs
               </h3>
-              <div class="col-md-3" style="padding-left:0px;">
+              <div class="col-md-3" style="padding-left:0px;padding-top:8px;">
                 <h3>Name</h3>
                 <input type="text" name="investi-name_1" class="medium"
                   value="{{form_investi.name_1.value|default_if_none:""}}">
@@ -201,7 +201,7 @@
                   value="{{form_investi.name_5.value|default_if_none:""}}">
               </div>
               <div class="col-lg-1 col-md-1 col-sm-1">&nbsp;</div>
-              <div class="col-md-4">
+              <div class="col-md-4" style="padding-top:8px;">
                 <h3>Institution</h3>
                 <input type="text" name="investi-institution_1" class="large"
                   value="{{form_investi.institution_1.value|default_if_none:""}}">
@@ -221,7 +221,10 @@
             <legend>Proposal Overview</legend>
             <ol>
             {% endif %}
+            {% if field.name == 'admin_comments' and not perms.approve  %}
+            {% else %}
             {% include "form_field.inc.html" %}
+            {% endif %}
           {% endfor %}
           </ol>
         </fieldset>

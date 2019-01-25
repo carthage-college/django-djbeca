@@ -468,6 +468,13 @@ class ProposalImpact(models.Model):
         max_length=4,
         choices=BINARY_CHOICES,
     )
+    admin_comments = models.TextField(
+        null=True, blank=True,
+        help_text="""
+            Provide any administrative comments that you might want
+            others to consider.
+        """
+    )
     disclosure_assurance = models.BooleanField(default=False)
 
     class Meta:

@@ -276,6 +276,14 @@ class ImpactForm(forms.ModelForm):
         """,
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
+    admin_comments = forms.CharField(
+        widget=forms.Textarea,
+        required=False,
+        help_text="""
+            Provide any administrative comments that you might want
+            others to consider.
+        """
+    )
     disclosure_assurance = forms.BooleanField(required = True)
 
     class Meta:

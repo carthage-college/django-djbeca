@@ -11,6 +11,7 @@
 <script type="text/javascript">
   $(function() {
     $('#id_comments-comments').summernote({height: 200});
+    $('#id_impact-admin_comments').summernote({height: 200});
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -106,10 +107,10 @@
           </ol>
         </fieldset>
         <fieldset class="blockLabels">
-          <legend>Institutional/Compliance Impacts</legend>
+          <legend>Institutional Impacts</legend>
           <ol>
           {% for field in form_impact.visible_fields %}
-            {% if field.name != 'disclosure_assurance' %}
+            {% if field.name != 'disclosure_assurance' and field.name != 'admin_comments'  %}
             {% include "form_field.inc.html" %}
             {% endif %}
           {% endfor %}
@@ -142,10 +143,22 @@
           </ol>
         </fieldset>
         <fieldset class="blockLabels">
+          <ol style="padding-bottom:24px;">
+            {% if perms.approve %}
+            <li class="form-group ctrlHolder">
+                <h3><label for="id_impact-admin_comments">Admin comments</label></h3>
+                <div>
+                <p class="help">
+                Provide any administrative comments that you might want
+                others to consider.
+                </p>
+                <textarea name="impact-admin_comments" rows="10" cols="40" id="id_impact-admin_comments">{{form_impact.admin_comments.value|default_if_none:''}}</textarea>
+                </div>
+            </li>
+            {% endif %}
+            <li class="form-group ctrlHolder">
           {% get_lw_content as disclosure blurbs 2513 %}
           {{disclosure.body}}
-          <ol style="padding-bottom:24px;">
-            <li class="form-group ctrlHolder">
               {% if form_impact.disclosure_assurance.errors %}
               <div class="required warning">
                 <span class="error-message">
@@ -181,20 +194,6 @@
           </ol>
         </fieldset>
         </form>
-        <dl class="goals" id="goal-master">
-          <dt>
-            <select name="goal-name">
-              <option value="" selected="">----------------</option>
-                <option value="Goal"> Goal </option>
-                <option value="Objective"> Objective </option>
-                <option value="Outcome"> Outcome </option>
-                <option value="Priority"> Priority </option>
-            </select>
-          </dt>
-          <dd>
-            <textarea name="goal-description"></textarea>
-          </dd>
-        </dl>
       <div>
       <!-- /.panel-body -->
     </div>
