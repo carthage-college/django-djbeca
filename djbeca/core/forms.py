@@ -188,6 +188,40 @@ class ImpactForm(forms.ModelForm):
         label = "Does this proposal require cost sharing/match?",
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
+    funds = forms.TypedChoiceField(
+        label = "The budget requires:",
+        choices=FUNDS_CHOICES, widget=forms.RadioSelect()
+    )
+    indirect_funds_solicitation = forms.TypedChoiceField(
+        label = """
+            Does the sponsor disallow the use of indirect funds
+            per sponsor policy and/or solicitation?
+        """,
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    human_subjects = forms.TypedChoiceField(
+        label = "Does this proposal involve human subjects?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    animal_subjects = forms.TypedChoiceField(
+        label = "Does this proposal involve the use/care of animals?",
+        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+    )
+    additional_work_load = forms.TypedChoiceField(
+        label = """
+            Will your work in this proposal be "in addition" to your current
+            load and/or institutional obligations?
+        """,
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
+    )
+    contract_procurement = forms.TypedChoiceField(
+        label = "Does this proposal require contract (procurement) services?",
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
+    )
+    data_management = forms.TypedChoiceField(
+        label = "Does this proposal a data management plan?",
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
+    )
     voluntary_committment = forms.TypedChoiceField(
         label = """
         Does this proposal contain any voluntary commitments
@@ -202,13 +236,9 @@ class ImpactForm(forms.ModelForm):
         """,
         choices=BINARY_CHOICES, widget=forms.RadioSelect()
     )
-    students_involved = forms.TypedChoiceField(
-        label = "Does this proposal involve the use of students?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
-    )
     new_hires = forms.TypedChoiceField(
         label = "Does this proposal require any new faculty or staff hires?",
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     course_relief = forms.TypedChoiceField(
         label = """
@@ -237,7 +267,7 @@ class ImpactForm(forms.ModelForm):
         Does this proposal involve international travel, collaboration,
         export, international student participation?
         """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     hazards = forms.TypedChoiceField(
         label = """
@@ -246,35 +276,35 @@ class ImpactForm(forms.ModelForm):
         biohazards, pathogens, toxins, recombinant DNA, oncongenic viruses,
         tumor cells, etc.)?
         """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     proprietary_confidential = forms.TypedChoiceField(
         label = """
         Does this proposal involve work that may result in a patent
         or involve proprietary or confidential information?
         """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     tech_support = forms.TypedChoiceField(
         label = """
         Does this proposal involve technology use that will require
         extensive technical support?
         """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     purchase_equipment = forms.TypedChoiceField(
         label = """
         Does this proposal require any purchase, installation,
         and maintenance of equipment?
         """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     infrastructure_requirements = forms.TypedChoiceField(
         label = """
         Does this proposal require any additional space than
         currently provided?
         """,
-        choices=BINARY_CHOICES, widget=forms.RadioSelect()
+        choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
     admin_comments = forms.CharField(
         widget=forms.Textarea,

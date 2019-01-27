@@ -10,8 +10,7 @@
     type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
-    $('#id_comments-comments').summernote({height: 200});
-    $('#id_impact-admin_comments').summernote({height: 200});
+    $('textarea').summernote({height: 200});
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({

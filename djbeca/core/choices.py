@@ -1,3 +1,10 @@
+from djtools.fields import BINARY_CHOICES
+
+BINARY_UNSURE_CHOICES = (
+    BINARY_CHOICES[0],
+    BINARY_CHOICES[1],
+    ('Unsure','Unsure'),
+)
 FUNDING_CHOICES = (
     ('Pursuit of Funding', 'Pursuit of Funding'),
     ('Funding Identified', 'Funding Identified'),
@@ -81,5 +88,21 @@ LEAD_INSTITUTION_CHOICES = (
     ('collaborative','Collaborative Partner'),
     ('subrecipient','Subrecipient'),
     ('contractual', 'Contractual Partner'),
+)
+STUDENTS_INVOLVED_CHOICES = (
+    ('Student Payout','Student Payout'),
+    ('Room/Board','Room/Board'),
+    ('Student Travel','Student Travel'),
+    ('None','None'),
+)
+PERSONNEL_SALARY_CHOICES = (
+    ('Academic Year','Academic Year'),
+    ('Summer Months','Summer Months'),
+    ('Both','Both'),
+    ('None','None'),
+)
+FUNDS_CHOICES = (
+    ('New Funds','New Funds'),
+    ('Exisiting Funds','Exisiting Funds'),
 )
 #    ('',''),

@@ -8,7 +8,6 @@ from django.utils.safestring import mark_safe
 from djbeca.core.choices import *
 
 from djtools.utils.users import in_group
-from djtools.fields import BINARY_CHOICES
 from djtools.fields.helpers import upload_to_path
 from djtools.fields.validators import MimetypeValidator
 from djzbar.utils.hr import chair_departments, get_position
@@ -73,11 +72,11 @@ class Proposal(models.Model):
         null=True,blank=True
     )
     funding_agency_program_name = models.CharField(
-        verbose_name="Funding/Sponsor Agency Name and Grant Program Name",
+        "Funding/Sponsor Agency Name and Grant Program Name",
         max_length=128
     )
     grant_agency_funding_source = models.CharField(
-        verbose_name="What type of funding source is the granting agency?",
+        "What type of funding source is the granting agency?",
         max_length=128,
         choices=FUNDING_SOURCE_CHOICES,
     )
@@ -87,7 +86,7 @@ class Proposal(models.Model):
         null=True,blank=True
     )
     grant_agency_url = models.CharField(
-        verbose_name="Solicitation Website",
+        "Solicitation Website",
         max_length=768,
     )
     grant_deadline_date = models.DateField(
@@ -366,6 +365,29 @@ class ProposalImpact(models.Model):
         max_length=4,
         choices=BINARY_CHOICES,
     )
+    cost_share_match_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
+    funds = models.CharField(
+        "The budget requires:",
+        max_length=16,
+        choices=FUNDS_CHOICES,
+    )
+    indirect_funds_solicitation = models.CharField(
+        """
+            Does the sponsor disallow the use of indirect funds
+            per sponsor policy and/or solicitation?
+        """,
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    indirect_funds_solicitation_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
     voluntary_committment = models.CharField(
         """
         Does this proposal contain any voluntary commitments
@@ -373,6 +395,31 @@ class ProposalImpact(models.Model):
         """,
         max_length=4,
         choices=BINARY_CHOICES,
+    )
+    voluntary_committment_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
+    human_subjects = models.CharField(
+        "Does this proposal involve human subjects?",
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    human_subjects_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Detail any IRB approval and submission date"
+    )
+    animal_subjects = models.CharField(
+        "Does this proposal involve the use/care of animals?",
+        max_length=4,
+        choices=BINARY_CHOICES,
+    )
+    animal_subjects_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Detail any IACUC approval and submission dates"
     )
     subcontractors_subawards = models.CharField(
         """
@@ -382,15 +429,57 @@ class ProposalImpact(models.Model):
         max_length=4,
         choices=BINARY_CHOICES,
     )
+    subcontractors_subawards_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
+    additional_work_load = models.CharField(
+        """
+            Will your work in this proposal be "in addition" to your
+            current load and/or institutional obligations?
+        """,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    additional_work_load_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
+    personnel_salary = models.CharField(
+        """
+            Does this proposal request salary for personnel to work
+            majority of time during:
+        """,
+        max_length=16,
+        choices=PERSONNEL_SALARY_CHOICES,
+    )
+    contract_procurement = models.CharField(
+        "Does this proposal require contract (procurement) services?",
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    contract_procurement_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
+
     students_involved = models.CharField(
-        "Does this proposal involve the use of students?",
-        max_length=4,
-        choices=BINARY_CHOICES,
+        "Does this proposal require support for students in the following?",
+        max_length=16,
+        choices=STUDENTS_INVOLVED_CHOICES
+    )
+    students_involved_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     new_hires = models.CharField(
         "Does this proposal require any new faculty or staff hires?",
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
     )
     course_relief = models.CharField(
         """
@@ -423,8 +512,13 @@ class ProposalImpact(models.Model):
         Does this proposal involve international travel, collaboration,
         export, international student participation?
         """,
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    international_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     hazards = models.CharField(
         """
@@ -433,40 +527,75 @@ class ProposalImpact(models.Model):
         biohazards, pathogens, toxins, recombinant DNA, oncongenic viruses,
         tumor cells, etc.)?
         """,
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    hazards_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     proprietary_confidential = models.CharField(
         """
         Does this proposal involve work that may result in a patent
         or involve proprietary or confidential information?
         """,
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    proprietary_confidential_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     tech_support = models.CharField(
         """
         Does this proposal involve technology use that will require
         extensive technical support?
         """,
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    tech_support_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     purchase_equipment = models.CharField(
         """
         Does this proposal require any purchase, installation,
         and maintenance of equipment?
         """,
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    purchase_equipment_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     infrastructure_requirements = models.CharField(
         """
         Does this proposal require any additional space than
         currently provided?
         """,
-        max_length=4,
-        choices=BINARY_CHOICES,
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    infrastructure_requirements_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
+    )
+    data_management = models.CharField(
+        "Does this proposal a data management plan?",
+        max_length=8,
+        choices=BINARY_UNSURE_CHOICES,
+    )
+    data_management_detail = models.TextField(
+        verbose_name="",
+        null=True, blank=True,
+        help_text="Please provide additional details"
     )
     admin_comments = models.TextField(
         null=True, blank=True,
