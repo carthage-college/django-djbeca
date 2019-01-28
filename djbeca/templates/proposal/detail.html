@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load ifusergroup %}
-{% load humanize %}
+{% load ifusergroup humanize model_helpers %}
 {% block extra_javascript %}
 <script src="//www.carthage.edu/static/vendor/js/spin.min.js"
     type="text/javascript"></script>
@@ -240,6 +239,10 @@ $(function() {
           Budget Summary
         </h4>
         <div>{{proposal.budget_summary}}</div>
+        {% if proposal.proposal_impact.admin_comments %}
+          <h4>Administrative Comments</h4>
+          <h5>{{proposal.proposal_impact.admin_comments}}</h5>
+        {% endif %}
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
@@ -267,7 +270,21 @@ $(function() {
         </h3>
         <div>
           <h4>Total budget request</h4>
-          <h5>${{proposal.proposal_budget.total|intcomma}}</h5>
+          <h5>
+            {% if proposal.proposal_budget.total %}
+            ${{proposal.proposal_budget.total|intcomma}}
+            {% else %}
+             0
+            {% endif %}
+          </h5>
+          <h4>Total funding request</h4>
+          <h5>
+            {% if proposal.proposal_budget.total_funding %}
+            ${{proposal.proposal_budget.total_funding|intcomma}}
+            {% else %}
+             0
+            {% endif %}
+          </h5>
           <h4>Total Cost Share / Match Amount</h4>
           <h5>
             {% if proposal.proposal_budget.total_match_amount %}
@@ -305,59 +322,109 @@ $(function() {
           Institutional Impacts
         </h3>
         <div>
-          <h4>Does this proposal require course release or overload?</h4>
-          <h5>{{proposal.proposal_impact.course_relief}}</h5>
-          <h4>Does this proposal require additional pay?</h4>
-          <h5>{{proposal.proposal_impact.additional_pay}}</h5>
-          <h4>Does this proposal require payout to Carthage students?</h4>
-          <h5>{{proposal.proposal_impact.payout_students}}</h5>
-          <h4>
-            Does this proposal require the creation of new Carthage positions?
-          </h4>
-          <h5>{{proposal.proposal_impact.new_positions}}</h5>
-          <h4>
-            Does this proposal result in the purchase of major equipment,
-            costing over $5,000?
-          </h4>
-          <h5>{{proposal.proposal_impact.purchase_equipment}}</h5>
-          <h4>
-            Does this proposal require additional office,
-            lab or other facilities or room modifications?
-          </h4>
-          <h5>{{proposal.proposal_impact.infrastructure_modifications}}</h5>
-          <h4>Does this proposal require review of IRB and/or IACUC?</h4>
-          <h5>{{proposal.proposal_impact.institutional_review}}</h5>
-          {% if proposal.proposal_impact.institutional_review == 'Yes' %}
-          <h4>If 'Yes', please provide the approval date</h4>
-          <h5>{{proposal.proposal_impact.institutional_review_date}}</h5>
-          {% endif %}
-
-          <h4>
-            Does this proposal involve international travel, collaboration,
-            export, international student participation?
-          </h4>
-          <h5>{{proposal.proposal_impact.international}}</h5>
-
-
-          <h4>Does this proposal require cost share/match?</h4>
+          <h4>{% field_name proposal.proposal_impact 'cost_share_match' %}</h4>
           <h5>{{proposal.proposal_impact.cost_share_match}}</h5>
-          <h4>Does this proposal contain any voluntary commitment?</h4>
+          <div>{{proposal.proposal_impact.cost_share_match_detail|default_if_none:''}}</div>
+          <h4>{% field_name proposal.proposal_impact 'funds' %}</h4>
+          <h5>{{proposal.proposal_impact.funds}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'indirect_funds_solicitation' %}</h4>
+          <h5>{{proposal.proposal_impact.indirect_funds_solicitation}}</h5>
+          <div>
+            {{proposal.proposal_impact.indirect_funds_solicitation_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'voluntary_committment' %}</h4>
           <h5>{{proposal.proposal_impact.voluntary_committment}}</h5>
+          <div>
+            {{proposal.proposal_impact.voluntary_committment_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'human_subjects' %}</h4>
+          <h5>{{proposal.proposal_impact.human_subjects}}</h5>
+          <div>
+            {{proposal.proposal_impact.human_subjects_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'animal_subjects' %}</h4>
+          <h5>{{proposal.proposal_impact.animal_subjects}}</h5>
+          <div>
+            {{proposal.proposal_impact.animal_subjects_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'subcontractors_subawards' %}</h4>
+          <h5>{{proposal.proposal_impact.subcontractors_subawards}}</h5>
+          <div>
+            {{proposal.proposal_impact.subcontractors_subawards_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'additional_work_load' %}</h4>
+          <h5>{{proposal.proposal_impact.additional_work_load}}</h5>
+          <div>
+            {{proposal.proposal_impact.additional_work_load_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'personnel_salary' %}</h4>
+          <h5>{{proposal.proposal_impact.personnel_salary}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'contract_procurement' %}</h4>
+          <h5>{{proposal.proposal_impact.contract_procurement}}</h5>
+          <div>
+            {{proposal.proposal_impact.contract_procurement_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'students_involved' %}</h4>
+          <h5>{{proposal.proposal_impact.students_involved}}</h5>
+          <div>
+            {{proposal.proposal_impact.students_involved_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'new_hires' %}</h4>
+          <h5>{{proposal.proposal_impact.new_hires}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'course_relief' %}</h4>
+          <h5>{{proposal.proposal_impact.course_relief}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'service_overload' %}</h4>
+          <h5>{{proposal.proposal_impact.service_overload}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'irb_review' %}</h4>
+          <h5>{{proposal.proposal_impact.irb_review}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'iacuc_review' %}</h4>
+          <h5>{{proposal.proposal_impact.iacuc_review}}</h5>
+          <h4>{% field_name proposal.proposal_impact 'international' %}</h4>
+          <h5>{{proposal.proposal_impact.international}}</h5>
+          <div>
+            {{proposal.proposal_impact.international_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'hazards' %}</h4>
+          <h5>{{proposal.proposal_impact.hazards}}</h5>
+          <div>
+            {{proposal.proposal_impact.hazards_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'proprietary_confidential' %}</h4>
+          <h5>{{proposal.proposal_impact.proprietary_confidential}}</h5>
+          <div>
+            {{proposal.proposal_impact.proprietary_confidential_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'tech_support' %}</h4>
+          <h5>{{proposal.proposal_impact.tech_support}}</h5>
+          <div>
+            {{proposal.proposal_impact.tech_support_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'purchase_equipment' %}</h4>
+          <h5>{{proposal.proposal_impact.purchase_equipment}}</h5>
+          <div>
+            {{proposal.proposal_impact.purchase_equipment_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'infrastructure_requirements' %}</h4>
+          <h5>{{proposal.proposal_impact.infrastructure_requirements}}</h5>
+          <div>
+            {{proposal.proposal_impact.infrastructure_requirements_detail|default_if_none:''}}
+          </div>
+          <h4>{% field_name proposal.proposal_impact 'data_management' %}</h4>
+          <h5>{{proposal.proposal_impact.data_management}}</h5>
+          <div>
+            {{proposal.proposal_impact.data_management_detail|default_if_none:''}}
+          </div>
         </div>
-        <h3 class="detail">
-          Project Goals
-        </h3>
-        {% for g in proposal.proposal_goal.all %}
-          <h4>{{g.name}}</h4>
-          <p>{{g.description}}</p>
-        {% endfor %}
-        </dl>
         <h3 class="detail">
           Additional Information
         </h3>
         {% if proposal.comments %}
           <h4>Comments</h4>
           <h5>{{proposal.comments}}</h5>
+        {% endif %}
+        {% if proposal.proposal_impact.admin_comments %}
+          <h4>Administrative Comments</h4>
+          <h5>{{proposal.proposal_impact.admin_comments}}</h5>
         {% endif %}
         <h3 class="detail">
           Additional Documents
