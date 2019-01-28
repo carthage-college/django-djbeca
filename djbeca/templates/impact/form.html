@@ -11,6 +11,22 @@
 <script type="text/javascript">
   $(function() {
     $('textarea').summernote({height: 200});
+    $("li[id$='_detail']").addClass("hyde");
+    $("textarea[id$='_detail']").each(function(d){
+      if ($(this).val()) {
+        $li = "#" + $(this).attr('name');
+        $($li).removeClass("hyde");
+      }
+    });
+    $("input:radio").change(function(){
+      $dis = $(this);
+      $ta = "#" + $dis.attr('name') + "_detail";
+      if ($dis.val() == 'Yes') {
+        $($ta).removeClass("hyde");
+      } else {
+        $($ta).addClass("hyde");
+      }
+    });
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -110,7 +126,9 @@
           <ol>
           {% for field in form_impact.visible_fields %}
             {% if field.name != 'disclosure_assurance' and field.name != 'admin_comments'  %}
-            {% include "form_field.inc.html" %}
+              {% with dominatrix=field.name %}
+                {% include "form_field.inc.html" %}
+              {% endwith %}
             {% endif %}
           {% endfor %}
           </ol>

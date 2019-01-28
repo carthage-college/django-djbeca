@@ -27,6 +27,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 DEBUG = settings.DEBUG
+REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
 DEANS_GROUP = settings.DEANS_GROUP
 VEEP = get_position(settings.VEEP_TPOS)
@@ -98,26 +99,32 @@ def impact_form(request, pid):
 
     if request.method=='POST':
         form_impact = ImpactForm(
-            request.POST, instance=impact, prefix='impact', label_suffix=''
+            request.POST, instance=impact, label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_budget = BudgetForm(
             request.POST, request.FILES,
-            instance=budget, prefix='budget', label_suffix=''
+            instance=budget, prefix='budget', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_comments = CommentsForm(
-            request.POST, prefix='comments', label_suffix=''
+            request.POST, prefix='comments', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_doc1 = DocumentForm(
             request.POST, request.FILES,
-            instance=docs[0], prefix='doc1', label_suffix=''
+            instance=docs[0], prefix='doc1', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_doc2 = DocumentForm(
             request.POST, request.FILES,
-            instance=docs[1], prefix='doc2', label_suffix=''
+            instance=docs[1], prefix='doc2', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_doc3 = DocumentForm(
             request.POST, request.FILES,
-            instance=docs[2], prefix='doc3', label_suffix=''
+            instance=docs[2], prefix='doc3', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         if form_impact.is_valid() and form_budget.is_valid() and \
           form_doc1.is_valid() and form_doc2.is_valid() and \
@@ -244,23 +251,29 @@ def impact_form(request, pid):
                 )
     else:
         form_impact = ImpactForm(
-            instance=impact, prefix='impact', label_suffix=''
+            instance=impact, label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_budget = BudgetForm(
-            instance=budget, prefix='budget', label_suffix=''
+            instance=budget, prefix='budget', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_comments = CommentsForm(
             initial={'comments':proposal.comments},
-            prefix='comments', label_suffix=''
+            prefix='comments', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_doc1 = DocumentForm(
-            instance=docs[0], prefix='doc1', label_suffix=''
+            instance=docs[0], prefix='doc1', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_doc2 = DocumentForm(
-            instance=docs[1], prefix='doc2', label_suffix=''
+            instance=docs[1], prefix='doc2', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
         form_doc3 = DocumentForm(
-            instance=docs[2], prefix='doc3', label_suffix=''
+            instance=docs[2], prefix='doc3', label_suffix='',
+            use_required_attribute = REQUIRED_ATTRIBUTE
         )
 
     return render(
