@@ -12,9 +12,10 @@
   $(function() {
     $('textarea').summernote({height: 200});
     $("li[id$='_detail']").addClass("hyde");
-    $("textarea[id$='_detail']").each(function(d){
-      if ($(this).val()) {
-        $li = "#" + $(this).attr('name');
+    $("input:radio:checked").each(function(d){
+      $dis = $(this);
+      if ($dis.val() == 'Yes') {
+        $li = "#" + $dis.attr('name') + "_detail";
         $($li).removeClass("hyde");
       }
     });
@@ -163,13 +164,13 @@
           <ol style="padding-bottom:24px;">
             {% if perms.approve %}
             <li class="form-group ctrlHolder">
-                <h3><label for="id_impact-admin_comments">Admin comments</label></h3>
+                <h3><label for="id_admin_comments">Admin comments</label></h3>
                 <div>
                 <p class="help">
                 Provide any administrative comments that you might want
                 others to consider.
                 </p>
-                <textarea name="impact-admin_comments" rows="10" cols="40" id="id_impact-admin_comments">{{form_impact.admin_comments.value|default_if_none:''}}</textarea>
+                <textarea name="admin_comments" rows="10" cols="40" id="id_admin_comments">{{form_impact.admin_comments.value|default_if_none:''}}</textarea>
                 </div>
             </li>
             {% endif %}
@@ -184,8 +185,8 @@
               {% else %}
               <div class="required">
               {% endif %}
-                <input name="impact-disclosure_assurance" type="checkbox"
-                id="id_impact-disclosure_assurance"
+                <input name="disclosure_assurance" type="checkbox"
+                id="id_disclosure_assurance"
                 {% if form_impact.disclosure_assurance.value %}checked{% endif %}>
               </div>
             </li>
