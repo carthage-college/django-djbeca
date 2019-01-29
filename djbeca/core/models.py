@@ -465,7 +465,6 @@ class ProposalImpact(models.Model):
         null=True, blank=True,
         help_text="Please provide additional details"
     )
-
     students_involved = models.CharField(
         "Does this proposal require support for students in the following?",
         max_length=16,

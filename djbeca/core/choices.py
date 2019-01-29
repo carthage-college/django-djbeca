@@ -91,7 +91,7 @@ LEAD_INSTITUTION_CHOICES = (
 )
 STUDENTS_INVOLVED_CHOICES = (
     ('Student Payout','Student Payout'),
-    ('Room/Board','Room/Board'),
+    ('Student Room/Board','Room/Board'),
     ('Student Travel','Student Travel'),
     ('None','None'),
 )

@@ -13,16 +13,16 @@
     $('textarea').summernote({height: 200});
     $("li[id$='_detail']").addClass("hyde");
     $("input:radio:checked").each(function(d){
-      $dis = $(this);
-      if ($dis.val() == 'Yes') {
-        $li = "#" + $dis.attr('name') + "_detail";
+      $val = $(this).val();
+      if ($val == 'Yes' || $val.includes('Student')) {
+        $li = "#" + $(this).attr('name') + "_detail";
         $($li).removeClass("hyde");
       }
     });
     $("input:radio").change(function(){
-      $dis = $(this);
-      $ta = "#" + $dis.attr('name') + "_detail";
-      if ($dis.val() == 'Yes') {
+      $val = $(this).val();
+      $ta = "#" + $(this).attr('name') + "_detail";
+      if ($val == 'Yes' || $val.includes('Student')) {
         $($ta).removeClass("hyde");
       } else {
         $($ta).addClass("hyde");

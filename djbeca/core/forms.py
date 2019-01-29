@@ -214,6 +214,12 @@ class ImpactForm(forms.ModelForm):
         """,
         choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
     )
+    students_involved = forms.TypedChoiceField(
+        label = """
+            Does this proposal require support for students in the following?
+        """,
+        choices=STUDENTS_INVOLVED_CHOICES, widget=forms.RadioSelect()
+    )
     contract_procurement = forms.TypedChoiceField(
         label = "Does this proposal require contract (procurement) services?",
         choices=BINARY_UNSURE_CHOICES, widget=forms.RadioSelect()
