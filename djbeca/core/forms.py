@@ -9,8 +9,7 @@ from djbeca.core.utils import get_proposals
 
 from djtools.fields import BINARY_CHOICES
 
-from directory.core import FACSTAFF_ALPHA
-
+from djzbar.core.sql import FACSTAFF_ALPHA
 from djzbar.utils.informix import do_sql
 
 
