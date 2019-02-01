@@ -577,7 +577,7 @@ def proposal_approver(request, pid=0):
                     ]
                 else:
                     to_list = [approver.user.email]
-                    BCC = [MANAGER, proposal.user.email]
+                    BCC = [MANAGER,]
 
                 send_mail(
                     request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
