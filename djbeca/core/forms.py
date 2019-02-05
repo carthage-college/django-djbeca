@@ -328,6 +328,19 @@ class ImpactForm(forms.ModelForm):
             'level3','level2','level1'
         )
 
+    def clean(self):
+        cd = self.cleaned_data
+
+        for key, val in cd.items():
+            if '_detail' in key:
+                quay = key.split('_detail')[0]
+                radio = cd.get(quay)
+                if radio and (radio == 'Yes' or 'Student' in radio) and not cd.get(key):
+                    cd[quay] = ''
+                    self.add_error(key,"Please provide additional information")
+
+        return cd
+
 
 class DocumentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

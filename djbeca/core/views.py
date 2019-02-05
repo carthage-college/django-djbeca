@@ -23,9 +23,6 @@ from djtools.fields import NOW
 
 from djauth.LDAPManager import LDAPManager
 
-import logging
-logger = logging.getLogger(__name__)
-
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
