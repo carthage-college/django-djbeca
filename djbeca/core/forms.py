@@ -333,10 +333,8 @@ class ImpactForm(forms.ModelForm):
 
         for key, val in cd.items():
             if '_detail' in key:
-                quay = key.split('_detail')[0]
-                radio = cd.get(quay)
+                radio = cd.get(key.split('_detail')[0])
                 if radio and (radio == 'Yes' or 'Student' in radio) and not cd.get(key):
-                    cd[quay] = ''
                     self.add_error(key,"Please provide additional information")
 
         return cd
