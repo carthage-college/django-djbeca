@@ -74,15 +74,18 @@ def impact_form(request, pid):
     proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
     perms = proposal.permissions(user)
+
     # we do not allow PIs to update their proposals after save-submit
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
-    if (proposal.save_submit and not group) or \
-       (user != proposal.user and not group) or \
+    if (user != proposal.user and not group) or \
+       (proposal.save_submit and user == proposal.user) or \
        (proposal.decline and user == proposal.user) or \
        (proposal.closed and user == proposal.user) or \
        (proposal.closed or proposal.decline and group):
+
         return HttpResponseRedirect(reverse_lazy('home'))
+
     # budget and impact
     try:
         impact = proposal.proposal_impact
@@ -412,10 +415,12 @@ def proposal_form(request, pid=None):
                     Your Approval Needed for "{}" by {}, {}'.format(
                     data.title, data.user.last_name, data.user.first_name
                 )
-                send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'proposal/email_approve.html', data, BCC
-                )
+                # OSP can update proposals after save/submit
+                if not data.save_submit:
+                    send_mail(
+                        request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
+                        'proposal/email_approve.html', data, BCC
+                    )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = u"Part A Submission Received: {}".format(data.title)
@@ -426,10 +431,12 @@ def proposal_form(request, pid=None):
                 else:
                     to_list = [data.user.email]
 
-                send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'proposal/email_confirmation.html', data, BCC
-                )
+                # OSP can update proposals after save/submit
+                if not data.save_submit:
+                    send_mail(
+                        request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
+                        'proposal/email_confirmation.html', data, BCC
+                    )
                 return HttpResponseRedirect(
                     reverse_lazy('proposal_success')
                 )

@@ -19,9 +19,7 @@ class ProposalAdmin(admin.ModelAdmin):
         'user__last_name','user__first_name',
         'level3'
     )
-    readonly_fields = (
-        'user','department'
-    )
+    readonly_fields = ('user',)
     search_fields = (
         'user__last_name','user__first_name','user__email','user__username'
     )
