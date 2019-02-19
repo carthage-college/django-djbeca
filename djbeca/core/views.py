@@ -50,17 +50,19 @@ def home(request):
 
     user = request.user
     group = in_group(user, OSP_GROUP)
-    proposals = get_proposals(user)
-
-    return render(
-        request, 'home.html',
-        {
-            'proposals':proposals['objects'],
-            'dean_chair':proposals['dean_chair'],
-            'group':group,'dc':proposals['dc'],'depts':proposals['depts'],
-            'div':proposals['div'],'approver':proposals['approver']
-        }
-    )
+    if user.is_authenticated:
+        proposals = get_proposals(user)
+        return render(
+            request, 'home.html',
+            {
+                'proposals':proposals['objects'],
+                'dean_chair':proposals['dean_chair'],
+                'group':group,'dc':proposals['dc'],'depts':proposals['depts'],
+                'div':proposals['div'],'approver':proposals['approver']
+            }
+        )
+    else:
+        return HttpResponseRedirect(reverse_lazy('auth_login'))
 
 
 @portal_auth_required(
