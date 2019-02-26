@@ -175,7 +175,7 @@ def impact_form(request, pid):
 
                 # email approvers
                 subject = (
-                    'Routing & Authorization Form Part B: '
+                    u'Routing & Authorization Form Part B: '
                     'Your Approval Needed for "{}" by {}, {}'
                 ).format(
                     proposal.title, proposal.user.last_name,
@@ -201,7 +201,7 @@ def impact_form(request, pid):
                 # staff do not have deans so len will be 0 in that case
                 if len(chairs) > 0:
                     subject = (
-                        'Review and Provide Final Authorization for PART B: '
+                        u'Review and Provide Final Authorization for PART B: '
                         '"{}" by {}, {}'
                     ).format(
                         proposal.title, proposal.user.last_name,
@@ -627,7 +627,7 @@ def email_investigator(request, pid, action):
                     to_list = [proposal.user.email]
                 send_mail (
                     request, to_list,
-                    "[Office of Sponsored Programs] Grant Proposal: {}".format(
+                    u"[Office of Sponsored Programs] Grant Proposal: {}".format(
                         proposal.title
                     ),
                     request.user.email, 'investigator/email_data.html',
@@ -933,7 +933,7 @@ def proposal_status(request):
                             proposal.to_list = to_list
                             to_list = [MANAGER]
                         subject = (
-                            'Review and Provide Final Authorization for PART B: '
+                            u'Review and Provide Final Authorization for PART B: '
                             '"{}" by {}, {}'
                         ).format(
                             proposal.title, proposal.user.last_name,
@@ -945,7 +945,7 @@ def proposal_status(request):
                             'impact/email_approve_level1.html', proposal, BCC
                         )
 
-                    message = "Approved by {} {}".format(
+                    message = u"Approved by {} {}".format(
                         a.user.first_name, a.user.last_name
                     )
                 except:
