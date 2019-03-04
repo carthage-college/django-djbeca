@@ -674,7 +674,7 @@ class ProposalBudget(models.Model):
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF or Excel Format Only"
+        help_text="PDF or Excel Format Only",
         null=True,blank=True
     )
 
@@ -712,7 +712,7 @@ class ProposalDocument(models.Model):
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF or Excel Format Only"
+        help_text="PDF or Excel Format Only",
         null=True,blank=True
     )
     tags = TaggableManager(blank=True)
