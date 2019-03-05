@@ -243,6 +243,14 @@ $(function() {
           <h4>Administrative Comments</h4>
           <h5>{{proposal.proposal_impact.admin_comments}}</h5>
         {% endif %}
+        {% ifusergroup osp_group deans_group %}
+        <h3 class="clear detail">Approvers</h3>
+        <ul>
+        {% for a in proposal.approvers.all %}
+        <li>{{a.last_name}}, {{a.first_name}}</li>
+        {% endfor %}
+        </ul>
+        {% endifusergroup %}
         <!-- fin -->
       </div>
       <!-- /.panel-body -->

@@ -271,7 +271,7 @@ class Proposal(models.Model):
             perms['open'] = True
         # Ad-hoc approver?
         else:
-            for a in self.proposal_approvers.all():
+            for a in self.approvers.all():
                 if a.user == user:
                     perms['view'] = True
                     perms['approver'] = True
@@ -294,7 +294,7 @@ class Proposal(models.Model):
     def step1(self):
         # Dean or Department VP
         approved = self.level3
-        for a in self.proposal_approvers.all():
+        for a in self.approvers.all():
             if not a.step1:
                 approved = False
                 break
@@ -310,7 +310,7 @@ class Proposal(models.Model):
             approved = False
 
         if approved:
-            for a in self.proposal_approvers.all():
+            for a in self.approvers.all():
                 if not a.step2:
                     approved = False
                     break
@@ -329,7 +329,7 @@ class Proposal(models.Model):
             approved = False
 
         if approved:
-            for a in self.proposal_approvers.all():
+            for a in self.approvers.all():
                 if not a.step2:
                     approved = False
                     break
@@ -814,7 +814,7 @@ class ProposalApprover(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal,
-        related_name='proposal_approvers'
+        related_name='approvers'
     )
     # this field is not in use at the moment but i suspect
     # OSP will want to reactivate it in the future

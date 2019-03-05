@@ -33,9 +33,9 @@ PRESIDENT = get_position(settings.PREZ_TPOS)
 PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL
 MANAGER = settings.MANAGERS[0][1]
-if DEBUG:
-    BCC = [MANAGER,]
-else:
+
+BCC = [MANAGER,]
+if not DEBUG:
     BCC = settings.PROPOSAL_EMAIL_LIST
     BCC.append(MANAGER)
 
@@ -182,7 +182,7 @@ def impact_form(request, pid):
                     proposal.user.first_name
                 )
                 to_list = []
-                for a in proposal.proposal_approvers.all():
+                for a in proposal.approvers.all():
                     to_list.append(a.user.email)
                 if DEBUG:
                     proposal.to_list = to_list
@@ -385,7 +385,7 @@ def proposal_form(request, pid=None):
 
                 to_list = []
                 # add approvers to distribution list
-                for a in data.proposal_approvers.all():
+                for a in data.approvers.all():
                     to_list.append(a.user.email)
 
                 if len(chairs) > 0:
@@ -583,11 +583,10 @@ def proposal_approver(request, pid=0):
                     ]
                 else:
                     to_list = [approver.user.email]
-                    BCC = [MANAGER,]
 
                 send_mail(
                     request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'approver/email.html', {'proposal':proposal,},BCC
+                    'approver/email.html', {'proposal':proposal,}, BCC
                 )
 
                 return HttpResponseRedirect(
@@ -700,7 +699,7 @@ def proposal_status(request):
                         proposal.proposal_impact.level1 = False
                         proposal.proposal_impact.save()
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         a.step1 = False
                         a.step2 = False
                         a.save()
@@ -712,7 +711,7 @@ def proposal_status(request):
             if status == 'open':
                 if perms['open']:
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         if not proposal.step1() and not proposal.closed:
                             a.step1 = False
                         if proposal.step1() and not proposal.closed:
@@ -782,7 +781,7 @@ def proposal_status(request):
                         proposal.proposal_impact.disclosure_assurance = False
                         proposal.proposal_impact.save()
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         if a.user == user:
                             if step == 'step1':
                                 a.step1 = False
@@ -824,7 +823,7 @@ def proposal_status(request):
                         proposal.proposal_impact.disclosure_assurance = False
                         proposal.proposal_impact.save()
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         if step == 'step1':
                             a.step1 = False
                         else:
@@ -907,7 +906,7 @@ def proposal_status(request):
             # approvers
             else:
                 try:
-                    a = proposal.proposal_approvers.get(user=user)
+                    a = proposal.approvers.get(user=user)
                     a.__dict__[step] = True
                     a.save()
                     # if approver replaces Division Dean set level3 to True
