@@ -30,7 +30,7 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
             to_list = [settings.MANAGERS[0][1],]
 
         # send the email OSP
-        subject = "[Final] Proposal approved: '{}' by {}, {}".format(
+        subject = u"[Final] Proposal approved: '{}' by {}, {}".format(
             obj.title, obj.user.last_name, obj.user.first_name
         )
         sent = send_mail(
