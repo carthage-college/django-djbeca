@@ -24,7 +24,7 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
     if not obj.decline and obj.step1() and obj.step2() \
     and not obj.email_approved:
 
-        to_list = [settings.PROPOSAL_EMAIL,]
+        to_list = [settings.PROPOSAL_EMAIL_LIST,]
         if settings.DEBUG:
             obj.to_list = to_list
             to_list = [settings.MANAGERS[0][1],]
