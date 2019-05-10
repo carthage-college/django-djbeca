@@ -169,7 +169,7 @@ EMAIL_FAIL_SILENTLY = True
 DEFAULT_FROM_EMAIL = ''
 SERVER_EMAIL = ''
 SERVER_MAIL=""
-PROPOSAL_EMAIL = ""
+PROPOSAL_EMAIL_LIST = []
 # approval level positions
 TposStruct = namedtuple('TposStruct', 'id email')
 PROV_TPOS=2877

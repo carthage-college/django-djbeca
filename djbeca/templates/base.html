@@ -174,14 +174,14 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
                   Submit Proposal
                 </a>
             </li>
-            {% if user.is_superuser %}
+            {% ifusergroup osp_group %}
             <li>
                 <a href="{% url 'admin:index' %}" title="Administration">
                   <i class="fa fa-tachometer fa-fw" aria-hidden="true"></i>
                   Administration
                 </a>
             </li>
-            {% endif %}
+            {% endifusergroup %}
         </ul>
         <!-- /#side-menu -->
     </div>

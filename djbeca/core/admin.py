@@ -16,12 +16,9 @@ class ProposalAdmin(admin.ModelAdmin):
     )
     date_hierarchy = 'created_at'
     ordering = (
-        'user__last_name','user__first_name',
-        'level3'
+        '-created_at','user__last_name','user__first_name','level3'
     )
-    readonly_fields = (
-        'user','department'
-    )
+    readonly_fields = ('user',)
     search_fields = (
         'user__last_name','user__first_name','user__email','user__username'
     )
@@ -79,6 +76,10 @@ class ProposalImpactAdmin(admin.ModelAdmin):
     list_display = (
         'title','created_at','updated_at',
         'level3','level2','level1','disclosure_assurance'
+    )
+    date_hierarchy = 'created_at'
+    ordering = (
+        '-created_at','level3','level2','level1','disclosure_assurance'
     )
 
 

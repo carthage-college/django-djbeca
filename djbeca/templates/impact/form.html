@@ -10,7 +10,8 @@
     type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
-    $('textarea').summernote({height: 200});
+    $('#id_comments-comments').summernote({height: 200});
+    $('#id_admin_comments').summernote({height: 200});
     $("li[id$='_detail']").addClass("hyde");
     $("input:radio:checked").each(function(d){
       $val = $(this).val();

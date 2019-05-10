@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load livewhale_api %}
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="container">
@@ -12,7 +13,9 @@
                         Both fields are case-sensitive.
                     </p>
                 {% endif %}
-                {% include "accounts/login_form.inc.html" %}
+                {% get_lw_content as maintenance blurbs 2803 %}
+                {{maintenance.body}}
+                {# include "accounts/login_form.inc.html" #}
             {% else %}
                 <h2>You are already logged in</h2>
                 {% if next %}

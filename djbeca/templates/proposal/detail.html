@@ -243,6 +243,14 @@ $(function() {
           <h4>Administrative Comments</h4>
           <h5>{{proposal.proposal_impact.admin_comments}}</h5>
         {% endif %}
+        {% ifusergroup osp_group deans_group %}
+        <h3 class="clear detail">Approvers</h3>
+        <ul>
+        {% for a in proposal.approvers.all %}
+        <li>{{a.last_name}}, {{a.first_name}}</li>
+        {% endfor %}
+        </ul>
+        {% endifusergroup %}
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
@@ -256,14 +264,17 @@ $(function() {
       <div class="panel-body">
         <h2>
           Part B
-          {% if request.user.id == proposal.user.id or perms.superuser %}
-          {% if not proposal.save_submit and proposal.step1 and not proposal.decline and not proposal.closed %}
+          {% if request.user.id == proposal.user.id and not proposal.save_submit and proposal.step1 and not proposal.decline and not proposal.closed %}
           <a href="{% url 'impact_form' proposal.id %}"
             class="no-print-icon" style="float:right;color:#fff">
             <i class="fa fa-pencil" aria-hidden="true"
               title="Update Part B"></i></a>
-          {% endif %}
-          {% endif %}
+          {% else %}{% if perms.superuser %}
+          <a href="{% url 'impact_form' proposal.id %}"
+            class="no-print-icon" style="float:right;color:#fff">
+            <i class="fa fa-pencil" aria-hidden="true"
+              title="Update Part B"></i></a>
+          {% endif %}{% endif %}
         </h2>
         <h3 class="detail">
           Budget Data
