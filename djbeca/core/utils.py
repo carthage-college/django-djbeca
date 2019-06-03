@@ -33,14 +33,14 @@ def get_proposals(user):
         ).order_by('-grant_deadline_date')
     else:
         objects = Proposal.objects.filter(
-            Q(user=user) | Q(proposal_approvers__user=user)
+            Q(user=user) | Q(approvers__user=user)
         ).order_by(
             '-grant_deadline_date'
         )
 
     # check if user is an approver
     for p in objects:
-        for a in p.proposal_approvers.all():
+        for a in p.approvers.all():
             if a.user == user:
                 approver = True
                 break

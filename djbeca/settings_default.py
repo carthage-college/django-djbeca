@@ -39,6 +39,7 @@ STATIC_URL = "/static/djbeca/"
 MEDIA_URL = '{}assets/'.format(STATIC_URL)
 UPLOADS_DIR = "{}files/".format(MEDIA_ROOT)
 UPLOADS_URL = "{}files/".format(MEDIA_URL)
+FILE_UPLOAD_PERMISSIONS=0o644
 STATICFILES_DIRS = ()
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -168,7 +169,7 @@ EMAIL_FAIL_SILENTLY = True
 DEFAULT_FROM_EMAIL = ''
 SERVER_EMAIL = ''
 SERVER_MAIL=""
-PROPOSAL_EMAIL = ""
+PROPOSAL_EMAIL_LIST = []
 # approval level positions
 TposStruct = namedtuple('TposStruct', 'id email')
 PROV_TPOS=2877

@@ -4,15 +4,23 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
+from django.core.validators import FileExtensionValidator
 
 from djbeca.core.choices import *
 
 from djtools.utils.users import in_group
 from djtools.fields.helpers import upload_to_path
-from djtools.fields.validators import MimetypeValidator
 from djzbar.utils.hr import chair_departments, get_position
 
 from taggit.managers import TaggableManager
+
+ALLOWED_EXTENSIONS = [
+    'xls','xlsx','pdf'
+]
+
+FILE_VALIDATORS = [
+    FileExtensionValidator(allowed_extensions=ALLOWED_EXTENSIONS)
+]
 
 
 class Proposal(models.Model):
@@ -263,7 +271,7 @@ class Proposal(models.Model):
             perms['open'] = True
         # Ad-hoc approver?
         else:
-            for a in self.proposal_approvers.all():
+            for a in self.approvers.all():
                 if a.user == user:
                     perms['view'] = True
                     perms['approver'] = True
@@ -286,7 +294,7 @@ class Proposal(models.Model):
     def step1(self):
         # Dean or Department VP
         approved = self.level3
-        for a in self.proposal_approvers.all():
+        for a in self.approvers.all():
             if not a.step1:
                 approved = False
                 break
@@ -302,7 +310,7 @@ class Proposal(models.Model):
             approved = False
 
         if approved:
-            for a in self.proposal_approvers.all():
+            for a in self.approvers.all():
                 if not a.step2:
                     approved = False
                     break
@@ -321,7 +329,7 @@ class Proposal(models.Model):
             approved = False
 
         if approved:
-            for a in self.proposal_approvers.all():
+            for a in self.approvers.all():
                 if not a.step2:
                     approved = False
                     break
@@ -657,16 +665,16 @@ class ProposalBudget(models.Model):
     budget_final = models.FileField(
         "Final Budget for Review",
         upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
+        validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF format Only"
+        help_text="PDF or Excel Format Only"
     )
     budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
         upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
+        validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF format Only",
+        help_text="PDF or Excel Format Only",
         null=True,blank=True
     )
 
@@ -702,9 +710,9 @@ class ProposalDocument(models.Model):
     phile = models.FileField(
         "Supporting Document",
         upload_to=upload_to_path,
-        #validators=[MimetypeValidator('application/pdf')],
+        validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF Format Only",
+        help_text="PDF or Excel Format Only",
         null=True,blank=True
     )
     tags = TaggableManager(blank=True)
@@ -806,7 +814,7 @@ class ProposalApprover(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal,
-        related_name='proposal_approvers'
+        related_name='approvers'
     )
     # this field is not in use at the moment but i suspect
     # OSP will want to reactivate it in the future

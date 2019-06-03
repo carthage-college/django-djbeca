@@ -23,9 +23,6 @@ from djtools.fields import NOW
 
 from djauth.LDAPManager import LDAPManager
 
-import logging
-logger = logging.getLogger(__name__)
-
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
@@ -36,9 +33,9 @@ PRESIDENT = get_position(settings.PREZ_TPOS)
 PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL
 MANAGER = settings.MANAGERS[0][1]
-if DEBUG:
-    BCC = [MANAGER,]
-else:
+
+BCC = [MANAGER,]
+if not DEBUG:
     BCC = settings.PROPOSAL_EMAIL_LIST
     BCC.append(MANAGER)
 
@@ -53,17 +50,19 @@ def home(request):
 
     user = request.user
     group = in_group(user, OSP_GROUP)
-    proposals = get_proposals(user)
-
-    return render(
-        request, 'home.html',
-        {
-            'proposals':proposals['objects'],
-            'dean_chair':proposals['dean_chair'],
-            'group':group,'dc':proposals['dc'],'depts':proposals['depts'],
-            'div':proposals['div'],'approver':proposals['approver']
-        }
-    )
+    if user.is_authenticated:
+        proposals = get_proposals(user)
+        return render(
+            request, 'home.html',
+            {
+                'proposals':proposals['objects'],
+                'dean_chair':proposals['dean_chair'],
+                'group':group,'dc':proposals['dc'],'depts':proposals['depts'],
+                'div':proposals['div'],'approver':proposals['approver']
+            }
+        )
+    else:
+        return HttpResponseRedirect(reverse_lazy('auth_login'))
 
 
 @portal_auth_required(
@@ -77,15 +76,18 @@ def impact_form(request, pid):
     proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
     perms = proposal.permissions(user)
+
     # we do not allow PIs to update their proposals after save-submit
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
-    if (proposal.save_submit and not group) or \
-       (user != proposal.user and not group) or \
+    if (user != proposal.user and not group) or \
+       (proposal.save_submit and user == proposal.user) or \
        (proposal.decline and user == proposal.user) or \
        (proposal.closed and user == proposal.user) or \
        (proposal.closed or proposal.decline and group):
+
         return HttpResponseRedirect(reverse_lazy('home'))
+
     # budget and impact
     try:
         impact = proposal.proposal_impact
@@ -173,14 +175,14 @@ def impact_form(request, pid):
 
                 # email approvers
                 subject = (
-                    'Routing & Authorization Form Part B: '
+                    u'Routing & Authorization Form Part B: '
                     'Your Approval Needed for "{}" by {}, {}'
                 ).format(
                     proposal.title, proposal.user.last_name,
                     proposal.user.first_name
                 )
                 to_list = []
-                for a in proposal.proposal_approvers.all():
+                for a in proposal.approvers.all():
                     to_list.append(a.user.email)
                 if DEBUG:
                     proposal.to_list = to_list
@@ -199,7 +201,7 @@ def impact_form(request, pid):
                 # staff do not have deans so len will be 0 in that case
                 if len(chairs) > 0:
                     subject = (
-                        'Review and Provide Final Authorization for PART B: '
+                        u'Review and Provide Final Authorization for PART B: '
                         '"{}" by {}, {}'
                     ).format(
                         proposal.title, proposal.user.last_name,
@@ -383,7 +385,7 @@ def proposal_form(request, pid=None):
 
                 to_list = []
                 # add approvers to distribution list
-                for a in data.proposal_approvers.all():
+                for a in data.approvers.all():
                     to_list.append(a.user.email)
 
                 if len(chairs) > 0:
@@ -415,10 +417,12 @@ def proposal_form(request, pid=None):
                     Your Approval Needed for "{}" by {}, {}'.format(
                     data.title, data.user.last_name, data.user.first_name
                 )
-                send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'proposal/email_approve.html', data, BCC
-                )
+                # OSP can update proposals after save/submit
+                if not data.save_submit:
+                    send_mail(
+                        request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
+                        'proposal/email_approve.html', data, BCC
+                    )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = u"Part A Submission Received: {}".format(data.title)
@@ -429,10 +433,12 @@ def proposal_form(request, pid=None):
                 else:
                     to_list = [data.user.email]
 
-                send_mail(
-                    request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'proposal/email_confirmation.html', data, BCC
-                )
+                # OSP can update proposals after save/submit
+                if not data.save_submit:
+                    send_mail(
+                        request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
+                        'proposal/email_confirmation.html', data, BCC
+                    )
                 return HttpResponseRedirect(
                     reverse_lazy('proposal_success')
                 )
@@ -577,11 +583,10 @@ def proposal_approver(request, pid=0):
                     ]
                 else:
                     to_list = [approver.user.email]
-                    BCC = [MANAGER,]
 
                 send_mail(
                     request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'approver/email.html', {'proposal':proposal,},BCC
+                    'approver/email.html', {'proposal':proposal,}, BCC
                 )
 
                 return HttpResponseRedirect(
@@ -621,7 +626,7 @@ def email_investigator(request, pid, action):
                     to_list = [proposal.user.email]
                 send_mail (
                     request, to_list,
-                    "[Office of Sponsored Programs] Grant Proposal: {}".format(
+                    u"[Office of Sponsored Programs] Grant Proposal: {}".format(
                         proposal.title
                     ),
                     request.user.email, 'investigator/email_data.html',
@@ -694,7 +699,7 @@ def proposal_status(request):
                         proposal.proposal_impact.level1 = False
                         proposal.proposal_impact.save()
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         a.step1 = False
                         a.step2 = False
                         a.save()
@@ -706,7 +711,7 @@ def proposal_status(request):
             if status == 'open':
                 if perms['open']:
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         if not proposal.step1() and not proposal.closed:
                             a.step1 = False
                         if proposal.step1() and not proposal.closed:
@@ -776,7 +781,7 @@ def proposal_status(request):
                         proposal.proposal_impact.disclosure_assurance = False
                         proposal.proposal_impact.save()
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         if a.user == user:
                             if step == 'step1':
                                 a.step1 = False
@@ -818,7 +823,7 @@ def proposal_status(request):
                         proposal.proposal_impact.disclosure_assurance = False
                         proposal.proposal_impact.save()
                     # Approvers
-                    for a in proposal.proposal_approvers.all():
+                    for a in proposal.approvers.all():
                         if step == 'step1':
                             a.step1 = False
                         else:
@@ -901,7 +906,7 @@ def proposal_status(request):
             # approvers
             else:
                 try:
-                    a = proposal.proposal_approvers.get(user=user)
+                    a = proposal.approvers.get(user=user)
                     a.__dict__[step] = True
                     a.save()
                     # if approver replaces Division Dean set level3 to True
@@ -927,7 +932,7 @@ def proposal_status(request):
                             proposal.to_list = to_list
                             to_list = [MANAGER]
                         subject = (
-                            'Review and Provide Final Authorization for PART B: '
+                            u'Review and Provide Final Authorization for PART B: '
                             '"{}" by {}, {}'
                         ).format(
                             proposal.title, proposal.user.last_name,
@@ -939,7 +944,7 @@ def proposal_status(request):
                             'impact/email_approve_level1.html', proposal, BCC
                         )
 
-                    message = "Approved by {} {}".format(
+                    message = u"Approved by {} {}".format(
                         a.user.first_name, a.user.last_name
                     )
                 except:
