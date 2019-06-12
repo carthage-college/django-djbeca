@@ -6,6 +6,10 @@ Django settings for project.
 import os
 from collections import namedtuple
 
+from djzbar.settings import INFORMIX_EARL_TEST as INFORMIX_EARL
+# sqlserver connection string
+MSSQL_EARL = ''
+
 # Debug
 DEBUG = True
 #DEBUG = False
