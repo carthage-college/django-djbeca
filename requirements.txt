@@ -1,4 +1,4 @@
-django==1.11.18
+django==1.11.23
 sqlalchemy==0.8.7
 setuptools==40.7.1
 MySQL-python==1.2.5
