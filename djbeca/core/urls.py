@@ -16,8 +16,10 @@ handler500 = 'djtools.views.errors.server_error'
 urlpatterns = [
     # django admin
     url(
-        r'^admin/', include(admin.site.urls)
+        r'^rocinante/', include(admin.site.urls)
     ),
+    # admin honeypot
+    url(r'^admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     # auth
     url(
         r'^accounts/login/$',auth_views.login,
@@ -124,3 +126,4 @@ urlpatterns = [
         r'^$', views.home, name='home'
     )
 ]
+urlpatterns += url('rocinante/', include('loginas.urls')),
