@@ -1,41 +1,36 @@
 # -*- coding: utf-8 -*-
+
+"""Data models."""
+
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.utils.safestring import mark_safe
 from django.core.validators import FileExtensionValidator
-
-from djbeca.core.choices import *
-
-from djtools.utils.users import in_group
+from django.db import models
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from djbeca.core import choices
+from djimix.people.departments import chair_departments
+from djimix.people.utils import get_position
 from djtools.fields.helpers import upload_to_path
-from djzbar.utils.hr import chair_departments, get_position
-
+from djtools.utils.users import in_group
 from taggit.managers import TaggableManager
 
-ALLOWED_EXTENSIONS = [
-    'xls','xlsx','pdf'
-]
 
+ALLOWED_EXTENSIONS = ['xls', 'xlsx', 'pdf']
 FILE_VALIDATORS = [
-    FileExtensionValidator(allowed_extensions=ALLOWED_EXTENSIONS)
+    FileExtensionValidator(allowed_extensions=ALLOWED_EXTENSIONS),
 ]
 
 
 class Proposal(models.Model):
-    '''
-    Proposal to pursue funding
-    '''
+    """Proposal to pursue funding."""
 
     # meta
-    created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
+    created_at = models.DateTimeField('Date Created', auto_now_add=True)
+    updated_at = models.DateTimeField('Date Updated', auto_now=True)
+    user = models.ForeignKey(
+        User, editable=settings.DEBUG, on_delete=models.PROTECT
     )
-    updated_at = models.DateTimeField(
-        "Date Updated", auto_now=True
-    )
-    user = models.ForeignKey(User, editable=settings.DEBUG)
     # Division Dean or Department VP approval
     level3 = models.BooleanField(default=False)
     # anyone in the workflow decline the proposal at this point
@@ -53,10 +48,10 @@ class Proposal(models.Model):
 
     # Basic Proposal Elements
     proposal_type = models.CharField(
-        "What type of proposal submission is this?",
+        'What type of proposal submission is this?',
         max_length=128,
-        choices=PROPOSAL_TYPE_CHOICES,
-        help_text = mark_safe(
+        choices=choices.PROPOSAL_TYPE_CHOICES,
+        help_text=mark_safe(
             """
             <ul class='block'>
             <li>
@@ -71,164 +66,156 @@ class Proposal(models.Model):
               funding, re-submitting proposal for new round
             </li>
             </ul>
-        """
-        )
+        """,
+        ),
     )
     proposal_type_other = models.CharField(
-        "If 'Other', please provide details",
+        'If "Other", please provide details',
         max_length=128,
-        null=True,blank=True
+        null=True,
+        blank=True,
     )
     funding_agency_program_name = models.CharField(
-        "Funding/Sponsor Agency Name and Grant Program Name",
-        max_length=128
+        'Funding/Sponsor Agency Name and Grant Program Name',
+        max_length=128,
     )
     grant_agency_funding_source = models.CharField(
-        "What type of funding source is the granting agency?",
+        'What type of funding source is the granting agency?',
         max_length=128,
-        choices=FUNDING_SOURCE_CHOICES,
+        choices=choices.FUNDING_SOURCE_CHOICES,
     )
     grant_agency_funding_other = models.CharField(
-        "If 'Other', please provide details",
+        'If "Other", please provide details',
         max_length=128,
-        null=True,blank=True
+        null=True,
+        blank=True,
     )
-    grant_agency_url = models.CharField(
-        "Solicitation Website",
-        max_length=768,
-    )
-    grant_deadline_date = models.DateField(
-        "Proposal Deadline Date"
-    )
+    grant_agency_url = models.CharField('Solicitation Website', max_length=768)
+    grant_deadline_date = models.DateField('Proposal Deadline Date')
     # Investigator Information
-    department = models.CharField(
-        max_length=12
-    )
-    # NOTE: "Co-Principal Investigators & Associated Institution"
-    # are ProposalContact() Foreign Key relationships.
-    # Name, Instituion fields [limit 5]
-    # NOTE: "List all institutions involved"
-    # are ProposalContact() FK relationships.
-    # Name field [limit 5]
+    department = models.CharField(max_length=12)
+    """
+    NOTE "Co-Principal Investigators & Associated Institution"
+    are ProposalContact() Foreign Key relationships.
+    Name, Instituion fields [limit 5]
+    NOTE: "List all institutions involved"
+    are ProposalContact() FK relationships.
+    Name field [limit 5]
+    """
     lead_institution = models.CharField(
-        "In this proposal, Carthage is considered:",
+        'In this proposal, Carthage is considered:',
         max_length=4,
-        choices=LEAD_INSTITUTION_CHOICES,
-        null=True,blank=True
+        choices=choices.LEAD_INSTITUTION_CHOICES,
+        null=True,
+        blank=True,
     )
     # NOTE: if 'No', provide the following
     lead_institution_name = models.CharField(
-        "Name of lead institution",
+        'Name of lead institution',
         max_length=128,
-        null=True,blank=True
+        null=True,
+        blank=True,
     )
     lead_institution_contact = models.TextField(
-        "Lead institution contact information",
-        help_text = "Sponsored Programs Office (or equivalent)",
-        null=True,blank=True
+        'Lead institution contact information',
+        help_text='Sponsored Programs Office (or equivalent)',
+        null=True,
+        blank=True,
     )
     # Project Overview
-    title = models.CharField(
-        "Project title", max_length=255
-    )
-    start_date = models.DateField("Project start date")
-    end_date = models.DateField("Project end date")
+    title = models.CharField('Project title', max_length=255)
+    start_date = models.DateField('Project start date')
+    end_date = models.DateField('Project end date')
     project_type = models.CharField(
         max_length=128,
-        choices=PROJECT_TYPE_CHOICES,
+        choices=choices.PROJECT_TYPE_CHOICES,
     )
     summary = models.TextField(
-        "Program summary (~500 words)",
+        'Program summary (~500 words)',
         help_text="""
             Provide a brief description of your proposed project.
             How does your project address one or more strategies/goals
             in Carthage’s strategic plan? Include subrecipient/subaward
             details, if applicable.
-        """
+        """,
     )
     # Project Funding / Budget Overview
-    '''
-    time_frame = models.CharField(
-        "Is this one year funding or multi-year?",
-        max_length=128,
-        choices=TIME_FRAME_CHOICES
-    )
-    '''
     budget_total = models.DecimalField(
-        "Total Program Cost",
+        'Total Program Cost',
         decimal_places=2,
         max_digits=16,
-        help_text="List the total amount budgeted for this project"
+        help_text='List the total amount budgeted for this project',
     )
     budget_summary = models.TextField(
-        "Budget Summary (~500 words)",
+        'Budget Summary (~500 words)',
         help_text="""
             Describe your funding plan. Include brief responses regarding the
             use of new/existing funds and cost share/match requirements, if
             applicable.
-        """
+        """,
     )
     # additional comments
     comments = models.TextField(
-        null=True, blank=True,
-        help_text="Provide any additional comments if need be"
+        null=True,
+        blank=True,
+        help_text='Provide any additional comments if need be',
     )
     # administrative comments
     admin_comments = models.TextField(
-        null=True, blank=True,
+        null=True,
+        blank=True,
         help_text="""
             Provide any administrative comments that you might want
             others to consider.
-        """
+        """,
     )
 
     class Meta:
-        ordering  = ['-created_at']
+        ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal'
 
     def __unicode__(self):
-        '''
-        Default data for display
-        '''
-        return u"{} ({})".format(self.title, self.id)
+        """Default data for display."""
+        return '{0} ({1})'.format(self.title, self.id)
 
     def get_absolute_url(self):
-        return 'https://{}{}'.format(
+        return 'https://{0}{1}'.format(
             settings.SERVER_URL,
-            reverse('proposal_detail', args=(self.id,))
+            reverse('proposal_detail', args=(self.id,)),
         )
 
     def get_update_url(self):
-        return 'https://{}{}'.format(
+        return 'https://{0}{1}'.format(
             settings.SERVER_URL,
-            #reverse('admin:core_proposal_change',args=(self.id,))
-            reverse('proposal_update', args=(self.id,))
+            reverse('proposal_update', args=(self.id,)),
         )
 
     def get_slug(self):
         return 'proposal/'
 
     def permissions(self, user):
-        '''
-        what can the user access in terms of the proposal
-        and viewing it and the approval process
-        '''
-
-        OSP_GROUP = settings.OSP_GROUP
-        VEEP = get_position(settings.VEEP_TPOS)
-        PROVOST = get_position(settings.PROV_TPOS)
-        PRESIDENT = get_position(settings.PREZ_TPOS)
+        """What can the user access in terms of viewing & approval process."""
+        osp_group = settings.OSP_GROUP
+        veep = get_position(settings.VEEP_TPOS)
+        provost = get_position(settings.PROV_TPOS)
 
         perms = {
-            'view':False,'approve':False,'decline':False,
-            'close':False,'open':False,'needswork':False,
-            'superuser': False, 'approver': False,
-            'level3': False, 'level2': False, 'level1': False
+            'view': False,
+            'approve': False,
+            'decline': False,
+            'close': False,
+            'open': False,
+            'needswork': False,
+            'superuser': False,
+            'approver': False,
+            'level3': False,
+            'level2': False,
+            'level1': False,
         }
 
         # in_group includes an exception for superusers
-        group = in_group(user, OSP_GROUP)
+        group = in_group(user, osp_group)
 
         chair_depts = chair_departments(user.id)
 
@@ -244,14 +231,14 @@ class Proposal(models.Model):
             perms['decline'] = True
             perms['approve'] = 'level3'
         # VP for Business?
-        elif user.id == VEEP.id:
+        elif user.id == veep.id:
             perms['view'] = True
             perms['level2'] = True
             perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level2'
         # Provost?
-        elif user.id == PROVOST.id:
+        elif user.id == provost.id:
             perms['view'] = True
             perms['level1'] = True
             perms['needswork'] = True
@@ -271,8 +258,8 @@ class Proposal(models.Model):
             perms['open'] = True
         # Ad-hoc approver?
         else:
-            for a in self.approvers.all():
-                if a.user == user:
+            for approver in self.approvers.all():
+                if approver.user == user:
                     perms['view'] = True
                     perms['approver'] = True
                     perms['needswork'] = True
@@ -283,54 +270,53 @@ class Proposal(models.Model):
         return perms
 
     def impact(self):
+        """Check if the Proposal has an Impact relationship."""
         try:
-            pi = self.proposal_impact
-        except:
-            pi = False
-        return pi
+            return self.proposal_impact
+        except AttributeError:
+            return False
 
     # at the moment, we assume all approvers will be responsible for
     # step 1 AND step 2. in the future, i suspect that this might change.
     def step1(self):
+        """Check if step 1 has been approved."""
         # Dean or Department VP
         approved = self.level3
-        for a in self.approvers.all():
-            if not a.step1:
+        for approver in self.approvers.all():
+            if not approver.step1:
                 approved = False
                 break
         return approved
 
     def step2(self):
+        """Check if step 2 has been approved."""
         approved = False
         try:
             if self.proposal_impact.level1 and self.proposal_impact.level2 \
-            and self.proposal_impact.level3:
+              and self.proposal_impact.level3:
                 approved = True
-        except:
+        except AttributeError:
             approved = False
 
         if approved:
-            for a in self.approvers.all():
-                if not a.step2:
+            for approver in self.approvers.all():
+                if not approver.step2:
                     approved = False
                     break
         return approved
 
     def ready_level1(self):
-        """
-        Are we ready for:
-        VP for Business (level2) and Provost (level1) to approve?
-        """
+        """Check if VP for Business (level2) & Provost (level1) can approve."""
         approved = False
         try:
             if self.proposal_impact.level3:
                 approved = True
-        except:
+        except AttributeError:
             approved = False
 
         if approved:
-            for a in self.approvers.all():
-                if not a.step2:
+            for approver in self.approvers.all():
+                if not approver.step2:
                     approved = False
                     break
 
@@ -338,29 +324,23 @@ class Proposal(models.Model):
 
 
 class ProposalImpact(models.Model):
-    '''
-    Proposal impacts
-    '''
+    """Proposal impact data."""
+
     # meta
-    created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
-    )
-    updated_at = models.DateTimeField(
-        "Date Updated", auto_now=True
-    )
+    created_at = models.DateTimeField('Date Created', auto_now_add=True)
+    updated_at = models.DateTimeField('Date Updated', auto_now=True)
     proposal = models.OneToOneField(
         Proposal,
-        #editable=False,
-        related_name='proposal_impact'
+        related_name='proposal_impact',
+        on_delete=models.PROTECT,
     )
-
     # status
-    level3 = models.BooleanField(default=False) # Division Dean
-    level2 = models.BooleanField(default=False) # VP for Business
-    level1 = models.BooleanField(default=False) # Provost
+    level3 = models.BooleanField(default=False)  # Division Dean
+    level2 = models.BooleanField(default=False)  # VP for Business
+    level1 = models.BooleanField(default=False)  # Provost
 
     # Project Impact
-    # NOTE: "Describe your project goal/s"
+    # NOTE "Describe your project goal/s"
     # are ProposalGoal() Foreign Key relationships.
     # Name, Description fields [limit 8]
 
@@ -369,32 +349,34 @@ class ProposalImpact(models.Model):
 
     # Institutional Impact
     cost_share_match = models.CharField(
-        "Does this proposal require cost sharing/match?",
+        'Does this proposal require cost sharing/match?',
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     cost_share_match_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     funds = models.CharField(
-        "The budget requires:",
+        'The budget requires:',
         max_length=16,
-        choices=FUNDS_CHOICES,
+        choices=choices.FUNDS_CHOICES,
     )
     indirect_funds_solicitation = models.CharField(
         """
-            Does the sponsor disallow the use of indirect funds
-            per sponsor policy and/or solicitation?
+        Does the sponsor disallow the use of indirect funds
+        per sponsor policy and/or solicitation?
         """,
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     indirect_funds_solicitation_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     voluntary_committment = models.CharField(
         """
@@ -402,32 +384,35 @@ class ProposalImpact(models.Model):
         on behalf of the College?
         """,
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     voluntary_committment_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     human_subjects = models.CharField(
-        "Does this proposal involve human subjects?",
+        'Does this proposal involve human subjects?',
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     human_subjects_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Detail any IRB approval and submission date"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Detail any IRB approval and submission date',
     )
     animal_subjects = models.CharField(
-        "Does this proposal involve the use/care of animals?",
+        'Does this proposal involve the use/care of animals?',
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     animal_subjects_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Detail any IACUC approval and submission dates"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Detail any IACUC approval and submission dates',
     )
     subcontractors_subawards = models.CharField(
         """
@@ -435,12 +420,13 @@ class ProposalImpact(models.Model):
         with other institutions/organizations?
         """,
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     subcontractors_subawards_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     additional_work_load = models.CharField(
         """
@@ -448,45 +434,48 @@ class ProposalImpact(models.Model):
             current load and/or institutional obligations?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     additional_work_load_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     personnel_salary = models.CharField(
         """
-            Does this proposal request salary for personnel to work
-            majority of time during:
+        Does this proposal request salary for personnel to work
+        majority of time during:
         """,
         max_length=16,
-        choices=PERSONNEL_SALARY_CHOICES,
+        choices=choices.PERSONNEL_SALARY_CHOICES,
     )
     contract_procurement = models.CharField(
-        "Does this proposal require contract (procurement) services?",
+        'Does this proposal require contract (procurement) services?',
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     contract_procurement_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     students_involved = models.CharField(
-        "Does this proposal require support for students in the following?",
+        'Does this proposal require support for students in the following?',
         max_length=16,
-        choices=STUDENTS_INVOLVED_CHOICES
+        choices=choices.STUDENTS_INVOLVED_CHOICES,
     )
     students_involved_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     new_hires = models.CharField(
-        "Does this proposal require any new faculty or staff hires?",
+        'Does this proposal require any new faculty or staff hires?',
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     course_relief = models.CharField(
         """
@@ -494,7 +483,7 @@ class ProposalImpact(models.Model):
         during the academic year?
         """,
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     service_overload = models.CharField(
         """
@@ -502,17 +491,17 @@ class ProposalImpact(models.Model):
         of any Carthage personnnel?
         """,
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     irb_review = models.CharField(
-        "Does this proposal require review of IRB?",
+        'Does this proposal require review of IRB?',
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     iacuc_review = models.CharField(
-        "Does this proposal require review of IACUC?",
+        'Does this proposal require review of IACUC?',
         max_length=4,
-        choices=BINARY_CHOICES,
+        choices=choices.BINARY_CHOICES,
     )
     international = models.CharField(
         """
@@ -520,12 +509,13 @@ class ProposalImpact(models.Model):
         export, international student participation?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     international_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     hazards = models.CharField(
         """
@@ -535,12 +525,13 @@ class ProposalImpact(models.Model):
         tumor cells, etc.)?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     hazards_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     proprietary_confidential = models.CharField(
         """
@@ -548,12 +539,13 @@ class ProposalImpact(models.Model):
         or involve proprietary or confidential information?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     proprietary_confidential_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     tech_support = models.CharField(
         """
@@ -561,12 +553,13 @@ class ProposalImpact(models.Model):
         extensive technical support?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     tech_support_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     purchase_equipment = models.CharField(
         """
@@ -574,12 +567,13 @@ class ProposalImpact(models.Model):
         and maintenance of equipment?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     purchase_equipment_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     infrastructure_requirements = models.CharField(
         """
@@ -587,247 +581,268 @@ class ProposalImpact(models.Model):
         currently provided?
         """,
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     infrastructure_requirements_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     data_management = models.CharField(
-        "Does this proposal a data management plan?",
+        'Does this proposal a data management plan?',
         max_length=8,
-        choices=BINARY_UNSURE_CHOICES,
+        choices=choices.BINARY_UNSURE_CHOICES,
     )
     data_management_detail = models.TextField(
-        verbose_name="",
-        null=True, blank=True,
-        help_text="Please provide additional details"
+        verbose_name='',
+        null=True,
+        blank=True,
+        help_text='Please provide additional details',
     )
     admin_comments = models.TextField(
-        null=True, blank=True,
+        null=True,
+        blank=True,
         help_text="""
             Provide any administrative comments that you might want
             others to consider.
-        """
+        """,
     )
     disclosure_assurance = models.BooleanField(default=False)
 
     class Meta:
-        ordering  = ['-created_at']
+        ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_impact'
 
     def title(self):
+        """Obtain the proposal title from foreign key Proposal."""
         return self.proposal.title
 
     def get_slug(self):
+        """Build the URL slug."""
         return 'proposal-impact/'
 
 
 class ProposalBudget(models.Model):
-    '''
-    Proposal budget
-    '''
+    """Proposal budget data."""
+
     # meta
     created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
+        'Date Created', auto_now_add=True,
     )
     updated_at = models.DateTimeField(
-        "Date Updated", auto_now=True
+        'Date Updated', auto_now=True,
     )
     proposal = models.OneToOneField(
-        Proposal, editable=False,
-        related_name='proposal_budget'
+        Proposal,
+        editable=False,
+        related_name='proposal_budget',
+        on_delete=models.PROTECT,
     )
     # Costs and totals
     total = models.DecimalField(
-        "Total Program Cost",
+        'Total Program Cost',
         decimal_places=2,
         max_digits=16,
-        help_text="Provide the total amount budgeted for this project",
-        null=True,blank=True
+        help_text='Provide the total amount budgeted for this project',
+        null=True,
+        blank=True,
     )
     total_funding = models.DecimalField(
-        "Total Funding Request",
+        'Total Funding Request',
         decimal_places=2,
         max_digits=16,
-        help_text="Provide the total amount of the funding request",
-        null=True,blank=True
+        help_text='Provide the total amount of the funding request',
+        null=True,
+        blank=True,
     )
     total_match_amount = models.DecimalField(
-        "Total Cost Share / Match",
+        'Total Cost Share / Match',
         decimal_places=2,
         max_digits=16,
-        null=True,blank=True
+        null=True,
+        blank=True,
     )
     # Files
     budget_final = models.FileField(
-        "Final Budget for Review",
+        'Final Budget for Review',
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF or Excel Format Only"
+        help_text='PDF or Excel Format Only',
     )
     budget_justification_final = models.FileField(
-        "Final Budget Justification for Review",
+        'Final Budget Justification for Review',
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF or Excel Format Only",
-        null=True,blank=True
+        help_text='PDF or Excel Format Only',
+        null=True,
+        blank=True,
     )
 
     class Meta:
-        ordering  = ['-created_at']
+        ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_budget'
 
     def get_slug(self):
+        """Build the URL slug."""
         return 'proposal-budget/'
 
     def __unicode__(self):
-        return u'{}'.format(self.proposal.title)
+        """Build the default value."""
+        return '{0}'.format(self.proposal.title)
 
 
 class ProposalDocument(models.Model):
-    '''
-    Proposal supporting documents
-    '''
+    """Proposal supporting documents."""
+
     # meta
     created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
+        'Date Created',
+        auto_now_add=True,
     )
     proposal = models.ForeignKey(
-        Proposal, editable=False,
-        related_name='proposal_documents'
+        Proposal,
+        editable=False,
+        related_name='proposal_documents',
+        on_delete=models.PROTECT,
     )
     name = models.CharField(
-        "Name or short description of the file",
+        'Name or short description of the file',
         max_length=128,
-        null=True,blank=True
+        null=True,
+        blank=True,
     )
     phile = models.FileField(
-        "Supporting Document",
+        'Supporting Document',
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
         max_length=768,
-        help_text="PDF or Excel Format Only",
-        null=True,blank=True
+        help_text='PDF or Excel Format Only',
+        null=True,
+        blank=True,
     )
     tags = TaggableManager(blank=True)
 
     class Meta:
-        ordering  = ['-created_at']
+        ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_document'
 
     def get_slug(self):
+        """Build the URL slug."""
         return 'proposal-document/'
 
     def __unicode__(self):
-        return u'{}: {}'.format(self.name, self.proposal.title)
+        """Build the default value."""
+        return '{0}: {1}'.format(self.name, self.proposal.title)
 
 
 class ProposalContact(models.Model):
+    """Proposal contact data."""
     created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
+        'Date Created',
+        auto_now_add=True,
     )
     proposal = models.ForeignKey(
         Proposal,
         editable=False,
-        related_name='proposal_contact'
+        related_name='proposal_contact',
+        on_delete=models.PROTECT,
     )
     name = models.CharField(
         max_length=128,
-        null=True, blank=True
+        null=True,
+        blank=True,
     )
     institution = models.CharField(
         max_length=128,
-        null=True, blank=True
+        null=True,
+        blank=True,
     )
-    email =  models.EmailField(
-        "Your email address",
+    email = models.EmailField(
+        'Your email address',
         max_length=128,
-        null=True, blank=True
+        null=True,
+        blank=True,
     )
     tags = TaggableManager(blank=True)
 
     class Meta:
         ordering = ['institution']
-        #ordering  = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_contact'
 
     def get_slug(self):
+        """Build the URL slug."""
         return 'proposal-contact/'
 
     def __unicode__(self):
-        return u'{}: {}'.format(self.name, self.institution)
+        """Build the default value."""
+        return '{0}: {1}'.format(self.name, self.institution)
 
 
 class ProposalGoal(models.Model):
+    """Proposal goals data."""
+
     created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True
+        'Date Created', auto_now_add=True,
     )
     proposal = models.ForeignKey(
         Proposal,
         editable=False,
-        related_name='proposal_goal'
+        related_name='proposal_goal',
+        on_delete=models.PROTECT,
     )
     name = models.CharField(
         max_length=128,
-        null=True, blank=True,
-        choices=PROPOSAL_GOAL_CHOICES
+        null=True,
+        blank=True,
+        choices=choices.PROPOSAL_GOAL_CHOICES,
     )
     description = models.TextField(
-        null=True, blank=True,
-        help_text="~200 words"
+        null=True, blank=True, help_text='~200 words',
     )
 
     class Meta:
-        ordering = ['institution']
-
-    def __unicode__(self):
-        return u'{}: {}'.format(self.name, self.institution)
-
-
-    class Meta:
-        ordering  = ['-created_at']
+        ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_goal'
 
     def get_slug(self):
+        """Build the URL slug."""
         return 'proposal-goal/'
 
     def __unicode__(self):
-        return u'{}: {}'.format(self.name, self.proposal.title)
+        """Build the default value."""
+        return '{0}: {1}'.format(self.name, self.proposal.title)
 
 
 class ProposalApprover(models.Model):
-    '''
-    Additional folks who need to approve a proposal
-    '''
+    """Additional folks who need to approve a proposal."""
+
     user = models.ForeignKey(
-        User,
-        related_name='approver_user'
+        User, related_name='approver_user', on_delete=models.PROTECT
     )
     proposal = models.ForeignKey(
-        Proposal,
-        related_name='approvers'
+        Proposal, related_name='approvers', on_delete=models.PROTECT
     )
     # this field is not in use at the moment but i suspect
     # OSP will want to reactivate it in the future
     steps = models.CharField(
         max_length=4,
         default='3',
-        choices=PROPOSAL_STEPS_CHOICES
+        choices=choices.PROPOSAL_STEPS_CHOICES,
     )
     replace = models.CharField(
         max_length=24,
         default='level3',
-        choices=APPROVAL_LEVEL_CHOICES,
-        null=True,blank=True
+        choices=choices.APPROVAL_LEVEL_CHOICES,
+        null=True,
+        blank=True,
     )
     step1 = models.BooleanField(default=False)
     step2 = models.BooleanField(default=False)
@@ -836,13 +851,17 @@ class ProposalApprover(models.Model):
         db_table = 'core_proposal_approver'
 
     def first_name(self):
+        """Return the approver's first name."""
         return self.user.first_name
 
     def last_name(self):
+        """Return the approver's last name."""
         return self.user.last_name
 
     def email(self):
+        """Return the approver's email."""
         return self.user.email
 
     def title(self):
+        """Return the proposal title."""
         return self.proposal.title

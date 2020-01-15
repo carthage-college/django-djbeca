@@ -1,27 +1,31 @@
+# -*- coding: utf-8 -*-
+
+"""Views for all requests."""
+
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import render
-from django.template import RequestContext
 from django.contrib.auth.models import User
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-
-from djbeca.core.models import Proposal, ProposalApprover, ProposalBudget
+from djauth.LDAPManager import LDAPManager
+from djbeca.core import forms
+from djbeca.core.models import Proposal
+from djbeca.core.models import ProposalApprover
 from djbeca.core.models import ProposalContact
-from djbeca.core.forms import *
 from djbeca.core.utils import get_proposals
-
-from djzbar.utils.hr import get_position, person_departments
-from djzbar.utils.hr import department_division_chairs
-from djzbar.decorators.auth import portal_auth_required
-
+from djimix.decorators.auth import portal_auth_required
+from djimix.people.departments import department_division_chairs
+from djimix.people.departments import person_departments
+from djimix.people.utils import get_position
+from djtools.fields import NOW
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
-from djtools.fields import NOW
 
-from djauth.LDAPManager import LDAPManager
 
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
@@ -32,47 +36,48 @@ PROVOST = get_position(settings.PROV_TPOS)
 PRESIDENT = get_position(settings.PREZ_TPOS)
 PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL
-MANAGER = settings.MANAGERS[0][1]
+MANAGER = [settings.MANAGERS[0][1]]
 
-BCC = [MANAGER,]
-if not DEBUG:
-    BCC = settings.PROPOSAL_EMAIL_LIST
-    BCC.append(MANAGER)
+if DEBUG:
+    bcc = MANAGER
+else:
+    bcc = settings.PROPOSAL_EMAIL_LIST
+    bcc.append(settings.MANAGERS[0][1])
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def home(request):
-    '''
-    dashboard home page view
-    '''
-
+    """Dashboard home page view."""
     user = request.user
     group = in_group(user, OSP_GROUP)
     if user.is_authenticated:
         proposals = get_proposals(user)
-        return render(
-            request, 'home.html',
+        response = render(
+            request,
+            'home.html',
             {
-                'proposals':proposals['objects'],
-                'dean_chair':proposals['dean_chair'],
-                'group':group,'dc':proposals['dc'],'depts':proposals['depts'],
-                'div':proposals['div'],'approver':proposals['approver']
-            }
+                'proposals': proposals['objects'],
+                'dean_chair': proposals['dean_chair'],
+                'group': group,
+                'dc': proposals['dc'],
+                'depts': proposals['depts'],
+                'div': proposals['div'],
+                'approver': proposals['approver'],
+            },
         )
     else:
-        return HttpResponseRedirect(reverse_lazy('auth_login'))
+        response = HttpResponseRedirect(reverse_lazy('auth_login'))
+
+    return response
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def impact_form(request, pid):
-    '''
-    Proposal Form Part B view
-    '''
-
+    """Proposal Form Part B view."""
     proposal = get_object_or_404(Proposal, id=pid)
     user = request.user
     perms = proposal.permissions(user)
@@ -100,30 +105,30 @@ def impact_form(request, pid):
         docs[c] = d
 
     if request.method=='POST':
-        form_impact = ImpactForm(
+        form_impact = forms.ImpactForm(
             request.POST, instance=impact, label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_budget = BudgetForm(
+        form_budget = forms.BudgetForm(
             request.POST, request.FILES,
             instance=budget, prefix='budget', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_comments = CommentsForm(
+        form_comments = forms.CommentsForm(
             request.POST, prefix='comments', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_doc1 = DocumentForm(
+        form_doc1 = forms.DocumentForm(
             request.POST, request.FILES,
             instance=docs[0], prefix='doc1', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_doc2 = DocumentForm(
+        form_doc2 = forms.DocumentForm(
             request.POST, request.FILES,
             instance=docs[1], prefix='doc2', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_doc3 = DocumentForm(
+        form_doc3 = forms.DocumentForm(
             request.POST, request.FILES,
             instance=docs[2], prefix='doc3', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
@@ -186,13 +191,13 @@ def impact_form(request, pid):
                     to_list.append(a.user.email)
                 if DEBUG:
                     proposal.to_list = to_list
-                    to_list = [MANAGER]
+                    to_list = MANAGER
 
                 if to_list:
                     # send the email to Approvers
                     send_mail(
                         request, to_list, subject, proposal.user.email,
-                        'impact/email_approve_approvers.html', proposal, BCC
+                        'impact/email_approve_approvers.html', proposal, bcc
                     )
 
                 # email Division Dean (level3)
@@ -213,12 +218,12 @@ def impact_form(request, pid):
                     to_list = [chairs[0][8]]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = [MANAGER]
+                        to_list = MANAGER
 
                     # send the email
                     send_mail(
                         request, to_list, subject, proposal.user.email,
-                        'impact/email_approve_level3.html', proposal, BCC
+                        'impact/email_approve_level3.html', proposal, bcc
                     )
 
                 # send confirmation to the Primary Investigator (PI)
@@ -230,12 +235,12 @@ def impact_form(request, pid):
                 to_list = [proposal.user.email]
                 if DEBUG:
                     proposal.to_list = to_list
-                    to_list = [MANAGER]
+                    to_list = MANAGER
 
                 # send the email
                 send_mail(
                     request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'impact/email_confirmation.html', proposal, BCC
+                    'impact/email_confirmation.html', proposal, bcc
                 )
                 return HttpResponseRedirect(
                     reverse_lazy('impact_success')
@@ -252,28 +257,28 @@ def impact_form(request, pid):
                     reverse_lazy('impact_form', kwargs={'pid': proposal.id})
                 )
     else:
-        form_impact = ImpactForm(
+        form_impact = forms.ImpactForm(
             instance=impact, label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_budget = BudgetForm(
+        form_budget = forms.BudgetForm(
             instance=budget, prefix='budget', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_comments = CommentsForm(
+        form_comments =forms. CommentsForm(
             initial={'comments':proposal.comments},
             prefix='comments', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_doc1 = DocumentForm(
+        form_doc1 = forms.DocumentForm(
             instance=docs[0], prefix='doc1', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_doc2 = DocumentForm(
+        form_doc2 = forms.DocumentForm(
             instance=docs[1], prefix='doc2', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
-        form_doc3 = DocumentForm(
+        form_doc3 = forms.DocumentForm(
             instance=docs[2], prefix='doc3', label_suffix='',
             use_required_attribute = REQUIRED_ATTRIBUTE
         )
@@ -334,13 +339,13 @@ def proposal_form(request, pid=None):
 
     depts = person_departments(user.id)
     if request.method=='POST':
-        form = ProposalForm(
+        form = forms.ProposalForm(
             depts, request.POST, instance=proposal
         )
-        form_institu = InstitutionsForm(
+        form_institu = forms.InstitutionsForm(
             request.POST, prefix='institu'
         )
-        form_investi = InvestigatorsForm(
+        form_investi = forms.InvestigatorsForm(
             request.POST, prefix='investi'
         )
         if form.is_valid():
@@ -395,14 +400,14 @@ def proposal_form(request, pid=None):
                     to_list.append(chairs[0][8])
                     if DEBUG:
                         data.to_list = to_list
-                        to_list = [MANAGER]
+                        to_list = MANAGER
                 else:
                     # staff do not have a dean so we send the email
                     # to OSP folks
                     to_list.append(PROPOSAL_EMAIL_LIST)
                     if DEBUG:
                         data.to_list = to_list
-                        to_list = [MANAGER]
+                        to_list = MANAGER
 
                     # for display purposes only in the email
                     data.department_name = depts[0][1]
@@ -421,14 +426,14 @@ def proposal_form(request, pid=None):
                 if not data.save_submit:
                     send_mail(
                         request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                        'proposal/email_approve.html', data, BCC
+                        'proposal/email_approve.html', data, bcc
                     )
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = u"Part A Submission Received: {}".format(data.title)
 
                 if DEBUG:
-                    to_list = [MANAGER]
+                    to_list = MANAGER
                     data.to_list = data.user.email
                 else:
                     to_list = [data.user.email]
@@ -437,7 +442,7 @@ def proposal_form(request, pid=None):
                 if not data.save_submit:
                     send_mail(
                         request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                        'proposal/email_confirmation.html', data, BCC
+                        'proposal/email_confirmation.html', data, bcc
                     )
                 return HttpResponseRedirect(
                     reverse_lazy('proposal_success')
@@ -456,7 +461,7 @@ def proposal_form(request, pid=None):
                     reverse_lazy('proposal_update', kwargs={'pid':proposal.id})
                 )
     else:
-        form = ProposalForm(depts, instance=proposal)
+        form = forms.ProposalForm(depts, instance=proposal)
 
         if proposal:
             investi = {}
@@ -471,8 +476,8 @@ def proposal_form(request, pid=None):
                 institu['institution_'+ str(x)] = i.institution
                 x += 1
 
-        form_institu = InstitutionsForm(initial=institu, prefix='institu')
-        form_investi = InvestigatorsForm(initial=investi, prefix='investi')
+        form_institu = forms.InstitutionsForm(initial=institu, prefix='institu')
+        form_investi = forms.InvestigatorsForm(initial=investi, prefix='investi')
     return render(
         request, 'proposal/form.html', {
             'form': form, 'perms': perms,
@@ -534,7 +539,7 @@ def proposal_approver(request, pid=0):
         proposal = None
         proposal = get_object_or_404(Proposal, id=pid)
         if request.method=='POST':
-            form = ProposalApproverForm(request.POST, user=user)
+            form = forms.ProposalApproverForm(request.POST, user=user)
             if form.is_valid():
                 cd = form.cleaned_data
                 cid = cd['user']
@@ -577,7 +582,7 @@ def proposal_approver(request, pid=0):
                 )
 
                 if DEBUG:
-                    to_list = [MANAGER]
+                    to_list = MANAGER
                     proposal.to_list = [
                         proposal.user.email, approver.user.email
                     ]
@@ -586,7 +591,7 @@ def proposal_approver(request, pid=0):
 
                 send_mail(
                     request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                    'approver/email.html', {'proposal':proposal,}, BCC
+                    'approver/email.html', {'proposal':proposal,}, bcc
                 )
 
                 return HttpResponseRedirect(
@@ -594,7 +599,7 @@ def proposal_approver(request, pid=0):
                 )
 
         else:
-            form = ProposalApproverForm(initial={'proposal': pid}, user=user)
+            form = forms.ProposalApproverForm(initial={'proposal': pid}, user=user)
 
     template = 'approver/form.html'
     context = {'proposal':proposal, 'form':form}
@@ -616,12 +621,12 @@ def email_investigator(request, pid, action):
     form_data = None
     proposal = get_object_or_404(Proposal, id=pid)
     if request.method=='POST':
-        form = EmailInvestigatorForm(request.POST)
+        form = forms.EmailInvestigatorForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
             if 'execute' in request.POST:
                 if DEBUG:
-                    to_list = [MANAGER]
+                    to_list = MANAGER
                 else:
                     to_list = [proposal.user.email]
                 send_mail (
@@ -630,7 +635,7 @@ def email_investigator(request, pid, action):
                         proposal.title
                     ),
                     request.user.email, 'investigator/email_data.html',
-                    {'content':form_data['content']}, BCC
+                    {'content':form_data['content']}, bcc
                 )
                 return HttpResponseRedirect(
                     reverse_lazy('email_investigator_done')
@@ -641,7 +646,7 @@ def email_investigator(request, pid, action):
                     {'form':form,'data':form_data,'p':proposal}
                 )
     else:
-        form = EmailInvestigatorForm()
+        form = forms.EmailInvestigatorForm()
 
     return render(
         request, 'investigator/email_form.html',
@@ -793,10 +798,10 @@ def proposal_status(request):
                     to_list = [proposal.user.email]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = [MANAGER]
+                        to_list = MANAGER
                     send_mail(
                         request, to_list, decline_subject,
-                        user.email, decline_template, proposal, BCC
+                        user.email, decline_template, proposal, bcc
                     )
                     return HttpResponse("Proposal Declined")
                 else:
@@ -834,10 +839,10 @@ def proposal_status(request):
                     to_list = [proposal.user.email]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = [MANAGER]
+                        to_list = MANAGER
                     send_mail(
                         request, to_list, needs_work_subject,
-                        user.email, needs_work_template, proposal, BCC
+                        user.email, needs_work_template, proposal, bcc
                     )
                     return HttpResponse('Proposal "needs work" email sent')
                 else:
@@ -856,7 +861,7 @@ def proposal_status(request):
             to_list = [proposal.user.email]
             if DEBUG:
                 proposal.to_list = to_list
-                to_list = [MANAGER]
+                to_list = MANAGER
 
             # default message for when none of the conditions below are met
             message = "You do not have permission to '{}'".format(status)
@@ -869,7 +874,7 @@ def proposal_status(request):
                 # to begin Part B
                 send_mail(
                     request, to_list, subject, proposal.user.email,
-                    'proposal/email_authorized.html', proposal, BCC
+                    'proposal/email_authorized.html', proposal, bcc
                 )
                 message = "Dean approved Part A"
             # if step2 and Division Dean
@@ -884,14 +889,14 @@ def proposal_status(request):
                     to_list = [VEEP.email, PROVOST.email]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = [MANAGER]
+                        to_list = MANAGER
                     subject = u'Review and Provide Final Authorization for PART B: "{}" by {}, {}'.format(
                         proposal.title, proposal.user.last_name, proposal.user.first_name
                     )
 
                     send_mail(
                         request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                        'impact/email_approve_level1.html', proposal, BCC
+                        'impact/email_approve_level1.html', proposal, bcc
                     )
             # VP for Business?
             elif user.id == VEEP.id and step == 'step2':
@@ -921,7 +926,7 @@ def proposal_status(request):
                     if (proposal.step1() and step == 'step1'):
                         send_mail(
                             request, to_list, subject, proposal.user.email,
-                            'proposal/email_authorized.html', proposal, BCC
+                            'proposal/email_authorized.html', proposal, bcc
                         )
                     # if step 2 is complete and we are ready for
                     # VP for Business and Provost to weight in, send email
@@ -930,7 +935,7 @@ def proposal_status(request):
                         to_list = [VEEP.email, PROVOST.email]
                         if DEBUG:
                             proposal.to_list = to_list
-                            to_list = [MANAGER]
+                            to_list = MANAGER
                         subject = (
                             u'Review and Provide Final Authorization for PART B: '
                             '"{}" by {}, {}'
@@ -941,7 +946,7 @@ def proposal_status(request):
 
                         send_mail(
                             request, to_list, subject, PROPOSAL_EMAIL_LIST[0],
-                            'impact/email_approve_level1.html', proposal, BCC
+                            'impact/email_approve_level1.html', proposal, bcc
                         )
 
                     message = u"Approved by {} {}".format(
@@ -953,4 +958,3 @@ def proposal_status(request):
         message = "Requires POST request"
 
     return HttpResponse(message)
-

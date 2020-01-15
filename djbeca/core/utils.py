@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db.models import Q
-from django.core.cache import cache
 
 from djbeca.core.models import Proposal
 
