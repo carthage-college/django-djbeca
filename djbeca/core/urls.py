@@ -22,6 +22,7 @@ handler500 = 'djtools.views.errors.server_error'
 urlpatterns = [
     # django admin
     path('rocinante/', include('loginas.urls')),
+    path('rocinante/', admin.site.urls),
     # admin honeypot
     path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     # auth
@@ -118,6 +119,10 @@ urlpatterns = [
     # proposal status view for 'approve' or 'decline' actions
     path(
         'proposal/status/', views.proposal_status, name='proposal_status',
+    ),
+    # clear cache via ajax post
+    path(
+        'cache/<str:ctype>/clear/', views.clear_cache, name='clear_cache',
     ),
     # Home dashboard
     # -------------------------------------------------------------------------

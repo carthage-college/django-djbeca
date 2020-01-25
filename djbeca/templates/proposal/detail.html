@@ -1,35 +1,8 @@
-{% extends "base.html" %}
+{% extends "home.html" %}
 {% load ifusergroup humanize model_helpers %}
 {% block extra_javascript %}
-<script src="//www.carthage.edu/static/vendor/js/spin.min.js"
-    type="text/javascript"></script>
-<script src="https://malsup.github.io/min/jquery.blockUI.min.js"
-    type="text/javascript"></script>
 <script type="text/javascript">
 $(function() {
-  /* spinner */
-  var opts = {
-      lines: 13, // The number of lines to draw
-      length: 20, // The length of each line
-      width: 10, // The line thickness
-      radius: 30, // The radius of the inner circle
-      corners: 1, // Corner roundness (0..1)
-      rotate: 0, // The rotation offset
-      direction: 1, // 1: clockwise, -1: counterclockwise
-      color: '#000', // #rgb or #rrggbb or array of colors
-      speed: 1, // Rounds per second
-      trail: 60, // Afterglow percentage
-      shadow: false, // Whether to render a shadow
-      hwaccel: false, // Whether to use hardware acceleration
-      className: 'search-results', // The CSS class to assign to spinner
-      zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: '50px', // Top position relative to parent in px
-      left: 'auto' // Left position relative to parent in px
-  };
-  var target = document.getElementById("wrapper");
-  var spinner = new Spinner(opts).spin(target);
-  spinner.stop(target);
-
   $(".proposal-status").click(function () {
     $.ajax({
       type: "POST",
@@ -89,7 +62,7 @@ $(function() {
 {% if not proposal.step1 or not proposal.step2 and proposal.save_submit %}
   <div class="row">
     <div class="col-lg-12 text-center">
-      <div class="panel panel-default">
+      <div class="panel panel-default mb-3">
         <div class="panel-body">
         <a href="#" class="btn btn-default btn-success proposal-status"
           style="width:128px;" data-status="approve">Approve</a>
@@ -222,7 +195,7 @@ $(function() {
         <h4>
           Summary
         </h4>
-        <div>{{proposal.summary}}</div>
+        <div>{{proposal.summary|safe}}</div>
         <h4>
           Is this one year funding or multi-year?
         </h4>
@@ -238,7 +211,7 @@ $(function() {
         <h4>
           Budget Summary
         </h4>
-        <div>{{proposal.budget_summary}}</div>
+        <div>{{proposal.budget_summary|safe}}</div>
         {% if proposal.proposal_impact.admin_comments %}
           <h4>Administrative Comments</h4>
           <h5>{{proposal.proposal_impact.admin_comments}}</h5>
@@ -431,11 +404,11 @@ $(function() {
         </h3>
         {% if proposal.comments %}
           <h4>Comments</h4>
-          <h5>{{proposal.comments}}</h5>
+          <h5>{{proposal.comments|safe}}</h5>
         {% endif %}
         {% if proposal.proposal_impact.admin_comments %}
           <h4>Administrative Comments</h4>
-          <h5>{{proposal.proposal_impact.admin_comments}}</h5>
+          <h5>{{proposal.proposal_impact.admin_comments|safe}}</h5>
         {% endif %}
         <h3 class="detail">
           Additional Documents

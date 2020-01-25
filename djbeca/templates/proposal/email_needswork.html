@@ -2,7 +2,7 @@
 {% autoescape off %}
 {% block message %}
   {% get_lw_content as email blurbs 2583 %}
-  {{email.body}}
+  {{email.body|safe}}
 <h3>
   <a href="{{data.get_update_url}}">
     Click Here to Update This Proposal

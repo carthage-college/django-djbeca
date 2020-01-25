@@ -2,7 +2,7 @@
 {% autoescape off %}
 {% block message %}
   {% get_lw_content as email blurbs 2556 %}
-  {{email.body}}
+  {{email.body|safe}}
 {% endblock %}
 {% block proposal %}
 <h3>Title</h3>

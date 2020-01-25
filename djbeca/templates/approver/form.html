@@ -1,20 +1,5 @@
 {% extends "home.html" %}
 {% load livewhale_api %}
-{% block extra_javascript %}
-<script type="text/javascript">
-  $(function() {
-    $('textarea').summernote({height: 200});
-    $(".required > input").addClass("required");
-    $(".required > select").addClass("required");
-    $(".required > textarea").addClass("required");
-    $(".required > textarea").parent().parent().find('h3').addClass("required");
-    $(".warning > input").addClass("error");
-    $(".warning > select").addClass("error");
-    $(".warning > textarea").addClass("error");
-    $(".required > ul").parent().parent().find('h3').addClass("required");
-  });
-</script>
-{% endblock %}
 {% block extra_style %}
     {{block.super}}
     <style type="text/css">

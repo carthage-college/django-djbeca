@@ -3,5 +3,5 @@
 {% block content %}
 <h2>Success</h2>
 {% get_lw_content as done blurbs 2522 %}
-{{done.body}}
+{{done.body|safe}}
 {% endblock %}

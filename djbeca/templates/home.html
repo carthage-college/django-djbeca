@@ -1,36 +1,10 @@
 {% extends "base.html" %}
+{% load ifusergroup %}
 {% load livewhale_api %}
 {% block extra_javascript %}
 {{ block.super }}
-<script src="//www.carthage.edu/static/vendor/js/spin.min.js"
-    type="text/javascript"></script>
-<script src="https://malsup.github.io/min/jquery.blockUI.min.js"
-    type="text/javascript"></script>
 <script type="text/javascript">
 $(function() {
-  /* spinner */
-  var opts = {
-      lines: 13, // The number of lines to draw
-      length: 20, // The length of each line
-      width: 10, // The line thickness
-      radius: 30, // The radius of the inner circle
-      corners: 1, // Corner roundness (0..1)
-      rotate: 0, // The rotation offset
-      direction: 1, // 1: clockwise, -1: counterclockwise
-      color: '#000', // #rgb or #rrggbb or array of colors
-      speed: 1, // Rounds per second
-      trail: 60, // Afterglow percentage
-      shadow: false, // Whether to render a shadow
-      hwaccel: false, // Whether to use hardware acceleration
-      className: 'search-results', // The CSS class to assign to spinner
-      zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: '50px', // Top position relative to parent in px
-      left: 'auto' // Left position relative to parent in px
-  };
-  var target = document.getElementById("wrapper");
-  var spinner = new Spinner(opts).spin(target);
-  spinner.stop(target);
-
   $(document).on('click','.proposal-status',function(e){
     e.preventDefault();
     var $dis = $(this);
@@ -53,50 +27,170 @@ $(function() {
 });
 </script>
 {% endblock %}
+{% block navbar-header %}
+<a href="{% url 'home' %}" class="mr-sm-3 mr-lg-3">
+  <i class="fa fa-home fa-2x"></i></a>
+<a class="navbar-brand" href="{{root_url}}">Office of Sponsored Programs</a>
+{% endblock %}
+{% block navbar-top-links %}
+  <ul class="navbar-nav ml-auto">
+    <li class="dropdown user-dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-user"></i> {{user.first_name|default:"Dashboard"}}
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        <li class="divider"></li>
+        <li>
+          {% if user.is_anonymous %}
+          <a href="{% url 'auth_login' %}">
+            <i class="fa fa-sign-in"></i> Sign In
+          </a>
+          {% else %}
+          <a href="{% url 'auth_logout' %}">
+            <i class="fa fa-sign-out"></i> Sign Out
+          </a>
+          {% endif %}
+        </li>
+      </ul>
+    </li>
+  </ul>
+{% endblock navbar-top-links %}
+{% block navbar-sidenav %}
+<ul class="navbar-nav navbar-sidenav">
+  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Submit a proposal">
+    <a class="nav-link" href="{% url 'proposal_form' %}" title="Submit a proposal">
+      <i class="fa fa-fw fa fa-wpforms" aria-hidden="true"></i>
+      <span class="nav-link-text">Submit Proposal</span>
+    </a>
+  </li>
+  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My Propoals">
+    <a class="nav-link" href="{% url 'home' %}" title="Proposals List">
+      <i class="fa fa-fw fa fa-dashboard" aria-hidden="true"></i>
+      <span class="nav-link-text">
+      {% ifusergroup osp_group %}All{% else %}
+      {% if dean_chair %}All{% else %}My{% endif %}
+        {% endifusergroup %}
+        Proposals
+      </span>
+    </a>
+  </li>
+  {% if user.is_superuser or user.profile.css %}
+  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Administration">
+    <a class="nav-link" href="{% url 'admin:index' %}">
+      <i class="fa fa-fw fa fa-cog" aria-hidden="true"></i>
+      <span class="nav-link-text">Administration</span>
+    </a>
+  </li>
+  {% endif %}
+  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Carthage Home">
+    <a class="nav-link" href="https://www.carthage.edu/">
+      <i class="fa fa-fw fa fa-home" aria-hidden="true"></i>
+      <span class="nav-link-text">Carthage Home</span>
+    </a>
+  </li>
+  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My.Carthage">
+    <a class="nav-link" href="https://my.carthage.edu/">
+      <i class="fa fa-fw fa fa-lemon-o" aria-hidden="true"></i>
+      <span class="nav-link-text">My.Carthage</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link text-center" data-toggle="tooltip" data-placement="right" title="Expand Menu" id="sidenavToggler">
+      <i class="fa fa-fw fa-angle-double-left" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+<ul class="navbar-nav sidenav-toggler">
+  <li class="nav-item">
+    <a class="nav-link text-center">
+      <i class="fa fa-fw"></i>
+    </a>
+  </li>
+</ul>
+{% endblock navbar-sidenav %}
 {% block content %}
-    <div class="row">
-        <div class="col-lg-12">
-            <h1>
-                {% if not dean_chair %}
-                  {% if not group %}
-                    {{user.first_name}}'s
-                  {% else %}
-                    All
-                  {% endif %}
-                {% else %}
-                  {% if dc == "dean" %}
-                    {{div}}
-                  {% else %}
-                    {% for k,v in depts.items %}
-                      {{v.dept_name}}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                  {% endif %}
-                {% endif %}
-                Proposals
-            </h1>
-            <div class="btn-group fright" style="margin-left:18px;margin-bottom:12px;">
-              <a href="{% url 'proposal_form' %}" class="btn btn-default btn-primary">Submit Proposal</a>
-            </div>
-            <div class="col-lg-8" style="font-weight:bold;">
-              {% get_lw_content as intro blurbs 2433 %}
-              {{intro.body}}
-              <p>NOTE: Hover over icons and links to see more information.</p>
-            </div>
-        </div>
-        <!-- /.col-lg-12 -->
+<div class="row">
+  {% if messages %}
+    {% for message in messages %}
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
+      <div class=" alert {{message.tags}}">
+        <strong>{{ message }}</strong>
+      </div>
     </div>
-    <!-- /.row -->
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="panel panel-default">
-                <div class="panel-body" id="proposals-data-panel">
-                    {% include "data.inc.html" %}
-                </div>
-                <!-- /.panel-body -->
-            </div>
-            <!-- /.panel -->
-        </div>
-        <!-- /.col-lg-12 -->
+    {% endfor %}
+  {% endif %}
+</div>
+<!-- /.row -->
+<div class="row">
+  <div class="col-lg-12">
+    <h1>
+      {% if not dean_chair %}
+        {% if not group %}
+          {{user.first_name}}'s
+        {% else %}
+          All
+        {% endif %}
+      {% else %}
+        {% if dc == "dean" %}
+          {{div}}
+        {% else %}
+          {% for k,v in depts.items %}
+            {{v.dept_name}}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+      Proposals
+    </h1>
+    <div class="btn-group fright" style="margin-left:18px;margin-bottom:12px;">
+      <a href="{% url 'proposal_form' %}" class="btn btn-default btn-primary">Submit Proposal</a>
     </div>
-    <!-- /.row -->
+    <div class="col-lg-8" style="font-weight:bold;">
+      {% get_lw_content as intro blurbs 2433 %}
+      {{intro.body|safe}}
+      <p>NOTE: Hover over icons and links to see more information.</p>
+    </div>
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-default">
+      <div class="panel-body" id="proposals-data-panel">
+        {% include "data.inc.html" %}
+      </div>
+      <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
 {% endblock content %}
+{% block footer %}
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog"
+  aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="deleteModalLabel">Confirm Delete</h4>
+          <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">&times;</button>
+        </div>
+      <div class="modal-body">
+        <p>
+          You are about to delete a <strong class="object-title"></strong>.
+        </p>
+        <p>Would you like to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Cancel
+        </button>
+        <a class="btn btn-danger btn-ok text-white">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

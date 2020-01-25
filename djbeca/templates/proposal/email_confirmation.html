@@ -1,7 +1,7 @@
 {% autoescape off %}
 {% load livewhale_api %}
 {% get_lw_content as email blurbs 2404 %}
-{{email.body}}
+{{email.body|safe}}
 {% if data.to_list %}
 to_list = {{data.to_list}}
 {% endif %}

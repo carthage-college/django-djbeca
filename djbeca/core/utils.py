@@ -1,50 +1,50 @@
+# -*- coding: utf-8 -*-
+
 from django.conf import settings
 from django.db.models import Q
-
 from djbeca.core.models import Proposal
-
+from djimix.people.departments import chair_departments
+from djimix.people.departments import department_division_chairs
 from djtools.utils.users import in_group
-
-from djzbar.utils.informix import do_sql
-from djzbar.utils.hr import chair_departments
-from djzbar.utils.hr import department_division_chairs
 
 
 def get_proposals(user):
-
-    approver = False
+    """Return all proposals for a user."""
+    can_approve = False
     depts = False
     div = False
     dc = None
     dean_chair = department_division_chairs(
-        '(DTID.id={} or DVID.id={})'.format(user.id, user.id)
+        '(DTID.id={0} or DVID.id={1})'.format(user.id, user.id)
     )
     group = in_group(user, settings.OSP_GROUP)
     if group:
-        objects = Proposal.objects.all().order_by('-grant_deadline_date')
+        proposals = Proposal.objects.all().order_by('-grant_deadline_date')
     elif dean_chair:
         chair_depts = chair_departments(user.id)
         dc = chair_depts[1]
         div = chair_depts[2]
         depts = chair_depts[0]['depts']
-        objects = Proposal.objects.filter(
-            department__in=[ key for key,val in depts.iteritems() ]
+        proposals = Proposal.objects.filter(
+            department__in=[key for key, val in depts.items()]
         ).order_by('-grant_deadline_date')
     else:
-        objects = Proposal.objects.filter(
+        proposals = Proposal.objects.filter(
             Q(user=user) | Q(approvers__user=user)
-        ).order_by(
-            '-grant_deadline_date'
-        )
+        ).order_by('-grant_deadline_date')
 
     # check if user is an approver
-    for p in objects:
-        for a in p.approvers.all():
-            if a.user == user:
-                approver = True
+    for proposal in proposals:
+        for approver in proposal.approvers.all():
+            if approver.user == user:
+                can_approve = True
                 break
 
     return {
-        'objects':objects, 'dean_chair':dean_chair, 'dc':dc, 'div':div,
-        'depts':depts, 'approver':approver
+        'objects': proposals,
+        'dean_chair': dean_chair,
+        'dc': dc,
+        'div': div,
+        'depts': depts,
+        'approver': can_approve,
     }

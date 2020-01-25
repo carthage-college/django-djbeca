@@ -2,7 +2,7 @@
 {% load livewhale_api %}
 <h3>Designated for Approval</h3>
 {% get_lw_content as approve blurbs 2521 %}
-{{approve.body}}
+{{approve.body|safe}}
 <h4>{{data.proposal.title}}</h4>
 <p>
 Principal Investigator:

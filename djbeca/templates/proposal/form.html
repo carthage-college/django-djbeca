@@ -1,22 +1,11 @@
 {% extends "home.html" %}
 {% load livewhale_api %}
 {% block extra_javascript %}
-<script src="//www.carthage.edu/static/vendor/summernote/summernote.min.js"
-  type="text/javascript" charset="utf-8"></script>
+{{ block.super }}
 <script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
   type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
   $(function() {
-    $('textarea').summernote({height: 200});
-    $(".required > input").addClass("required");
-    $(".required > select").addClass("required");
-    $(".required > textarea").addClass("required");
-    $(".required > textarea").parent().parent().find('h3').addClass("required");
-    $(".warning > input").addClass("error");
-    $(".warning > select").addClass("error");
-    $(".warning > textarea").addClass("error");
-    $(".required > ul").parent().parent().find('h3').addClass("required");
-
     // binary switch to show/hide fields that depend on the value
     // of the previous question
     function binarySwitch(val, bswitch, domids, trigger) {
@@ -131,8 +120,6 @@
     {{block.super}}
     <link href="//www.carthage.edu/static/vendor/jquery/ui/datepicker/css/smoothness/jquery-ui-1.10.4.custom.min.css"
         rel="stylesheet" type="text/css" />
-    <link href="//www.carthage.edu/static/vendor/summernote/summernote.css"
-        rel="stylesheet" type="text/css" />
     <style type="text/css">
     .note-editor{
         width:500px;background: #fff;
@@ -158,9 +145,9 @@
     </h1>
     {% if messages %}
       {% for message in messages %}
-        <div id="messages" class="{{ message.tags }} large-12 medium-12 small-12">
+      <div id="messages" class="{{ message.tags }} large-12 medium-12 small-12">
         <strong>{{ message }}</strong>
-        </div>
+      </div>
       {% endfor %}
     {% endif %}
   </div>
@@ -168,11 +155,11 @@
 </div>
 <!-- /.row -->
 <div class="row">
-  <div class="col-lg-8">
+  <div class="col-lg-10">
     <div class="panel panel-default">
       <div class="panel-body" id="proposals-data-panel">
         {% get_lw_content as intro blurbs 2246 %}
-        {{intro.body}}
+        {{intro.body|safe}}
         {% include "includes/required_text.html" %}
         {% include "includes/errors_text.html" %}
         <form method="post" enctype="multipart/form-data" action="."
@@ -187,33 +174,36 @@
               <h3>
                 List all associated institutions and co-PIs
               </h3>
-              <div class="col-md-3" style="padding-left:0px;padding-top:8px;">
+              <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-left:0px;padding-top:8px;">
                 <h3>Name</h3>
-                <input type="text" name="investi-name_1" class="medium"
-                  value="{{form_investi.name_1.value|default_if_none:""}}">
-                <input type="text" name="investi-name_2" class="medium"
-                  value="{{form_investi.name_2.value|default_if_none:""}}">
-                <input type="text" name="investi-name_3" class="medium"
-                  value="{{form_investi.name_3.value|default_if_none:""}}">
-                <input type="text" name="investi-name_4" class="medium"
-                  value="{{form_investi.name_4.value|default_if_none:""}}">
-                <input type="text" name="investi-name_5" class="medium"
-                  value="{{form_investi.name_5.value|default_if_none:""}}">
+                <input type="text" name="investi-name1" class="large"
+                  value="{{form_investi.name1.value|default_if_none:""}}">
+                <input type="text" name="investi-name2" class="large"
+                  value="{{form_investi.name2.value|default_if_none:""}}">
+                <input type="text" name="investi-name3" class="large"
+                  value="{{form_investi.name3.value|default_if_none:""}}">
+                <input type="text" name="investi-name4" class="large"
+                  value="{{form_investi.name4.value|default_if_none:""}}">
+                <input type="text" name="investi-name5" class="large"
+                  value="{{form_investi.name5.value|default_if_none:""}}">
               </div>
-              <div class="col-lg-1 col-md-1 col-sm-1">&nbsp;</div>
-              <div class="col-md-4" style="padding-top:8px;">
+              <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">&nbsp;</div>
+              <div class="col-lg-4 col-md-3 col-sm-3 col-xs-3" style="padding-top:8px;">
                 <h3>Institution</h3>
-                <input type="text" name="investi-institution_1" class="large"
-                  value="{{form_investi.institution_1.value|default_if_none:""}}">
-                <input type="text" name="investi-institution_2" class="large"
-                  value="{{form_investi.institution_2.value|default_if_none:""}}">
-                <input type="text" name="investi-institution_3" class="large"
-                  value="{{form_investi.institution_3.value|default_if_none:""}}">
-                <input type="text" name="investi-institution_4" class="large"
-                  value="{{form_investi.institution_4.value|default_if_none:""}}">
-                <input type="text" name="investi-institution_5" class="large"
-                  value="{{form_investi.institution_5.value|default_if_none:""}}">
+                <input type="text" name="investi-institution1" class="large"
+                  value="{{form_investi.institution1.value|default_if_none:""}}">
+                <input type="text" name="investi-institution2" class="large"
+                  value="{{form_investi.institution2.value|default_if_none:""}}">
+                <input type="text" name="investi-institution3" class="large"
+                  value="{{form_investi.institution3.value|default_if_none:""}}">
+                <input type="text" name="investi-institution4" class="large"
+                  value="{{form_investi.institution4.value|default_if_none:""}}">
+                <input type="text" name="investi-institution5" class="large"
+                  value="{{form_investi.institution5.value|default_if_none:""}}">
               </div>
+              </div>
+              <!-- /.row -->
             </li>
             </ol>
             </fieldset>

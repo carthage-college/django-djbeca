@@ -88,7 +88,7 @@ INSTALLED_APPS = (
     'taggit',
 )
 GRAPPELLI_ADMIN_TITLE = ''
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -101,7 +101,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(os.path.dirname(__file__), 'templates'),
+            os.path.join(BASE_DIR, 'templates'),
             '/data2/django_templates/djcher/',
             '/data2/django_templates/',
         ],

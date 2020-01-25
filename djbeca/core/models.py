@@ -29,7 +29,7 @@ class Proposal(models.Model):
     created_at = models.DateTimeField('Date Created', auto_now_add=True)
     updated_at = models.DateTimeField('Date Updated', auto_now=True)
     user = models.ForeignKey(
-        User, editable=settings.DEBUG, on_delete=models.PROTECT
+        User, editable=settings.DEBUG, on_delete=models.PROTECT,
     )
     # Division Dean or Department VP approval
     level3 = models.BooleanField(default=False)
@@ -104,7 +104,7 @@ class Proposal(models.Model):
     """
     lead_institution = models.CharField(
         'In this proposal, Carthage is considered:',
-        max_length=4,
+        max_length=24,
         choices=choices.LEAD_INSTITUTION_CHOICES,
         null=True,
         blank=True,
@@ -129,6 +129,12 @@ class Proposal(models.Model):
     project_type = models.CharField(
         max_length=128,
         choices=choices.PROJECT_TYPE_CHOICES,
+    )
+    project_type_other = models.CharField(
+        'If "Other", please provide details',
+        max_length=128,
+        null=True,
+        blank=True,
     )
     summary = models.TextField(
         'Program summary (~500 words)',
@@ -171,6 +177,8 @@ class Proposal(models.Model):
     )
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal'
@@ -180,18 +188,21 @@ class Proposal(models.Model):
         return '{0} ({1})'.format(self.title, self.id)
 
     def get_absolute_url(self):
+        """Returns the FQDN URL."""
         return 'https://{0}{1}'.format(
             settings.SERVER_URL,
             reverse('proposal_detail', args=(self.id,)),
         )
 
     def get_update_url(self):
+        """Returns the URL for updating the proposal."""
         return 'https://{0}{1}'.format(
             settings.SERVER_URL,
             reverse('proposal_update', args=(self.id,)),
         )
 
     def get_slug(self):
+        """Returns the proposal slug."""
         return 'proposal/'
 
     def permissions(self, user):
@@ -434,7 +445,7 @@ class ProposalImpact(models.Model):
             current load and/or institutional obligations?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     additional_work_load_detail = models.TextField(
         verbose_name='',
@@ -453,7 +464,7 @@ class ProposalImpact(models.Model):
     contract_procurement = models.CharField(
         'Does this proposal require contract (procurement) services?',
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     contract_procurement_detail = models.TextField(
         verbose_name='',
@@ -475,7 +486,7 @@ class ProposalImpact(models.Model):
     new_hires = models.CharField(
         'Does this proposal require any new faculty or staff hires?',
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     course_relief = models.CharField(
         """
@@ -509,7 +520,7 @@ class ProposalImpact(models.Model):
         export, international student participation?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     international_detail = models.TextField(
         verbose_name='',
@@ -525,7 +536,7 @@ class ProposalImpact(models.Model):
         tumor cells, etc.)?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     hazards_detail = models.TextField(
         verbose_name='',
@@ -539,7 +550,7 @@ class ProposalImpact(models.Model):
         or involve proprietary or confidential information?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     proprietary_confidential_detail = models.TextField(
         verbose_name='',
@@ -553,7 +564,7 @@ class ProposalImpact(models.Model):
         extensive technical support?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     tech_support_detail = models.TextField(
         verbose_name='',
@@ -567,7 +578,7 @@ class ProposalImpact(models.Model):
         and maintenance of equipment?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     purchase_equipment_detail = models.TextField(
         verbose_name='',
@@ -581,7 +592,7 @@ class ProposalImpact(models.Model):
         currently provided?
         """,
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     infrastructure_requirements_detail = models.TextField(
         verbose_name='',
@@ -592,7 +603,7 @@ class ProposalImpact(models.Model):
     data_management = models.CharField(
         'Does this proposal a data management plan?',
         max_length=8,
-        choices=choices.BINARY_UNSURE_CHOICES,
+        choices=choices.UNSURE_CHOICES,
     )
     data_management_detail = models.TextField(
         verbose_name='',
@@ -611,6 +622,8 @@ class ProposalImpact(models.Model):
     disclosure_assurance = models.BooleanField(default=False)
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_impact'
@@ -683,6 +696,8 @@ class ProposalBudget(models.Model):
     )
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_budget'
@@ -728,6 +743,8 @@ class ProposalDocument(models.Model):
     tags = TaggableManager(blank=True)
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_document'
@@ -772,6 +789,8 @@ class ProposalContact(models.Model):
     tags = TaggableManager(blank=True)
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         ordering = ['institution']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_contact'
@@ -808,6 +827,8 @@ class ProposalGoal(models.Model):
     )
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         ordering = ['-created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_goal'
@@ -848,6 +869,8 @@ class ProposalApprover(models.Model):
     step2 = models.BooleanField(default=False)
 
     class Meta:
+        """Attributes about the data model and admin options."""
+
         db_table = 'core_proposal_approver'
 
     def first_name(self):

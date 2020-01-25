@@ -2,7 +2,7 @@
 {% autoescape off %}
 {% block message %}
   {% get_lw_content as email blurbs 2584 %}
-  {{email.body}}
+  {{email.body|safe}}
   <h4>This action  was executed by:</h4>
   <p>
     <a href="mailto:{{request.user.email}}">

@@ -2,16 +2,10 @@
 {% load livewhale_api %}
 {% block extra_javascript %}
 {{block.super}}
-<script src="//www.carthage.edu/static/vendor/summernote/summernote.min.js"
-  type="text/javascript" charset="utf-8"></script>
 <script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
   type="text/javascript" charset="utf-8"></script>
-<script src="https://malsup.github.io/min/jquery.blockUI.min.js"
-    type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
-    $('#id_comments-comments').summernote({height: 200});
-    $('#id_admin_comments').summernote({height: 200});
     $("li[id$='_detail']").addClass("hyde");
     $("input:radio:checked").each(function(d){
       $val = $(this).val();
@@ -57,8 +51,6 @@
     {{block.super}}
     <link href="//www.carthage.edu/static/vendor/jquery/ui/datepicker/css/smoothness/jquery-ui-1.10.4.custom.min.css"
         rel="stylesheet" type="text/css" />
-    <link href="//www.carthage.edu/static/vendor/summernote/summernote.css"
-        rel="stylesheet" type="text/css" />
     <style type="text/css">
     .note-editor{
         width:500px;background: #fff;
@@ -103,7 +95,7 @@
         </p>
         {% endif %}
         {% get_lw_content as intro blurbs 2501 %}
-        {{intro.body}}
+        {{intro.body|safe}}
         {% include "includes/required_text.html" %}
         <form method="post" enctype="multipart/form-data" action="."
           class="form" id="profile">
@@ -112,13 +104,13 @@
         <fieldset class="blockLabels">
           <legend>Budget and Budget Narrative</legend>
           {% get_lw_content as intro blurbs 2516 %}
-          {{intro.body}}
+          {{intro.body|safe}}
           <ol>
           {% for field in form_budget.visible_fields %}
             {% include "form_field.inc.html" %}
             {% if field.name == "total_match_amount" %}
               {% get_lw_content as help blurbs 2502 %}
-              {{help.body}}
+              {{help.body|safe}}
             {% endif %}
           {% endfor %}
           </ol>
@@ -177,7 +169,7 @@
             {% endif %}
             <li class="form-group ctrlHolder">
           {% get_lw_content as disclosure blurbs 2513 %}
-          {{disclosure.body}}
+          {{disclosure.body|safe}}
               {% if form_impact.disclosure_assurance.errors %}
               <div class="required warning">
                 <span class="error-message">

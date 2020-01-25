@@ -1,19 +1,39 @@
-{% extends "djdash/base.html" %}
-{% load ifusergroup %}
+{% extends "djbootmin/base.html" %}
+{% block meta %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+{% endblock meta %}
 {% block title %}
-    Carthage College Grant Proposal Application &mdash;
-    Office of Sponsored Programs &mdash;
-    Carthage College
-{% endblock %}
+  Carthage College Grant Proposal Application &mdash;
+  Office of Sponsored Programs &mdash;
+  Carthage College
+{% endblock title %}
 {% block extra_style %}
+<link href="//www.carthage.edu/static/vendor/jquery/plugins/trumbowyg/trumbowyg.min.css"
+  rel="stylesheet" type="text/css">
+<link href="//www.carthage.edu/static/vendor/jquery/ui/datepicker/css/smoothness/jquery-ui-1.10.4.custom.min.css"
+  rel="stylesheet" type="text/css">
+<link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.0/css/bootstrap-select.min.css"
+  rel="stylesheet" type="text/css">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+  rel="stylesheet" type="text/css">
+<link href="https://www.carthage.edu/themes/shared/css/tables.css"
+  rel="stylesheet" type="text/css">
+<link href="https://www.carthage.edu/static/djsani/css/dashboard.css"
+  rel="stylesheet" type="text/css">
+<link href="https://www.carthage.edu/static/djsani/css/main.css"
+  rel="stylesheet" type="text/css">
 <link href="//www.carthage.edu/themes/shared/css/forms.css"
-    rel="stylesheet" type="text/css" />
+  rel="stylesheet" type="text/css">
+<link href="/static/djbeca/css/main.css" rel="stylesheet" type="text/css">
+<link href="/static/djbeca/css/print.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-.panel-body h2{background-color: #5594b9;color: white;padding: 4px;}
+.panel-body h2{background-color: #5594b9;color: white;padding:4px;font-size:1.8em;}
 .row h1{color:#481676;}
 .form h3 {margin-top: 0;}
 h3.h3 {border-bottom: 1px solid black;margin-top: 0;padding-bottom:3px;}
-h4, .h4 {margin-top: 20px;font-weight: 700;color:darkblue;}
+h4, .h4 {margin-top: 20px;font-weight: 700;color:darkblue;font-size: 1.1rem; }
 h5, .h5 { color: #141823; }
 hr {margin:16px 0 16px 0;border:1px solid #cacaca;}
 form ol {padding-left:0;}
@@ -70,6 +90,7 @@ dl.goals dd textarea {width:100%;height:80px;}
     background-color: #ccf;
 }
 .detail {font-weight:bold;text-decoration:underline;padding-top:12px;}
+h3.detail {font-size:1.5em;}
 .header {font-weight:bold;padding:4px 0 4px 4px;background-color:aliceblue !important;}
 div.DTTT { float: right; margin-bottom: 1em; position: relative; }
 .input-group .form-control { width: 80%; }
@@ -114,105 +135,40 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 }
 </style>
 {% endblock %}
-{% block jquery %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"
-    type="text/javascript"></script>
-{% endblock %}
-{% block navbar-header %}
-    <div class="navbar-header">
-        <a href="/" style="float:left;">
-            <img src="https://www.carthage.edu/themes/korra/assets/images/carthage-logo-main.png" height="50">
-        </a>
-        <a class="navbar-brand"
-            href="https://www.carthage.edu/sponsored-programs/">
-            Office of Sponsored Programs
-        </a>
-    </div>
-{% endblock %}
-{% block navbar-top-links %}
-    <ul class="nav navbar-top-links navbar-right">
-        {% block manager %}{% endblock %}
-        <li class="dropdown user-dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <i class="fa fa-user"></i> {{user.first_name}}
-                <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-                <li class="divider"></li>
-                <li>
-                    {% if user.is_anonymous %}
-                    <a href="{% url 'auth_login' %}">
-                        <i class="fa fa-sign-in"></i> Sign In
-                    </a>
-                    {% else %}
-                    <a href="{% url 'auth_logout' %}">
-                        <i class="fa fa-sign-out"></i> Sign Out
-                    </a>
-                    {% endif %}
-                </li>
-            </ul>
-        </li>
-        <!-- /.dropdown-user -->
-    </ul>
-{% endblock %}
-{% block navbar-static-side %}
-<div class="navbar-default navbar-static-side" role="navigation">
-    <div class="sidebar-collapse">
-        <ul class="nav" id="side-menu">
-            <li>
-                <a href="{% url 'home' %}" title="Proposals List">
-                    <i class="fa fa-home fa-fw" aria-hidden="true"></i>
-                    {% ifusergroup osp_group %}All{% else %}
-                    {% if dean_chair %}All{% else %}My{% endif %}
-                    {% endifusergroup %}
-                    Proposals
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'proposal_form' %}" title="Submit a proposal">
-                  <i class="fa fa-wpforms fa-fw" aria-hidden="true"></i>
-                  Submit Proposal
-                </a>
-            </li>
-            {% ifusergroup osp_group %}
-            <li>
-                <a href="{% url 'admin:index' %}" title="Administration">
-                  <i class="fa fa-tachometer fa-fw" aria-hidden="true"></i>
-                  Administration
-                </a>
-            </li>
-            {% endifusergroup %}
-        </ul>
-        <!-- /#side-menu -->
-    </div>
-    <!-- /.sidebar-collapse -->
-</div>
-{% endblock %}
-{% block content %}
-{% endblock content %}
-{% block extra_javascript %}
-<script>
-$(function() {
-  $('[data-toggle="tooltip"]').tooltip();
-  $(".required > input").addClass("required");
-  $(".required > select").addClass("required");
-  $(".required > textarea").addClass("required");
-  $(".warning > input").addClass("error");
-  $(".warning > select").addClass("error");
-  $(".warning > textarea").addClass("error");
-  $(".required > ul").parent().parent().find('h3').addClass("required");
-  $('#olvidado').click(function(e) {
-    e.preventDefault();
-    $('div#form-olvidado').toggle('500');
+{% block javascript %}
+{{block.super}}
+<script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="//www.carthage.edu/static/vendor/jquery/plugins/trumbowyg/trumbowyg.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="//www.carthage.edu/static/vendor/jquery/plugins/multiselect/js/multiselect.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.0/js/bootstrap-select.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="//www.carthage.edu/static/vendor/autoComplete.js/dist/js/autoComplete.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"
+  type="text/javascript" language="javascript"></script>
+<script src="https://malsup.github.io/min/jquery.blockUI.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="//www.carthage.edu/static/vendor/js/spin.min.js"
+  type="text/javascript" language="javascript"></script>
+<script src="/static/djbeca/js/main.js?1500"
+  type="text/javascript" language="javascript"></script>
+<script type="text/javascript" charset="utf-8">
+  $(function() {
+    var $clearCacheUrl = "{% url 'clear_cache' 'blurbs' %}";
+    $("body").toggleClass("sidenav-toggled");
   });
-  $('#acceso').click(function(e) {
-    e.preventDefault();
-    $('div#form-olvidado').toggle('500');
-  });
-  $('#print').click(function() {
-    window.print();
-    return false;
-  });
-});
 </script>
 {% endblock %}
+{% block body_tag %}{% endblock %}
+{% block navbar-header %}{% endblock %}
+{% block navbar-top-links %}{% endblock %}
+{% block navbar-sidenav %}{% endblock %}
+{% block content-wrapper %} id="wrapper" class="content-wrapper"{% endblock %}
+{% block content %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block logout %}{% endblock %}

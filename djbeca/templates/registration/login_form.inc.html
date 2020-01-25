@@ -5,7 +5,7 @@
             <div style="padding: 20px;" id="form-olvidado">
                 <form accept-charset="UTF-8" role="form" name="djauth"
                     id="login-form" method="post"
-                    action="{{action|default:'.'}}">
+                    action="{{action}}">
                     {% csrf_token %}
                     <input type="hidden" name="next"
                         value="{% if next %}{{ next }}{% endif %}">
@@ -14,7 +14,9 @@
                             {% if form.username.errors %}
                                 has-error has-feedback
                             {% endif %}">
-                            <span class="input-group-addon"> @ </span>
+                            <span class="input-group-addon">
+                              <i class="fa fa-sign-in" aria-hidden="true"></i>
+                            </span>
                             <input class="form-control" placeholder="Username"
                                 name="username" id="id_username"
                                 autofocus="" value="{{form.data.username}}"
@@ -25,7 +27,7 @@
                                 has-error has-feedback
                             {% endif %}">
                             <span class="input-group-addon">
-                                <i class="glyphicon glyphicon-lock"> </i>
+                                <i class="fa fa-lock" aria-hidden="true">&nbsp;</i>
                             </span>
                             <input class="form-control" placeholder="Password"
                                 name="password" type="password" id="id_password"
