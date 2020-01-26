@@ -3,6 +3,14 @@
 {% block message %}
   {% get_lw_content as email blurbs 2405 %}
   {{email.body|safe}}
+  {% if data.osp %}
+  <p>
+    <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2405"
+      target="_blank">Manage the content above in LiveWhale></a><br>
+    <a href="https://{{server_url}}{% url 'clear_cache_get' %}?cid=2405" class="clear-cache">
+      Clear the cache for this content</a>
+  </p>
+  {% endif %}
 {% endblock %}
 {% block proposal %}
 <h3>
@@ -33,7 +41,8 @@
     </dd>
 </dl>
 {% if data.to_list %}
-to_list = {{data.to_list}}
+to_list = {{data.to_list}}<br>
+group =  {{data.osp}}
 {% endif %}
 {% endblock %}
 {% endautoescape %}

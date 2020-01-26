@@ -6,11 +6,27 @@ from djtools.fields import BINARY_CHOICES
 UNSURE_CHOICES = (
     BINARY_CHOICES[0],
     BINARY_CHOICES[1],
-    ('Unsure', 'Unsure'),
+    (
+        'Unsure', 'Unsure',
+    ),
 )
 FUNDING_CHOICES = (
     ('Pursuit of Funding', 'Pursuit of Funding'),
     ('Funding Identified', 'Funding Identified'),
+)
+BUDGET_FUNDING_SOURCE = (
+    ('', '----select----'),
+    ('Department', 'Department'),
+    ('Division', 'Division'),
+    ('Gift', 'Gift'),
+    ('Student Fee', 'Student Fee'),
+    ('Another Grant', 'Another Grant'),
+)
+BUDGET_FUNDING_STATUS = (
+    ('', '----select----'),
+    ('Secured', 'Secured'),
+    ('Requested', 'Requested'),
+    ('Still Need to Request', 'Still Need to Request'),
 )
 PROJECT_END_CHOICES = (
     ('Be completed', 'Be completed'),

@@ -175,35 +175,55 @@
                 List all associated institutions and co-PIs
               </h3>
               <div class="row">
-              <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-left:0px;padding-top:8px;">
-                <h3>Name</h3>
-                <input type="text" name="investi-name1" class="large"
-                  value="{{form_investi.name1.value|default_if_none:""}}">
-                <input type="text" name="investi-name2" class="large"
-                  value="{{form_investi.name2.value|default_if_none:""}}">
-                <input type="text" name="investi-name3" class="large"
-                  value="{{form_investi.name3.value|default_if_none:""}}">
-                <input type="text" name="investi-name4" class="large"
-                  value="{{form_investi.name4.value|default_if_none:""}}">
-                <input type="text" name="investi-name5" class="large"
-                  value="{{form_investi.name5.value|default_if_none:""}}">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-name1" class="large" placeholder="Name"
+                    value="{{form_investi.name1.value|default_if_none:""}}">
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-institution1" class="large" placeholder="Institution"
+                    value="{{form_investi.institution1.value|default_if_none:""}}">
+                </div>
               </div>
-              <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">&nbsp;</div>
-              <div class="col-lg-4 col-md-3 col-sm-3 col-xs-3" style="padding-top:8px;">
-                <h3>Institution</h3>
-                <input type="text" name="investi-institution1" class="large"
-                  value="{{form_investi.institution1.value|default_if_none:""}}">
-                <input type="text" name="investi-institution2" class="large"
-                  value="{{form_investi.institution2.value|default_if_none:""}}">
-                <input type="text" name="investi-institution3" class="large"
-                  value="{{form_investi.institution3.value|default_if_none:""}}">
-                <input type="text" name="investi-institution4" class="large"
-                  value="{{form_investi.institution4.value|default_if_none:""}}">
-                <input type="text" name="investi-institution5" class="large"
-                  value="{{form_investi.institution5.value|default_if_none:""}}">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-name2" class="large" placeholder="Name"
+                    value="{{form_investi.name2.value|default_if_none:""}}">
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-institution2" class="large" placeholder="Institution"
+                    value="{{form_investi.institution2.value|default_if_none:""}}">
+                </div>
               </div>
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-name3" class="large" placeholder="Name"
+                    value="{{form_investi.name3.value|default_if_none:""}}">
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-institution3" class="large" placeholder="Institution"
+                    value="{{form_investi.institution3.value|default_if_none:""}}">
+                </div>
               </div>
-              <!-- /.row -->
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-name4" class="large" placeholder="Name"
+                    value="{{form_investi.name4.value|default_if_none:""}}">
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-institution4" class="large" placeholder="Institution"
+                    value="{{form_investi.institution4.value|default_if_none:""}}">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-name5" class="large" placeholder="Name"
+                    value="{{form_investi.name5.value|default_if_none:""}}">
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                  <input type="text" name="investi-institution5" class="large" placeholder="Institution"
+                    value="{{form_investi.institution5.value|default_if_none:""}}">
+                </div>
+              </div>
             </li>
             </ol>
             </fieldset>

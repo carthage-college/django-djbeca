@@ -57,11 +57,7 @@ urlpatterns = [
     # -------------------------------------------------------------------------
     # Part A: new submission
     path('proposal/', views.proposal_form, name='proposal_form'),
-    path(
-        'proposal/success/',
-        TemplateView.as_view(template_name='proposal/done.html'),
-        name='proposal_success',
-    ),
+    path('proposal/success/', views.proposal_success, name='proposal_success'),
     # Part A: Detail
     path(
         'proposal/<int:pid>/detail/',
@@ -123,6 +119,10 @@ urlpatterns = [
     # clear cache via ajax post
     path(
         'cache/<str:ctype>/clear/', views.clear_cache, name='clear_cache',
+    ),
+    # clear cache via GET
+    path(
+        'cache/clear/', views.clear_cache, name='clear_cache_get',
     ),
     # Home dashboard
     # -------------------------------------------------------------------------

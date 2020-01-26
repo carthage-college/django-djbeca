@@ -32,6 +32,27 @@
         buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
     });
+    var copies = {{copies}};
+    $("#clone").click(function () {
+        if (copies <= 4) {
+            copies++;
+            newId = "doop_" + copies;
+            $("#doop_master").clone().attr("id",newId).appendTo("#duplicates");
+            $.growlUI('Budget Sources: ', copies);
+        }else{
+            $.growlUI('Warning', 'Budget Sources Limit: 3');
+        }
+    });
+    $("#destroy").click(function () {
+        if (copies > 1) {
+            delid = "doop_" + copies;
+            $("#doop_" + copies ).remove();
+            copies--;
+            $.growlUI('Budget Sources: ', copies);
+        }else{
+            $.growlUI('Warning', 'No Budget Sources to delete');
+        }
+    });
     $('[type="submit"]').on('click', function () {
         if ($(this).attr('id') == 'id_submit') {
             $('#id_save_submit').val('true');
@@ -95,22 +116,107 @@
         </p>
         {% endif %}
         {% get_lw_content as intro blurbs 2501 %}
-        {{intro.body|safe}}
+        <div id="lw_success_2501">{{intro.body|safe}}</div>
+        {% if osp %}
+        <p>
+          <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2501"
+            target="_blank">
+            <i class="fa fa-pencil green" aria-hidden="true"
+            title="Manage the content above in LiveWhale"></i></a>
+          <a href="#" data-cid="2501" data-target="lw_success_2501" class="clear-cache">
+            <i class="fa fa-refresh green" aria-hidden="true"
+            title="Clear the cache for this content"></i></a>
+        </p>
+        {% endif %}
         {% include "includes/required_text.html" %}
         <form method="post" enctype="multipart/form-data" action="."
           class="form" id="profile">
         {% csrf_token %}
         <input type="hidden" id="id_save_submit" name="save_submit" value="">
         <fieldset class="blockLabels">
-          <legend>Budget and Budget Narrative</legend>
+          <legend>Budget and Budget Justification</legend>
           {% get_lw_content as intro blurbs 2516 %}
-          {{intro.body|safe}}
+          <div id="lw_success_2516">{{intro.body|safe}}</div>
+          {% if osp %}
+          <p>
+            <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2516"
+              target="_blank">
+              <i class="fa fa-pencil green" aria-hidden="true"
+              title="Manage the content above in LiveWhale"></i></a>
+            <a href="#" data-cid="2516" data-target="lw_success_2516" class="clear-cache">
+              <i class="fa fa-refresh green" aria-hidden="true"
+              title="Clear the cache for this content"></i></a>
+          </p>
+          {% endif %}
           <ol>
           {% for field in form_budget.visible_fields %}
             {% include "form_field.inc.html" %}
-            {% if field.name == "total_match_amount" %}
+            {% if field.name == "total_funding" %}
               {% get_lw_content as help blurbs 2502 %}
-              {{help.body|safe}}
+              <div id="lw_success_2502">{{help.body|safe}}</div>
+              {% if osp %}
+              <p>
+                <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2502"
+                  target="_blank">
+                  <i class="fa fa-pencil green" aria-hidden="true"
+                  title="Manage the content above in LiveWhale"></i></a>
+                <a href="#" data-cid="2502" data-target="lw_success_2502" class="clear-cache">
+                  <i class="fa fa-refresh green" aria-hidden="true"
+                  title="Clear the cache for this content"></i></a>
+              </p>
+              {% endif %}
+              <div class="row">
+                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+                  Click on the "plus" symbol to add funding sources, and
+                  use the "minus" symbol to remove them.
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                  <img id="clone"
+                    src="//www.carthage.edu/assets/img/ico/silk/icons/add.png">
+                  <img id="destroy"
+                    src="//www.carthage.edu/assets/img/ico/silk/icons/delete.png">
+                </div>
+              </div>
+              <div id="doop_master" class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                  <input type="text" name="budfun-amount[]" class="medium"
+                    placeholder="Amount">
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                  <select name="budfun-source[]">
+                      <option value="">boo</option>
+                  </select>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                  <select name="budfun-status[]">
+                      <option value="">boo</option>
+                  </select>
+                </div>
+              </div>
+              <div id="duplicates">
+              {% for source in sources %}
+              <div id="doop_{{forloop.counter}}" class="form-row">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                  <input type="text" name="amount[]" class="budget-amount form-control"
+                    value="{{source.amount}}" placeholder="Amount">
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                  <select name="source[]" class="selectpicker form-control" style="width:auto;">
+                    {% for source in funding_source %}
+                    <option value="{{source.0}}">{{source.1}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                    <select name="status[]" class="selectpicker form-control" style="width:auto;">
+                    {% for status in funding_status %}
+                    <option value="{{status.0}}">{{status.1}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endfor %}
+              </div>
             {% endif %}
           {% endfor %}
           </ol>
@@ -140,13 +246,11 @@
             {% include "form_file_field.inc.html" %}
           {% endfor %}
           </ol>
-          <hr>
           <ol>
           {% for field in form_doc2.visible_fields %}
             {% include "form_file_field.inc.html" %}
           {% endfor %}
           </ol>
-          <hr>
           <ol>
           {% for field in form_doc3.visible_fields %}
             {% include "form_file_field.inc.html" %}
@@ -168,8 +272,19 @@
             </li>
             {% endif %}
             <li class="form-group ctrlHolder">
-          {% get_lw_content as disclosure blurbs 2513 %}
-          {{disclosure.body|safe}}
+              {% get_lw_content as disclosure blurbs 2513 %}
+              <div id="lw_success_2513">{{disclosure.body|safe}}</div>
+              {% if osp %}
+              <p>
+                <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2513"
+                  target="_blank">
+                  <i class="fa fa-pencil green" aria-hidden="true"
+                  title="Manage the content above in LiveWhale"></i></a>
+                <a href="#" data-cid="2513" data-target="lw_success_2513" class="clear-cache">
+                  <i class="fa fa-refresh green" aria-hidden="true"
+                  title="Clear the cache for this content"></i></a>
+              </p>
+              {% endif %}
               {% if form_impact.disclosure_assurance.errors %}
               <div class="required warning">
                 <span class="error-message">
@@ -184,7 +299,6 @@
               </div>
             </li>
           </ol>
-          <hr>
           <ol>
             <li>
               <label for="id_save" style="display:none;">

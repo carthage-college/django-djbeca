@@ -2,5 +2,16 @@
 {% load livewhale_api %}
 {% block content %}
 {% get_lw_content as thanks blurbs 2404 %}
-{{thanks.body|safe}}
+<div id="lw_success">{{thanks.body|safe}}</div>
+{% if osp %}
+<p>
+  <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2404"
+  target="_blank">
+    <i class="fa fa-pencil green" aria-hidden="true"
+    title="Manage the content above in LiveWhale"></i></a>
+  <a href="#" data-cid="2404" data-target="lw_success" class="clear-cache">
+    <i class="fa fa-refresh green" aria-hidden="true"
+    title="Clear the cache for this content"></i></a>
+</p>
+{% endif %}
 {% endblock %}

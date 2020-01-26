@@ -158,8 +158,8 @@ table.dataTable > tbody tr:nth-child(odd):hover td { background-color: #fae7b5 !
 <script src="/static/djbeca/js/main.js?1500"
   type="text/javascript" language="javascript"></script>
 <script type="text/javascript" charset="utf-8">
+  var $clearCacheUrl = "{% url 'clear_cache' 'blurbs' %}";
   $(function() {
-    var $clearCacheUrl = "{% url 'clear_cache' 'blurbs' %}";
     $("body").toggleClass("sidenav-toggled");
   });
 </script>

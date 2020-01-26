@@ -20,6 +20,7 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from djauth.LDAPManager import LDAPManager
 from djbeca.core import forms
+from djbeca.core.choices import BUDGET_FUNDING_SOURCE, BUDGET_FUNDING_STATUS
 from djbeca.core.models import Proposal
 from djbeca.core.models import ProposalApprover
 from djbeca.core.models import ProposalBudget
@@ -90,6 +91,9 @@ def impact_form(request, pid):
     user = request.user
     perms = proposal.permissions(user)
 
+    copies=1
+    sources = ['']
+
     # we do not allow PIs to update their proposals after save-submit
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
@@ -127,7 +131,7 @@ def impact_form(request, pid):
             request.POST,
             request.FILES,
             instance=budget,
-            lprefix='budget',
+            prefix='budget',
             label_suffix='',
             use_required_attribute=REQUIRED_ATTRIBUTE,
         )
@@ -339,13 +343,17 @@ def impact_form(request, pid):
         request,
         'impact/form.html',
         {
+            'funding_source': BUDGET_FUNDING_SOURCE,
+            'funding_status': BUDGET_FUNDING_STATUS,
             'form_budget': form_budget,
             'form_comments': form_comments,
             'form_impact': form_impact,
             'form_doc1': form_doc1,
             'form_doc2': form_doc2,
             'form_doc3': form_doc3,
+            'osp': group,
             'perms': perms,
+            'sources': sources,
         },
     )
 
@@ -360,11 +368,11 @@ def proposal_form(request, pid=None):
     proposal = None
     perms = None
     user = request.user
+    group = in_group(user, OSP_GROUP)
 
     if pid:
         proposal = get_object_or_404(Proposal, id=pid)
         perms = proposal.permissions(user)
-        group = in_group(user, OSP_GROUP)
 
         # we do not allow anyone but the PI to update a proposal
         if proposal.user != user and not group:
@@ -472,6 +480,8 @@ def proposal_form(request, pid=None):
                 # so that proposal now is considered a new attempt at approval
                 data.opened = False
                 data.save()
+                # set OSP status for editing email content
+                data.osp = group
 
                 # send the email to Dean or OSP
                 subject = 'Review and Authorization Required for Part A: \
@@ -1078,10 +1088,14 @@ def proposal_status(request):
     session_var='DJSAPO_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
-def clear_cache(request, ctype='blurb'):
+def clear_cache(request, ctype='blurbs'):
     """Clear the cache for API content."""
-    if request.is_ajax() and request.method == 'POST':
-        cid = request.POST.get('cid')
+    cid = request.POST.get('cid')
+    request_type = 'post'
+    if not cid:
+        cid = request.GET.get('cid')
+        request_type = 'get'
+    if cid:
         key = 'livewhale_{0}_{1}'.format(ctype, cid)
         cache.delete(key)
         timestamp = datetime.timestamp(datetime.now())
@@ -1094,8 +1108,24 @@ def clear_cache(request, ctype='blurb'):
             cache.set(key, text)
             api_data = mark_safe(text['body'])
         except ValueError:
-            api_data = ''
+            api_data = "Cache was not cleared."
+        if request_type == 'post':
+            content_type = 'text/plain; charset=utf-8'
+        else:
+            content_type = 'text/html; charset=utf-8'
     else:
-        api_data = "Requires AJAX POST"
+        api_data = "Requires a content ID"
 
-    return HttpResponse(api_data, content_type='text/plain; charset=utf-8')
+    return HttpResponse(api_data, content_type=content_type)
+
+
+@portal_auth_required(
+    session_var='DJSAPO_AUTH',
+    redirect_url=reverse_lazy('access_denied'),
+)
+def proposal_success(request, ctype='blurb'):
+    """Redirect here after user submits Part A."""
+    osp = in_group(request.user, OSP_GROUP)
+    return render(
+        request, 'proposal/done.html', {'osp': osp},
+    )
