@@ -1,0 +1,28 @@
+<div{% if doop %} id="{{doop}}"{% else %} id="doop_{{forloop.counter}}"{% endif %} class="form-row">
+  <input type="hidden" name="sid[]" value="{{source.id}}">
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+    <input type="text" name="amount[]" class="budget form-control" 
+      value="{{source.amount|default_if_none:''}}" placeholder="Amount">
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+    <select name="source[]" class="budget form-control" style="width:auto;">
+      {% for funding in funding_source %}
+      <option value="{{funding.0}}"{% if source.source == funding.0 %} selected{% endif %}>
+      {{funding.1}}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+      <select name="status[]" class="budget form-control" style="width:auto;">
+      {% for status in funding_status %}
+      <option value="{{status.0}}"{% if source.status == status.0 %} selected{% endif %}>{{status.1}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+    <img alt="Remove Funding Source" title="Remove Funding Source" 
+      class="destroy-funding-source float-right"
+      src="//www.carthage.edu/assets/img/ico/silk/icons/delete.png">
+  </div>
+</div>

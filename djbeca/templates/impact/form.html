@@ -32,27 +32,30 @@
         buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
     });
-    var copies = {{copies}};
-    $("#clone").click(function () {
-        if (copies <= 4) {
-            copies++;
-            newId = "doop_" + copies;
-            $("#doop_master").clone().attr("id",newId).appendTo("#duplicates");
-            $.growlUI('Budget Sources: ', copies);
+    /* Budget funding sources */
+    // number of funding sources
+    var sources = {{sources|length|default:1}};
+    $(".clone").click(function () {
+        if (sources < 5) {
+            sources++;
+            newId = "doop-" + sources;
+            $("#doop-master").clone().attr("id",newId).appendTo("#duplicates");
+            $.growlUI('Funding Sources: ', sources);
         }else{
-            $.growlUI('Warning', 'Budget Sources Limit: 3');
+            $.growlUI('Warning', 'Funding Sources Limit: 5');
         }
     });
-    $("#destroy").click(function () {
-        if (copies > 1) {
-            delid = "doop_" + copies;
-            $("#doop_" + copies ).remove();
-            copies--;
-            $.growlUI('Budget Sources: ', copies);
+    // remove funding source
+    $('#duplicates').on("click", ".destroy-funding-source", function() {
+        if (sources > 1) {
+            sources--;
+            $(this).parent().parent().remove();
+            $.growlUI('Funding Sources: ', sources);
         }else{
-            $.growlUI('Warning', 'No Budget Sources to delete');
+            $.growlUI('Warning', 'No Funding Sources to delete');
         }
     });
+    /* End budget fudning sources */
     $('[type="submit"]').on('click', function () {
         if ($(this).attr('id') == 'id_submit') {
             $('#id_save_submit').val('true');
@@ -165,57 +168,33 @@
                   title="Clear the cache for this content"></i></a>
               </p>
               {% endif %}
-              <div class="row">
+              <div class="row mb-2">
                 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
-                  Click on the "plus" symbol to add funding sources, and
-                  use the "minus" symbol to remove them.
+                  Click on the
+                  <img src="//www.carthage.edu/assets/img/ico/silk/icons/add.png"
+                    style="margin-bottom:-3px;"> icon to add funding sources.<br>
+                  Click on the
+                  <img src="//www.carthage.edu/assets/img/ico/silk/icons/delete.png"
+                    style="margin-bottom:-3px;"> icon to remove funding sources.
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                  <img id="clone"
-                    src="//www.carthage.edu/assets/img/ico/silk/icons/add.png">
-                  <img id="destroy"
-                    src="//www.carthage.edu/assets/img/ico/silk/icons/delete.png">
-                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 align-bottom">
+                  <br>
+                  <img class="clone float-right" src="//www.carthage.edu/assets/img/ico/silk/icons/add.png">
+               </div>
               </div>
-              <div id="doop_master" class="row">
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                  <input type="text" name="budfun-amount[]" class="medium"
-                    placeholder="Amount">
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                  <select name="budfun-source[]">
-                      <option value="">boo</option>
-                  </select>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                  <select name="budfun-status[]">
-                      <option value="">boo</option>
-                  </select>
-                </div>
-              </div>
-              <div id="duplicates">
-              {% for source in sources %}
-              <div id="doop_{{forloop.counter}}" class="form-row">
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                  <input type="text" name="amount[]" class="budget-amount form-control"
-                    value="{{source.amount}}" placeholder="Amount">
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                  <select name="source[]" class="selectpicker form-control" style="width:auto;">
-                    {% for source in funding_source %}
-                    <option value="{{source.0}}">{{source.1}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <select name="status[]" class="selectpicker form-control" style="width:auto;">
-                    {% for status in funding_status %}
-                    <option value="{{status.0}}">{{status.1}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              {% endfor %}
+              {% with doop="doop-master" %}
+                {% include "impact/funding.inc.html" %}
+              {% endwith %}
+              <div id="duplicates" class="mb-2">
+              {% if sources %}
+                {% for source in sources %}
+                  {% include "impact/funding.inc.html" %}
+                {% endfor %}
+              {% else %}
+                {% with doop="doop_1" %}
+                  {% include "impact/funding.inc.html" %}
+                {% endwith %}
+              {% endif %}
               </div>
             {% endif %}
           {% endfor %}

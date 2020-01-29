@@ -282,13 +282,6 @@ class Proposal(models.Model):
 
         return perms
 
-    def impact(self):
-        """Check if the Proposal has an Impact relationship."""
-        try:
-            return self.proposal_impact
-        except AttributeError:
-            return False
-
     # at the moment, we assume all approvers will be responsible for
     # step 1 AND step 2. in the future, i suspect that this might change.
     def step1(self):
@@ -305,9 +298,9 @@ class Proposal(models.Model):
         """Check if step 2 has been approved."""
         try:
             approved = (
-                self.proposal_impact.level1 and
-                self.proposal_impact.level2 and
-                self.proposal_impact.level3
+                self.impact.level1 and
+                self.impact.level2 and
+                self.impact.level3
             )
         except AttributeError:
             approved = False
@@ -323,7 +316,7 @@ class Proposal(models.Model):
         """Check if VP for Business (level2) & Provost (level1) can approve."""
         approved = False
         try:
-            if self.proposal_impact.level3:
+            if self.impact.level3:
                 approved = True
         except AttributeError:
             approved = False
@@ -345,7 +338,7 @@ class ProposalImpact(models.Model):
     updated_at = models.DateTimeField("Date Updated", auto_now=True)
     proposal = models.OneToOneField(
         Proposal,
-        related_name='proposal_impact',
+        related_name='impact',
         on_delete=models.CASCADE,
     )
     # status
@@ -653,7 +646,7 @@ class ProposalBudget(models.Model):
     proposal = models.OneToOneField(
         Proposal,
         editable=False,
-        related_name='proposal_budget',
+        related_name='budget',
         on_delete=models.CASCADE,
     )
     # Costs and totals
@@ -717,10 +710,10 @@ class ProposalBudgetFunding(models.Model):
     updated_at = models.DateTimeField(
         'Date Updated', auto_now=True,
     )
-    budget = models.OneToOneField(
+    budget = models.ForeignKey(
         ProposalBudget,
         editable=False,
-        related_name='budget_funding',
+        related_name='funding',
         on_delete=models.CASCADE,
     )
     amount = models.DecimalField(
@@ -730,12 +723,12 @@ class ProposalBudgetFunding(models.Model):
         null=True,
         blank=True,
     )
-    funding_source = models.CharField(
+    source = models.CharField(
         "Describe Other Sources of Funding for the Project",
         max_length=24,
         choices=choices.BUDGET_FUNDING_SOURCE,
     )
-    funding_status = models.CharField(
+    status = models.CharField(
         "Status of these Funds",
         max_length=24,
         choices=choices.BUDGET_FUNDING_STATUS,
@@ -744,7 +737,7 @@ class ProposalBudgetFunding(models.Model):
     class Meta:
         """Attributes about the data model and admin options."""
 
-        ordering = ['-created_at']
+        ordering = ['created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_budget_funding'
 
@@ -768,7 +761,7 @@ class ProposalDocument(models.Model):
     proposal = models.ForeignKey(
         Proposal,
         editable=False,
-        related_name='proposal_documents',
+        related_name='documents',
         on_delete=models.CASCADE,
     )
     name = models.CharField(
@@ -814,7 +807,7 @@ class ProposalContact(models.Model):
     proposal = models.ForeignKey(
         Proposal,
         editable=False,
-        related_name='proposal_contact',
+        related_name='contact',
         on_delete=models.CASCADE,
     )
     name = models.CharField(
@@ -860,7 +853,7 @@ class ProposalGoal(models.Model):
     proposal = models.ForeignKey(
         Proposal,
         editable=False,
-        related_name='proposal_goal',
+        related_name='goal',
         on_delete=models.CASCADE,
     )
     name = models.CharField(

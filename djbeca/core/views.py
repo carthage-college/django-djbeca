@@ -20,10 +20,12 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from djauth.LDAPManager import LDAPManager
 from djbeca.core import forms
-from djbeca.core.choices import BUDGET_FUNDING_SOURCE, BUDGET_FUNDING_STATUS
+from djbeca.core.choices import BUDGET_FUNDING_SOURCE
+from djbeca.core.choices import BUDGET_FUNDING_STATUS
 from djbeca.core.models import Proposal
 from djbeca.core.models import ProposalApprover
 from djbeca.core.models import ProposalBudget
+from djbeca.core.models import ProposalBudgetFunding
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
@@ -91,9 +93,6 @@ def impact_form(request, pid):
     user = request.user
     perms = proposal.permissions(user)
 
-    copies=1
-    sources = ['']
-
     # we do not allow PIs to update their proposals after save-submit
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
@@ -107,20 +106,41 @@ def impact_form(request, pid):
 
     # budget
     try:
-        budget = proposal.proposal_budget
+        budget = proposal.budget
     except ProposalBudget.DoesNotExist:
         budget = None
+    # budget funding sources: an empty item for new impact form.
+    sources = ['']
+    if budget:
+        sources = budget.funding.all()
+
     # impact
     try:
-        impact = proposal.proposal_impact
+        impact = proposal.impact
     except ProposalImpact.DoesNotExist:
         impact = None
+
     # documents
     docs = [None, None, None]
-    for counter, doc in enumerate(proposal.proposal_documents.all()):
+    for counter, doc in enumerate(proposal.documents.all()):
         docs[counter] = doc
 
     if request.method == 'POST':
+        # budget funding sources
+        sources = []
+        sids = request.POST.getlist('sid[]')
+        amount = request.POST.getlist('amount[]')
+        source = request.POST.getlist('source[]')
+        status = request.POST.getlist('status[]')
+        for count, _ in enumerate(sids):
+            # skip doop-master container
+            if count != 0:
+                sources.append({
+                    'amount': amount[count],
+                    'source': source[count],
+                    'status': status[count],
+                })
+
         form_impact = forms.ImpactForm(
             request.POST,
             instance=impact,
@@ -165,9 +185,15 @@ def impact_form(request, pid):
             label_suffix='',
             use_required_attribute=REQUIRED_ATTRIBUTE,
         )
-        if form_impact.is_valid() and form_budget.is_valid() and \
-          form_doc1.is_valid() and form_doc2.is_valid() and \
-          form_doc3.is_valid():
+
+        valid = (
+            form_impact.is_valid() and
+            form_budget.is_valid() and
+            form_doc1.is_valid() and
+            form_doc2.is_valid() and
+            form_doc3.is_valid()
+        )
+        if valid:
             # proposal impact
             impact = form_impact.save(commit=False)
             impact.proposal = proposal
@@ -175,17 +201,40 @@ def impact_form(request, pid):
             # set proposal opened to False if it was True
             if proposal.opened:
                 proposal.opened = False
-                proposal.save()
             # proposal budget
             budget = form_budget.save(commit=False)
             budget.proposal = proposal
             budget.save()
+            # remove deleted budget funding sources
+            sources_list = [source.id for source in budget.funding.all()]
+            dif = set(sources_list).difference(sids)
+            if dif:
+                for sid_dif in list(dif):
+                    funding = ProposalBudgetFunding.objects.get(pk=sid_dif)
+                    funding.delete()
+            # add or update budget funding sources
+            for index, _ in enumerate(sids):
+                # skip doop-master container
+                if index != 0:
+                    if sids[index]:
+                        fid = int(sids[int(index)])
+                    else:
+                        fid = None
+                    try:
+                        funding = ProposalBudgetFunding.objects.get(pk=fid)
+                    except ProposalBudgetFunding.DoesNotExist:
+                        funding = ProposalBudgetFunding()
+                        funding.budget = budget
+                    if amount[index]:
+                        funding.amount = amount[index]
+                    funding.source = source[index]
+                    funding.status = status[index]
+                    funding.save()
             # proposal comments (not a ModelForm)
             if request.POST.get('comments-comments'):
                 form_comments.is_valid()
                 comments = form_comments.cleaned_data
                 proposal.comments = comments['comments']
-                proposal.save()
 
             # document 1
             doc1 = form_doc1.save(commit=False)
@@ -293,6 +342,7 @@ def impact_form(request, pid):
                 )
                 return HttpResponseRedirect(reverse_lazy('impact_success'))
             else:
+                proposal.save()
                 messages.add_message(
                     request,
                     messages.SUCCESS,
@@ -387,10 +437,10 @@ def proposal_form(request, pid=None):
         elif proposal.decline or proposal.closed:
             return HttpResponseRedirect(reverse_lazy('home'))
         else:
-            investigators = proposal.proposal_contact.filter(
+            investigators = proposal.contact.filter(
                 tags__name='Co-Principal Investigators',
             )
-            institutions = proposal.proposal_contact.filter(
+            institutions = proposal.contact.filter(
                 tags__name='Other Institution',
             )
 
@@ -587,10 +637,10 @@ def proposal_detail(request, pid):
     if not perms['view']:
         raise Http404
 
-    co_principals = proposal.proposal_contact.filter(
+    co_principals = proposal.contact.filter(
         tags__name='Co-Principal Investigators',
     )
-    institutions = proposal.proposal_contact.filter(
+    institutions = proposal.contact.filter(
         tags__name='Other Institution',
     )
 
@@ -764,6 +814,10 @@ def proposal_status(request):
             return HttpResponse("Access Denied")
         user = request.user
         proposal = get_object_or_404(Proposal, id=pid)
+        try:
+            impact = proposal.impact
+        except ProposalImpact.DoesNotExist:
+            impact = None
         perms = proposal.permissions(user)
         # if user does not have 'approve' permissions, we can stop here,
         # regardless of whether we are approving/declining, closing/opening,
@@ -786,12 +840,12 @@ def proposal_status(request):
                     proposal.save_submit = False
                     proposal.save()
                     # we might not have a proposal impact relationship
-                    if proposal.impact():
-                        proposal.proposal_impact.disclosure_assurance = False
-                        proposal.proposal_impact.level3 = False
-                        proposal.proposal_impact.level2 = False
-                        proposal.proposal_impact.level1 = False
-                        proposal.proposal_impact.save()
+                    if impact:
+                        proposal.impact.disclosure_assurance = False
+                        proposal.impact.level3 = False
+                        proposal.impact.level2 = False
+                        proposal.impact.level1 = False
+                        proposal.impact.save()
                     # Approvers
                     for approver in proposal.approvers.all():
                         approver.step1 = False
@@ -822,12 +876,12 @@ def proposal_status(request):
                     proposal.proposal_type = 'resubmission'
                     proposal.save()
                     # we might not have a proposal impact relationship
-                    if proposal.step1() and proposal.impact():
-                        proposal.proposal_impact.disclosure_assurance = False
-                        proposal.proposal_impact.level3 = False
-                        proposal.proposal_impact.level2 = False
-                        proposal.proposal_impact.level1 = False
-                        proposal.proposal_impact.save()
+                    if proposal.step1() and impact:
+                        proposal.impact.disclosure_assurance = False
+                        proposal.impact.level3 = False
+                        proposal.impact.level2 = False
+                        proposal.impact.level1 = False
+                        proposal.impact.save()
 
                     return HttpResponse("Proposal has been reopened")
                 else:
@@ -848,9 +902,9 @@ def proposal_status(request):
                 needs_work_template = 'proposal/email_needswork.html'
                 needs_work_subject = 'Part A: Needs work, requires \
                     additonal clarrification: "{0}"'.format(proposal.title)
-            elif proposal.step1() and not proposal.impact():
+            elif proposal.step1() and not impact:
                 return HttpResponse("Step 2 has not been initiated")
-            elif proposal.impact() and not proposal.save_submit:
+            elif impact and not proposal.save_submit:
                 return HttpResponse("Step 2 has not been completed")
             else:
                 step = 'step2'
@@ -869,11 +923,11 @@ def proposal_status(request):
                     proposal.save()
                     # ProposalImpact object
                     if step == 'step2':
-                        proposal.proposal_impact.level1 = False
-                        proposal.proposal_impact.level2 = False
-                        proposal.proposal_impact.level3 = False
-                        proposal.proposal_impact.disclosure_assurance = False
-                        proposal.proposal_impact.save()
+                        proposal.impact.level1 = False
+                        proposal.impact.level2 = False
+                        proposal.impact.level3 = False
+                        proposal.impact.disclosure_assurance = False
+                        proposal.impact.save()
                     # Approvers
                     for approver in proposal.approvers.all():
                         if approver.user == user:
@@ -916,11 +970,11 @@ def proposal_status(request):
                     proposal.save()
                     # ProposalImpact object
                     if step == 'step2':
-                        proposal.proposal_impact.level1 = False
-                        proposal.proposal_impact.level2 = False
-                        proposal.proposal_impact.level3 = False
-                        proposal.proposal_impact.disclosure_assurance = False
-                        proposal.proposal_impact.save()
+                        proposal.impact.level1 = False
+                        proposal.impact.level2 = False
+                        proposal.impact.level3 = False
+                        proposal.impact.disclosure_assurance = False
+                        proposal.impact.save()
                     # Approvers
                     for approver in proposal.approvers.all():
                         if step == 'step1':
@@ -984,8 +1038,8 @@ def proposal_status(request):
                 message = "Dean approved Part A"
             # if step2 and Division Dean
             elif step == 'step2' and perms['level3']:
-                proposal.proposal_impact.level3 = True
-                proposal.proposal_impact.save()
+                proposal.impact.level3 = True
+                proposal.impact.save()
                 message = "Division Dean approved Part B"
                 # send email to Provost and VP for Business informing
                 # them that the Division Dean has approved Part B
@@ -1012,13 +1066,13 @@ def proposal_status(request):
                     )
             # VP for Business?
             elif user.id == VEEP.id and step == 'step2':
-                proposal.proposal_impact.level2 = True
-                proposal.proposal_impact.save()
+                proposal.impact.level2 = True
+                proposal.impact.save()
                 message = "VP for Business approved Part B"
             # Provost?
             elif user.id == PROVOST.id and step == 'step2':
-                proposal.proposal_impact.level1 = True
-                proposal.proposal_impact.save()
+                proposal.impact.level1 = True
+                proposal.impact.save()
                 message = "Provost approved Part B"
             # approvers
             else:
@@ -1032,8 +1086,8 @@ def proposal_status(request):
                             proposal.level3 = True
                             proposal.save()
                         else:
-                            proposal.proposal_impact.level3 = True
-                            proposal.proposal_impact.save()
+                            proposal.impact.level3 = True
+                            proposal.impact.save()
                     # if step 1 is complete send email notification
                     if (proposal.step1() and step == 'step1'):
                         send_mail(
