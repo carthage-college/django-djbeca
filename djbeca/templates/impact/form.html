@@ -96,7 +96,7 @@
 <div class="row">
   <div class="col-lg-8">
     <h1 class="page-header">
-      Routing & Authorization: Part B &mdash; Authorization to Submit
+        Routing & Authorization: Part B &mdash;<br>Authorization to Submit
     </h1>
     {% if messages %}
       {% for message in messages %}
@@ -177,9 +177,20 @@
                   <img src="//www.carthage.edu/assets/img/ico/silk/icons/delete.png"
                     style="margin-bottom:-3px;"> icon to remove funding sources.
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 align-bottom">
+                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 ml-1 align-bottom">
                   <br>
                   <img class="clone float-right" src="//www.carthage.edu/assets/img/ico/silk/icons/add.png">
+               </div>
+              </div>
+              <div class="row mb-2">
+               <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                Amount
+               </div>
+               <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                Source
+               </div>
+               <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                Status
                </div>
               </div>
               {% with doop="doop-master" %}
@@ -204,6 +215,22 @@
           <legend>Institutional Impacts</legend>
           <ol>
           {% for field in form_impact.visible_fields %}
+            {% if field.name == "international" %}
+              {% get_lw_content as help blurbs 2885 %}
+              <div id="lw_success_2885">{{help.body|safe}}</div>
+              {% if osp %}
+              <p>
+                <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2885"
+                  target="_blank">
+                  <i class="fa fa-pencil green" aria-hidden="true"
+                  title="Manage the content above in LiveWhale"></i></a>
+                <a href="#" data-cid="2885" data-target="lw_success_2885" class="clear-cache">
+                  <i class="fa fa-refresh green" aria-hidden="true"
+                  title="Clear the cache for this content"></i></a>
+              </p>
+              {% endif %}
+            {% endif %}
+
             {% if field.name != 'disclosure_assurance' and field.name != 'admin_comments'  %}
               {% with dominatrix=field.name %}
                 {% include "form_field.inc.html" %}

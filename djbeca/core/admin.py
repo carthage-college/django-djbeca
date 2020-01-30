@@ -9,7 +9,6 @@ from djbeca.core.models import ProposalApprover
 from djbeca.core.models import ProposalBudget
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalDocument
-from djbeca.core.models import ProposalGoal
 from djbeca.core.models import ProposalImpact
 
 
@@ -88,13 +87,6 @@ class ProposalDocumentAdmin(admin.ModelAdmin):
     raw_id_fields = ('proposal',)
 
 
-class ProposalGoalAdmin(admin.ModelAdmin):
-    """Proposal goals admin class."""
-
-    list_per_page = 500
-    raw_id_fields = ('proposal',)
-
-
 class ProposalImpactAdmin(admin.ModelAdmin):
     """Proposal impacts admin class."""
 
@@ -124,5 +116,4 @@ admin.site.register(ProposalApprover, ProposalApproverAdmin)
 admin.site.register(ProposalBudget, ProposalBudgetAdmin)
 admin.site.register(ProposalDocument, ProposalDocumentAdmin)
 admin.site.register(ProposalContact, ProposalContactAdmin)
-admin.site.register(ProposalGoal, ProposalGoalAdmin)
 admin.site.register(ProposalImpact, ProposalImpactAdmin)

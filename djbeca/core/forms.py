@@ -28,9 +28,6 @@ class ProposalForm(forms.ModelForm):
     # NOTE "Co-Principal Investigators & Associated Institution"
     # are GenericContact() Foreign Key relationships.
     # Name, Institution fields [limit 5]
-    # NOTE "List all institutions involved"
-    # are GenericContact() FK relationships.
-    # Name field [limit 5]
 
     # Project Overview
     start_date = forms.DateField(
@@ -95,99 +92,6 @@ class InvestigatorsForm(forms.Form):
     institution5 = forms.CharField(required=False)
 
 
-class GoalsForm(forms.Form):
-    """Goals form."""
-
-    name1 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description1 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name2 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description2 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name3 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description3 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name4 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description4 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name5 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description5 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name6 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description6 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name7 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description7 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-    name8 = forms.TypedChoiceField(
-        label="Goal Type",
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-        widget=forms.Select(),
-        required=False,
-    )
-    description8 = forms.CharField(
-        label="Description",
-        widget=forms.Textarea,
-        required=False,
-    )
-
-
 class BudgetForm(forms.ModelForm):
     """Proposal Budget form."""
 
@@ -203,154 +107,105 @@ class BudgetForm(forms.ModelForm):
 class ImpactForm(forms.ModelForm):
     """Proposal impact form."""
 
-    cost_share_match = forms.TypedChoiceField(
-        label="Does this proposal require cost sharing/match?",
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    funds = forms.TypedChoiceField(
-        label="The budget requires:",
-        choices=choices.FUNDS_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    indirect_funds_solicitation = forms.TypedChoiceField(
+    institutional_funds = forms.TypedChoiceField(
         label="""
-            Does the sponsor disallow the use of indirect funds
-            per sponsor policy and/or solicitation?
+            Will institutional or departmental funds be used in this proposal?
         """,
         choices=BINARY_CHOICES,
         widget=forms.RadioSelect(),
     )
+    indirect_funds_solicitation = forms.TypedChoiceField(
+        label="Does the sponsor allow the inclusion of indirect in the budget?",
+        choices=BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    subaward_monitoring = forms.TypedChoiceField(
+        label="Sub Award Monitoring",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
     human_subjects = forms.TypedChoiceField(
-        label="Does this proposal involve human subjects?",
+        label="IRB (Human Subjects Research)",
         choices=BINARY_CHOICES,
         widget=forms.RadioSelect(),
     )
     animal_subjects = forms.TypedChoiceField(
-        label="Does this proposal involve the use/care of animals?",
+        label="IACUC (Animal Research)",
         choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    additional_work_load = forms.TypedChoiceField(
-        label="""
-            Will your work in this proposal be "in addition" to your current
-            load and/or institutional obligations?
-        """,
-        choices=choices.UNSURE_CHOICES,
         widget=forms.RadioSelect(),
     )
     students_involved = forms.TypedChoiceField(
-        label="""
-            Does this proposal require support for students in the following?
-        """,
-        choices=choices.STUDENTS_INVOLVED_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    contract_procurement = forms.TypedChoiceField(
-        label="Does this proposal require contract (procurement) services?",
-        choices=choices.UNSURE_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    data_management = forms.TypedChoiceField(
-        label="Does this proposal a data management plan?",
-        choices=choices.UNSURE_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    voluntary_committment = forms.TypedChoiceField(
-        label="""
-        Does this proposal contain any voluntary commitments
-        on behalf of the College?
-        """,
+        label="Student Employment or Work Study",
         choices=choices.BINARY_CHOICES,
         widget=forms.RadioSelect(),
     )
-    subcontractors_subawards = forms.TypedChoiceField(
-        label="""
-        Does this proposal involve subcontracts and/or subawards
-        with other institutions/organizations?
-        """,
-        choices=BINARY_CHOICES,
+    students_stipends = forms.TypedChoiceField(
+        label="Student stipends",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    personnel_salary = forms.TypedChoiceField(
+        label="Job posting, hiring, salary/wage changes",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    marketing = forms.TypedChoiceField(
+        label="Brochures, PR, websites",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    contract_procurement = forms.TypedChoiceField(
+        label="Contract Review and Negotiation",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    data_management = forms.TypedChoiceField(
+        label="Institutional Data",
+        choices=choices.BINARY_CHOICES,
         widget=forms.RadioSelect(),
     )
     new_hires = forms.TypedChoiceField(
-        label="Does this proposal require any new faculty or staff hires?",
-        choices=choices.UNSURE_CHOICES,
+        label="Will this project create a new position at Carthage?",
+        choices=choices.BINARY_CHOICES,
         widget=forms.RadioSelect(),
     )
     course_relief = forms.TypedChoiceField(
         label="""
-        Does this proposal contain course relief of any Carthage personnel
-        during the academic year?
+            Will this project require that your department hire someone
+            to teach the courses you are scheduled to teach
+            or any other type of course relief?
         """,
         choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    service_overload = forms.TypedChoiceField(
-        label="""
-        Does this proposal contain extra service or overload
-        of any Carthage personnnel?
-        """,
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    irb_review = forms.TypedChoiceField(
-        label="Does this proposal require review of IRB?",
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    iacuc_review = forms.TypedChoiceField(
-        label="Does this proposal require review of IACUC?",
-        choices=BINARY_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    international = forms.TypedChoiceField(
-        label="""
-        Does this proposal involve international travel, collaboration,
-        export, international student participation?
-        """,
-        choices=choices.UNSURE_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    hazards = forms.TypedChoiceField(
-        label="""
-        Does this proposal involve the use of chemical/physical hazards
-        (including toxic or hazardous chemicals, radioactive material,
-        biohazards, pathogens, toxins, recombinant DNA, oncongenic viruses,
-        tumor cells, etc.)?
-        """,
-        choices=choices.UNSURE_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    proprietary_confidential = forms.TypedChoiceField(
-        label="""
-        Does this proposal involve work that may result in a patent
-        or involve proprietary or confidential information?
-        """,
-        choices=choices.UNSURE_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    tech_support = forms.TypedChoiceField(
-        label="""
-        Does this proposal involve technology use that will require
-        extensive technical support?
-        """,
-        choices=choices.UNSURE_CHOICES,
-        widget=forms.RadioSelect(),
-    )
-    purchase_equipment = forms.TypedChoiceField(
-        label="""
-        Does this proposal require any purchase, installation,
-        and maintenance of equipment?
-        """,
-        choices=choices.UNSURE_CHOICES,
         widget=forms.RadioSelect(),
     )
     infrastructure_requirements = forms.TypedChoiceField(
-        label="""
-        Does this proposal require any additional space than
-        currently provided?
-        """,
-        choices=choices.UNSURE_CHOICES,
+        label="Is new or renovated space required?",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    international = forms.TypedChoiceField(
+        label="International or off-campus studies",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    event_services = forms.TypedChoiceField(
+        label="Conferences and event services",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    financial_aid = forms.TypedChoiceField(
+        label="Financial aid / scholarships",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    tech_support = forms.TypedChoiceField(
+        label="Computer support, computer equipment, data management needs",
+        choices=choices.BINARY_CHOICES,
+        widget=forms.RadioSelect(),
+    )
+    purchase_equipment = forms.TypedChoiceField(
+        label="Equipment Purchases (over $5000)",
+        choices=choices.BINARY_CHOICES,
         widget=forms.RadioSelect(),
     )
     admin_comments = forms.CharField(
@@ -380,7 +235,9 @@ class ImpactForm(forms.ModelForm):
         """Form validation for various fields."""
         cd = self.cleaned_data
 
-        for key, _input in cd.items():
+        #for key, _input in cd.items():
+        #for key in cd.keys():
+        for key in list(cd.keys()):
             if '_detail' in key:
                 radio = cd.get(key.split('_detail')[0])
                 error = (

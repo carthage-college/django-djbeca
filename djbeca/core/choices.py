@@ -72,12 +72,6 @@ APPROVAL_LEVEL_CHOICES = (
     ('level2', 'CFO'),
     ('level1', 'Provost'),
 )
-PROPOSAL_GOAL_CHOICES = (
-    ('Goal', 'Goal'),
-    ('Objective', 'Objective'),
-    ('Outcome', 'Outcome'),
-    ('Priority', 'Priority'),
-)
 PROPOSAL_TYPE_CHOICES = (
     ('new', 'New'),
     ('revised', 'Revised'),

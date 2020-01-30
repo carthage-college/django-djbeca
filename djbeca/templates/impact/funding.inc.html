@@ -1,8 +1,8 @@
 <div{% if doop %} id="{{doop}}"{% else %} id="doop_{{forloop.counter}}"{% endif %} class="form-row">
   <input type="hidden" name="sid[]" value="{{source.id}}">
   <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-    <input type="text" name="amount[]" class="budget form-control" 
-      value="{{source.amount|default_if_none:''}}" placeholder="Amount">
+    <input type="text" name="amount[]" class="budget form-control"
+      value="{{source.amount|default_if_none:''}}">
   </div>
   <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
     <select name="source[]" class="budget form-control" style="width:auto;">
@@ -20,8 +20,8 @@
       {% endfor %}
     </select>
   </div>
-  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-    <img alt="Remove Funding Source" title="Remove Funding Source" 
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 mt-1 align-middle">
+    <img alt="Remove Funding Source" title="Remove Funding Source"
       class="destroy-funding-source float-right"
       src="//www.carthage.edu/assets/img/ico/silk/icons/delete.png">
   </div>

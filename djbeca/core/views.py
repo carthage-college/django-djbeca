@@ -4,6 +4,8 @@
 
 import json
 from datetime import datetime
+from decimal import Decimal
+from re import sub
 
 import requests
 from django.conf import settings
@@ -226,7 +228,9 @@ def impact_form(request, pid):
                         funding = ProposalBudgetFunding()
                         funding.budget = budget
                     if amount[index]:
-                        funding.amount = amount[index]
+                        # strip any non-numeric characters
+                        amount = Decimal(sub(r'[^\d.]', '', amount[index]))
+                        funding.amount = amount
                     funding.source = source[index]
                     funding.status = status[index]
                     funding.save()
@@ -413,7 +417,6 @@ def impact_form(request, pid):
 )
 def proposal_form(request, pid=None):
     """Proposal Form Part A view."""
-    institu = None
     investi = None
     proposal = None
     perms = None
@@ -440,9 +443,6 @@ def proposal_form(request, pid=None):
             investigators = proposal.contact.filter(
                 tags__name='Co-Principal Investigators',
             )
-            institutions = proposal.contact.filter(
-                tags__name='Other Institution',
-            )
 
     depts = person_departments(user.id)
     if request.method == 'POST':
@@ -450,11 +450,6 @@ def proposal_form(request, pid=None):
             depts,
             request.POST,
             instance=proposal,
-            use_required_attribute=REQUIRED_ATTRIBUTE,
-        )
-        form_institu = forms.InstitutionsForm(
-            request.POST,
-            prefix='institu',
             use_required_attribute=REQUIRED_ATTRIBUTE,
         )
         form_investi = forms.InvestigatorsForm(
@@ -470,25 +465,15 @@ def proposal_form(request, pid=None):
                 data.user = user
             data.save()
 
-            form_institu.is_valid()
             form_investi.is_valid()
 
             # delete the old objects because it's just easier this way
             if proposal:
                 if investigators:
                     investigators.delete()
-                if institutions:
-                    institutions.delete()
             # obtain our new set of contacts
-            institutions = form_institu.cleaned_data
             investigators = form_investi.cleaned_data
             for insti in list(range(1, 6)):
-                institute = ProposalContact(
-                    proposal=data,
-                    institution=institutions['institution{0}'.format(insti)],
-                )
-                institute.save()
-                institute.tags.add('Other Institution')
                 investigator = ProposalContact(
                     proposal=data,
                     name=investigators['name{0}'.format(insti)],
@@ -597,15 +582,7 @@ def proposal_form(request, pid=None):
             for count1, igor in enumerate(investigators, 1):
                 investi['institution{0}'.format(count1)] = igor.institution
                 investi['name{0}'.format(count1)] = igor.name
-            institu = {}
-            for count2, ini in enumerate(institutions, 1):
-                institu['institution{0}'.format(count2)] = ini.institution
 
-        form_institu = forms.InstitutionsForm(
-            initial=institu,
-            prefix='institu',
-            use_required_attribute=REQUIRED_ATTRIBUTE,
-        )
         form_investi = forms.InvestigatorsForm(
             initial=investi,
             prefix='investi',
@@ -617,7 +594,6 @@ def proposal_form(request, pid=None):
         {
             'form': form,
             'perms': perms,
-            'form_institu': form_institu,
             'form_investi': form_investi,
         },
     )
@@ -640,9 +616,6 @@ def proposal_detail(request, pid):
     co_principals = proposal.contact.filter(
         tags__name='Co-Principal Investigators',
     )
-    institutions = proposal.contact.filter(
-        tags__name='Other Institution',
-    )
 
     return render(
         request,
@@ -650,7 +623,6 @@ def proposal_detail(request, pid):
         {
             'proposal': proposal,
             'co_principals': co_principals,
-            'institutions': institutions,
             'perms': perms,
         },
     )

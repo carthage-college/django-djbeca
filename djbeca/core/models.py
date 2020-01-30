@@ -22,6 +22,50 @@ FILE_VALIDATORS = [
 ]
 
 
+def limit_subcontracts():
+    """Return choices for m2m field in ProposalImpact data model."""
+    ids = [
+        choice.id for choice in GenericChoice.objects.filter(
+            tags__name__in=['Subcontracts'],
+        ).order_by('rank')
+    ]
+    return {'id__in': ids}
+
+
+class GenericChoice(models.Model):
+    """Choices for model and form fields that accept for multiple values."""
+
+    name = models.CharField(max_length=255)
+    value = models.CharField(unique=True, max_length=255)
+    rank = models.IntegerField(
+        verbose_name="Ranking",
+        null=True,
+        blank=True,
+        default=0,
+        help_text="A number that determines this object's position in a list.",
+    )
+    active = models.BooleanField(
+        help_text="""
+            Do you want the field to be visable on the public submission form?
+        """,
+        verbose_name="Is active?",
+        default=True,
+    )
+    admin = models.BooleanField(
+        verbose_name="Administrative only", default=False,
+    )
+    tags = TaggableManager(blank=True)
+
+    class Meta:
+        """Attributes about the data model and admin options."""
+
+        ordering = ['rank']
+
+    def __str__(self):
+        """Default data for display."""
+        return self.name
+
+
 class Proposal(models.Model):
     """Proposal to pursue funding."""
 
@@ -92,7 +136,7 @@ class Proposal(models.Model):
         null=True,
         blank=True,
     )
-    grant_agency_url = models.CharField("Solicitation Website", max_length=768)
+    grant_agency_url = models.CharField("Solicitation Website", max_length=512)
     grant_deadline_date = models.DateField("Proposal Deadline Date")
     # Investigator Information
     department = models.CharField(max_length=12)
@@ -100,9 +144,6 @@ class Proposal(models.Model):
     NOTE "Co-Principal Investigators & Associated Institution"
     are ProposalContact() Foreign Key relationships.
     Name, Instituion fields [limit 5]
-    NOTE: "List all institutions involved"
-    are ProposalContact() FK relationships.
-    Name field [limit 5]
     """
     lead_institution = models.CharField(
         "In this proposal, Carthage is considered:",
@@ -346,36 +387,20 @@ class ProposalImpact(models.Model):
     level2 = models.BooleanField(default=False)  # VP for Business
     level1 = models.BooleanField(default=False)  # Provost
 
-    # Project Impact
-    # NOTE "Describe your project goal/s"
-    # are ProposalGoal() Foreign Key relationships.
-    # Name, Description fields [limit 8]
-
-    # Strategic Plan Impact
-    # HOLD ON DEVELOPING THIS SECTION: MAY ADD LATER
-
-    # Institutional Impact
-    cost_share_match = models.CharField(
-        "Does this proposal require cost sharing/match?",
+    # institutional impacts
+    institutional_funds = models.CharField(
+        "Will institutional or departmental funds be used in this proposal?",
         max_length=4,
         choices=choices.BINARY_CHOICES,
     )
-    cost_share_match_detail = models.TextField(
+    institutional_funds_detail = models.TextField(
         verbose_name="",
         null=True,
         blank=True,
         help_text="Please provide additional details",
     )
-    funds = models.CharField(
-        "The budget requires:",
-        max_length=16,
-        choices=choices.FUNDS_CHOICES,
-    )
     indirect_funds_solicitation = models.CharField(
-        """
-        Does the sponsor disallow the use of indirect funds
-        per sponsor policy and/or solicitation?
-        """,
+        "Does the sponsor allow the inclusion of indirect in the budget?",
         max_length=4,
         choices=choices.BINARY_CHOICES,
     )
@@ -385,22 +410,188 @@ class ProposalImpact(models.Model):
         blank=True,
         help_text="Please provide additional details",
     )
-    voluntary_committment = models.CharField(
+    '''
+    subcontracts = models.ManyToManyField(
+        GenericChoice,
+        verbose_name="Check if your proposal includes",
+        limit_choices_to=limit_subcontracts,
+        blank=True,
+        related_name="subcontracts",
+        help_text="Check all that apply",
+    )
+    '''
+    course_relief = models.CharField(
         """
-        Does this proposal contain any voluntary commitments
-        on behalf of the College?
+            Will this project require that your department hire someone
+            to teach the courses you are scheduled to teach
+            or any other type of course relief?
         """,
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    course_relief_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    new_hires = models.CharField(
+        "Will this project create a new position at Carthage?",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    new_hires_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    infrastructure_requirements = models.CharField(
+        "Is new or renovated space required?",
+        max_length=8,
+        choices=choices.UNSURE_CHOICES,
+    )
+    infrastructure_requirements_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    # begin questions after instructional text
+    international = models.CharField(
+        "International or off-campus studies",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    international_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    event_services = models.CharField(
+        "Conferences and event services",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    event_services_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    financial_aid = models.CharField(
+        "Financial aid / scholarships",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    financial_aid_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    students_involved = models.CharField(
+        "Student Employment or Work Study",
+        max_length=16,
+        choices=choices.BINARY_CHOICES,
+    )
+    students_involved_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    students_stipends = models.CharField(
+        "Student stipends",
+        max_length=16,
+        choices=choices.BINARY_CHOICES,
+    )
+    students_stipends_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    personnel_salary = models.CharField(
+        "Job posting, hiring, salary/wage changes",
+        max_length=16,
+        choices=choices.BINARY_CHOICES,
+    )
+    personnel_salary_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    data_management = models.CharField(
+        "Institutional Data",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    data_management_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    tech_support = models.CharField(
+        "Computer support, computer equipment, data management needs",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    tech_support_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    marketing = models.CharField(
+        "Brochures, PR, websites",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    marketing_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    contract_procurement = models.CharField(
+        "Contract Review and Negotiation",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    contract_procurement_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    purchase_equipment = models.CharField(
+        "Equipment Purchases (over $5000)",
+        max_length=8,
+        choices=choices.BINARY_CHOICES,
+    )
+    purchase_equipment_detail = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="Please provide additional details",
+    )
+    subaward_monitoring = models.CharField(
+        "Sub Award Monitoring",
         max_length=4,
         choices=choices.BINARY_CHOICES,
     )
-    voluntary_committment_detail = models.TextField(
+    subaward_monitoring_detail = models.TextField(
         verbose_name="",
         null=True,
         blank=True,
         help_text="Please provide additional details",
     )
     human_subjects = models.CharField(
-        "Does this proposal involve human subjects?",
+        "IRB (Human Subjects Research)",
         max_length=4,
         choices=choices.BINARY_CHOICES,
     )
@@ -411,7 +602,7 @@ class ProposalImpact(models.Model):
         help_text="Detail any IRB approval and submission date",
     )
     animal_subjects = models.CharField(
-        "Does this proposal involve the use/care of animals?",
+        "IACUC (Animal Research)",
         max_length=4,
         choices=choices.BINARY_CHOICES,
     )
@@ -420,192 +611,6 @@ class ProposalImpact(models.Model):
         null=True,
         blank=True,
         help_text="Detail any IACUC approval and submission dates",
-    )
-    subcontractors_subawards = models.CharField(
-        """
-        Does this proposal involve subcontracts and/or subawards
-        with other institutions/organizations?
-        """,
-        max_length=4,
-        choices=choices.BINARY_CHOICES,
-    )
-    subcontractors_subawards_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    additional_work_load = models.CharField(
-        """
-            Will your work in this proposal be "in addition" to your
-            current load and/or institutional obligations?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    additional_work_load_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    personnel_salary = models.CharField(
-        """
-        Does this proposal request salary for personnel to work
-        majority of time during:
-        """,
-        max_length=16,
-        choices=choices.PERSONNEL_SALARY_CHOICES,
-    )
-    contract_procurement = models.CharField(
-        "Does this proposal require contract (procurement) services?",
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    contract_procurement_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    students_involved = models.CharField(
-        "Does this proposal require support for students in the following?",
-        max_length=16,
-        choices=choices.STUDENTS_INVOLVED_CHOICES,
-    )
-    students_involved_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    new_hires = models.CharField(
-        "Does this proposal require any new faculty or staff hires?",
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    course_relief = models.CharField(
-        """
-        Does this proposal contain course relief of any Carthage personnel
-        during the academic year?
-        """,
-        max_length=4,
-        choices=choices.BINARY_CHOICES,
-    )
-    service_overload = models.CharField(
-        """
-        Does this proposal contain extra service or overload
-        of any Carthage personnnel?
-        """,
-        max_length=4,
-        choices=choices.BINARY_CHOICES,
-    )
-    irb_review = models.CharField(
-        "Does this proposal require review of IRB?",
-        max_length=4,
-        choices=choices.BINARY_CHOICES,
-    )
-    iacuc_review = models.CharField(
-        "Does this proposal require review of IACUC?",
-        max_length=4,
-        choices=choices.BINARY_CHOICES,
-    )
-    international = models.CharField(
-        """
-        Does this proposal involve international travel, collaboration,
-        export, international student participation?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    international_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    hazards = models.CharField(
-        """
-        Does this proposal involve the use of chemical/physical hazards
-        (including toxic or hazardous chemicals, radioactive material,
-        biohazards, pathogens, toxins, recombinant DNA, oncongenic viruses,
-        tumor cells, etc.)?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    hazards_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    proprietary_confidential = models.CharField(
-        """
-        Does this proposal involve work that may result in a patent
-        or involve proprietary or confidential information?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    proprietary_confidential_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    tech_support = models.CharField(
-        """
-        Does this proposal involve technology use that will require
-        extensive technical support?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    tech_support_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    purchase_equipment = models.CharField(
-        """
-        Does this proposal require any purchase, installation,
-        and maintenance of equipment?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    purchase_equipment_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    infrastructure_requirements = models.CharField(
-        """
-        Does this proposal require any additional space than
-        currently provided?
-        """,
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    infrastructure_requirements_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
-    )
-    data_management = models.CharField(
-        "Does this proposal a data management plan?",
-        max_length=8,
-        choices=choices.UNSURE_CHOICES,
-    )
-    data_management_detail = models.TextField(
-        verbose_name="",
-        null=True,
-        blank=True,
-        help_text="Please provide additional details",
     )
     admin_comments = models.TextField(
         null=True,
@@ -649,6 +654,10 @@ class ProposalBudget(models.Model):
         related_name='budget',
         on_delete=models.CASCADE,
     )
+    plan_b = models.TextField(
+        "Briefly describe your plan for this project if not awarded this grant",
+        help_text="~200 words",
+    )
     # Costs and totals
     total = models.DecimalField(
         "Total Program Cost",
@@ -671,14 +680,14 @@ class ProposalBudget(models.Model):
         "Final Budget for Review",
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
-        max_length=768,
+        max_length=512,
         help_text="PDF or Excel Format Only",
     )
     budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
-        max_length=768,
+        max_length=512,
         help_text="PDF or Excel Format Only",
         null=True,
         blank=True,
@@ -774,7 +783,7 @@ class ProposalDocument(models.Model):
         "Supporting Document",
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
-        max_length=768,
+        max_length=512,
         help_text="PDF or Excel Format Only",
         null=True,
         blank=True,
@@ -831,7 +840,7 @@ class ProposalContact(models.Model):
     class Meta:
         """Attributes about the data model and admin options."""
 
-        ordering = ['-created_at']
+        ordering = ['created_at']
         get_latest_by = 'created_at'
         db_table = 'core_proposal_contact'
 
@@ -842,44 +851,6 @@ class ProposalContact(models.Model):
     def __unicode__(self):
         """Build the default value."""
         return "{0}: {1}".format(self.name, self.institution)
-
-
-class ProposalGoal(models.Model):
-    """Proposal goals data."""
-
-    created_at = models.DateTimeField(
-        "Date Created", auto_now_add=True,
-    )
-    proposal = models.ForeignKey(
-        Proposal,
-        editable=False,
-        related_name='goal',
-        on_delete=models.CASCADE,
-    )
-    name = models.CharField(
-        max_length=128,
-        null=True,
-        blank=True,
-        choices=choices.PROPOSAL_GOAL_CHOICES,
-    )
-    description = models.TextField(
-        null=True, blank=True, help_text="~200 words",
-    )
-
-    class Meta:
-        """Attributes about the data model and admin options."""
-
-        ordering = ['-created_at']
-        get_latest_by = 'created_at'
-        db_table = 'core_proposal_goal'
-
-    def get_slug(self):
-        """Build the URL slug."""
-        return 'proposal-goal/'
-
-    def __unicode__(self):
-        """Build the default value."""
-        return "{0}: {1}".format(self.name, self.proposal.title)
 
 
 class ProposalApprover(models.Model):
