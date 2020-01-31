@@ -3,13 +3,26 @@
 """Admin classes for data models."""
 
 from django.contrib import admin
+from django.db import models
+from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
+from djbeca.core.models import GenericChoice
 from djbeca.core.models import Proposal
 from djbeca.core.models import ProposalApprover
 from djbeca.core.models import ProposalBudget
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalDocument
 from djbeca.core.models import ProposalImpact
+
+
+class GenericChoiceAdmin(admin.ModelAdmin):
+    """GenericChoice admin class."""
+
+    list_display = ('name', 'value', 'rank', 'active', 'admin')
+    list_editable = ('active', 'admin')
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
+    }
 
 
 class ProposalAdmin(admin.ModelAdmin):
@@ -111,6 +124,7 @@ class ProposalImpactAdmin(admin.ModelAdmin):
     )
 
 
+admin.site.register(GenericChoice, GenericChoiceAdmin)
 admin.site.register(Proposal, ProposalAdmin)
 admin.site.register(ProposalApprover, ProposalApproverAdmin)
 admin.site.register(ProposalBudget, ProposalBudgetAdmin)

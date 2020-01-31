@@ -22,6 +22,24 @@
         }
     }
 
+    // What type of project is this?
+    var $project_type = $('#id_project_type').closest('li');
+    var $project_type_other = $('#id_project_type_other').closest('li');
+    {% if form.project_type.value != 'Other' %}
+    $project_type_other.slideUp();
+    {% else %}
+    $project_type_other.addClass("details");
+    {% endif %}
+    $('#id_project_type').on('change', function (e){
+      var domArray = [$project_type_other]
+      binarySwitch(this.value, 'Other', domArray, $project_type_other);
+      if (this.value == 'Other') {
+        $('#id_project_type_other').addClass('required');
+      }else{
+        $('#id_project_type_other').removeClass('required');
+      }
+    })
+
     // What type of proposal submission is this?
     var $proposal_type = $('#id_proposal_type').closest('li');
     var $proposal_type_other = $('#id_proposal_type_other').closest('li');
@@ -31,11 +49,11 @@
     $proposal_type_other.addClass("details");
     {% endif %}
     $('#id_proposal_type').on('change', function (e){
-      var domArray = [
-        $proposal_type_other
-      ]
+      var domArray = [$proposal_type_other]
       binarySwitch(this.value, 'Other', domArray, $proposal_type_other);
+      console.log(this.value);
       if (this.value == 'Other') {
+        console.log('here other');
         $('#id_proposal_type_other').addClass('required');
       }else{
         $('#id_proposal_type_other').removeClass('required');
@@ -44,60 +62,21 @@
 
     // What type of funding source is the granting agency?
     var $grant_agency_funding_source = $('#id_grant_agency_funding_source').closest('li');
-    var $grant_agency_funding_other = $('#id_grant_agency_funding_other').closest('li');
+    var $grant_agency_funding_source_other = $('#id_grant_agency_funding_source_other').closest('li');
     {% if form.grant_agency_funding_source.value != 'Other' %}
-    $grant_agency_funding_other.slideUp();
+    $grant_agency_funding_source_other.slideUp();
     {% else %}
-    $grant_agency_funding_other.addClass("details");
+    $grant_agency_funding_source_other.addClass("details");
     {% endif %}
     $('#id_grant_agency_funding_source').on('change', function (e){
-      var domArray = [
-        $grant_agency_funding_other
-      ]
-      binarySwitch(this.value, 'Other', domArray, $grant_agency_funding_other);
+      var domArray = [$grant_agency_funding_source_other ]
+      binarySwitch(this.value, 'Other', domArray, $grant_agency_funding_source_other);
       if (this.value == 'Other') {
-        $('#id_grant_agency_funding_other').addClass('required');
+        $('#id_grant_agency_funding_source_other').addClass('required');
       }else{
-        $('#id_grant_agency_funding_other').removeClass('required');
+        $('#id_grant_agency_funding_source_other').removeClass('required');
       }
     })
-
-    // Is college the lead institution?
-    var $lead_institution = $('#id_lead_institution').closest('li');
-    var $lead_institution_name = $('#id_lead_institution_name').closest('li');
-    var $lead_institution_contact = $('#id_lead_institution_contact').closest('li');
-    $lead_institution_name.addClass("details");
-    $lead_institution_contact.addClass("details");
-    {% if form.lead_institution.value == 'No' %}
-      $lead_institution_name.addClass('required');
-      $lead_institution_contact.addClass('required');
-      $lead_institution_name.slideDown();
-      $lead_institution_contact.slideDown();
-    {% else %}
-      $lead_institution_name.slideUp();
-      $lead_institution_contact.slideUp();
-    {% endif %}
-    $('input[name=lead_institution]').click(function(){
-      var domArray = [
-        $lead_institution_name,
-        $lead_institution_contact
-      ]
-      binarySwitch($(this).val(), 'No', domArray, $lead_institution_name);
-      if ($(this).val() == 'No'){
-        $('#id_lead_institution_name').addClass('required');
-        $('#id_lead_institution_contact').addClass('required');
-        $lead_institution_contact.find('h3').addClass('required');
-        $lead_institution_name.slideDown();
-        $lead_institution_contact.slideDown();
-      }else{
-        $('#id_lead_institution_name').removeClass('required');
-        $('#id_lead_institution_contact').removeClass('required');
-        $lead_institution_contact.find('h3').removeClass('required');
-        $lead_institution_name.slideUp();
-        $lead_institution_contact.slideUp();
-      }
-    })
-
     // jquery datepicker on all fields whose DOM ID
     // begins with id_ and ends with _date
     $('[id^=id_][id$=_date]').datepicker({
@@ -159,7 +138,18 @@
     <div class="panel panel-default">
       <div class="panel-body" id="proposals-data-panel">
         {% get_lw_content as intro blurbs 2246 %}
-        {{intro.body|safe}}
+        <div id="lw_success_2246">{{intro.body|safe}}</div>
+        {% if osp %}
+        <p>
+          <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2246"
+            target="_blank">
+            <i class="fa fa-pencil green" aria-hidden="true"
+            title="Manage the content above in LiveWhale"></i></a>
+          <a href="#" data-cid="2246" data-target="lw_success_2246" class="clear-cache">
+            <i class="fa fa-refresh green" aria-hidden="true"
+            title="Clear the cache for this content"></i></a>
+        </p>
+        {% endif %}
         {% include "includes/required_text.html" %}
         {% include "includes/errors_text.html" %}
         <form method="post" enctype="multipart/form-data" action="."

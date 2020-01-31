@@ -2,6 +2,7 @@
 
 from django import forms
 from djbeca.core import choices
+from djbeca.core.models import GenericChoice
 from djbeca.core.models import Proposal
 from djbeca.core.models import ProposalBudget
 from djbeca.core.models import ProposalDocument
@@ -9,6 +10,11 @@ from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
 from djimix.people.utils import get_peeps
 from djtools.fields import BINARY_CHOICES
+
+
+SUBCONTRACTS_CHOICES = GenericChoice.objects.filter(
+    tags__name__in=['Subcontracts'],
+).filter(active=True).order_by('rank')
 
 
 class ProposalForm(forms.ModelForm):
@@ -54,6 +60,33 @@ class ProposalForm(forms.ModelForm):
             'comments',
         )
 
+    def clean_grant_agency_funding_source_other(self):
+        """Insure that other value is populated."""
+        cd = self.cleaned_data
+        other = cd.get('grant_agency_funding_source_other')
+        if cd.get('grant_agency_funding_source') == 'Other' and not other:
+            self.add_error(
+                'grant_agency_funding_source_other',
+                """
+                    Please provide additional information about the
+                    funding source
+                """,
+            )
+
+        return other
+
+    def clean_proposal_type_other(self):
+        """Insure that other value is populated."""
+        cd = self.cleaned_data
+        other = cd.get('proposal_type_other')
+        if cd.get('proposal_type') == 'Other' and not other:
+            self.add_error(
+                'proposal_type_other',
+                "Please provide additional information about the proposal type",
+            )
+
+        return other
+
     def clean_project_type_other(self):
         """Insure that other value is populated."""
         cd = self.cleaned_data
@@ -65,16 +98,6 @@ class ProposalForm(forms.ModelForm):
             )
 
         return other
-
-
-class InstitutionsForm(forms.Form):
-    """Institutions form."""
-
-    institution1 = forms.CharField(required=False)
-    institution2 = forms.CharField(required=False)
-    institution3 = forms.CharField(required=False)
-    institution4 = forms.CharField(required=False)
-    institution5 = forms.CharField(required=False)
 
 
 class InvestigatorsForm(forms.Form):
@@ -118,6 +141,13 @@ class ImpactForm(forms.ModelForm):
         label="Does the sponsor allow the inclusion of indirect in the budget?",
         choices=BINARY_CHOICES,
         widget=forms.RadioSelect(),
+    )
+    subcontracts = forms.ModelMultipleChoiceField(
+        label="Does your proposal include any of the following?",
+        queryset=SUBCONTRACTS_CHOICES,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text="Check all that apply.",
+        required=False,
     )
     subaward_monitoring = forms.TypedChoiceField(
         label="Sub Award Monitoring",
@@ -235,8 +265,6 @@ class ImpactForm(forms.ModelForm):
         """Form validation for various fields."""
         cd = self.cleaned_data
 
-        #for key, _input in cd.items():
-        #for key in cd.keys():
         for key in list(cd.keys()):
             if '_detail' in key:
                 radio = cd.get(key.split('_detail')[0])

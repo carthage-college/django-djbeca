@@ -130,7 +130,7 @@ class Proposal(models.Model):
         max_length=128,
         choices=choices.FUNDING_SOURCE_CHOICES,
     )
-    grant_agency_funding_other = models.CharField(
+    grant_agency_funding_source_other = models.CharField(
         "If 'Other', please provide details",
         max_length=128,
         null=True,
@@ -149,13 +149,6 @@ class Proposal(models.Model):
         "In this proposal, Carthage is considered:",
         max_length=24,
         choices=choices.LEAD_INSTITUTION_CHOICES,
-        null=True,
-        blank=True,
-    )
-    # NOTE: if 'No', provide the following
-    lead_institution_name = models.CharField(
-        "Name of lead institution",
-        max_length=128,
         null=True,
         blank=True,
     )
@@ -410,16 +403,20 @@ class ProposalImpact(models.Model):
         blank=True,
         help_text="Please provide additional details",
     )
-    '''
     subcontracts = models.ManyToManyField(
         GenericChoice,
-        verbose_name="Check if your proposal includes",
+        verbose_name="Does your proposal include any of the following?",
         limit_choices_to=limit_subcontracts,
         blank=True,
         related_name="subcontracts",
         help_text="Check all that apply",
     )
-    '''
+    subcontracts_details = models.TextField(
+        verbose_name="",
+        null=True,
+        blank=True,
+        help_text="If you checked any of the boxes above, please provide additional details",
+    )
     course_relief = models.CharField(
         """
             Will this project require that your department hire someone
@@ -654,10 +651,6 @@ class ProposalBudget(models.Model):
         related_name='budget',
         on_delete=models.CASCADE,
     )
-    plan_b = models.TextField(
-        "Briefly describe your plan for this project if not awarded this grant",
-        help_text="~200 words",
-    )
     # Costs and totals
     total = models.DecimalField(
         "Total Program Cost",
@@ -674,6 +667,10 @@ class ProposalBudget(models.Model):
         help_text="Provide the total amount of the funding request",
         null=True,
         blank=True,
+    )
+    plan_b = models.TextField(
+        "Briefly describe your plan for this project if not awarded this grant",
+        help_text="~200 words",
     )
     # Files
     budget_final = models.FileField(

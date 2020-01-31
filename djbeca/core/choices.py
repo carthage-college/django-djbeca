@@ -73,10 +73,10 @@ APPROVAL_LEVEL_CHOICES = (
     ('level1', 'Provost'),
 )
 PROPOSAL_TYPE_CHOICES = (
-    ('new', 'New'),
-    ('revised', 'Revised'),
-    ('resubmission', 'Re-Submission'),
-    ('other', 'Other'),
+    ('New', 'New'),
+    ('Revised', 'Revised'),
+    ('Resubmission', 'Re-Submission'),
+    ('Other', 'Other'),
 )
 FUNDING_SOURCE_CHOICES = (
     ('Federal', 'Federal'),

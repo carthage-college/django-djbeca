@@ -200,6 +200,8 @@ def impact_form(request, pid):
             impact = form_impact.save(commit=False)
             impact.proposal = proposal
             impact.save()
+            # m2m save for GenericChoice relationships
+            form_impact.save_m2m()
             # set proposal opened to False if it was True
             if proposal.opened:
                 proposal.opened = False
@@ -229,8 +231,8 @@ def impact_form(request, pid):
                         funding.budget = budget
                     if amount[index]:
                         # strip any non-numeric characters
-                        amount = Decimal(sub(r'[^\d.]', '', amount[index]))
-                        funding.amount = amount
+                        funding_amount = Decimal(sub(r'[^\d.]', '', amount[index]))
+                        funding.amount = funding_amount
                     funding.source = source[index]
                     funding.status = status[index]
                     funding.save()
@@ -595,6 +597,7 @@ def proposal_form(request, pid=None):
             'form': form,
             'perms': perms,
             'form_investi': form_investi,
+            'osp': group,
         },
     )
 
@@ -617,6 +620,21 @@ def proposal_detail(request, pid):
         tags__name='Co-Principal Investigators',
     )
 
+    form_impact = forms.ImpactForm(
+        instance=proposal.impact, label_suffix='',
+    )
+    excludes = [
+        'id',
+        'created_at',
+        'updated_at',
+        'proposal',
+        'level3',
+        'level2',
+        'level1',
+        'admin_comments',
+        'disclosure_assurance',
+    ]
+
     return render(
         request,
         'proposal/detail.html',
@@ -624,6 +642,8 @@ def proposal_detail(request, pid):
             'proposal': proposal,
             'co_principals': co_principals,
             'perms': perms,
+            'impacts': form_impact,
+            'excludes': excludes,
         },
     )
 
