@@ -49,10 +49,10 @@ PROVOST = get_position(settings.PROV_TPOS)
 PRESIDENT = get_position(settings.PREZ_TPOS)
 PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL
-MANAGER = [settings.MANAGERS[0][1]]
+TEST_EMAILS = [settings.MANAGERS[0][1], PROPOSAL_EMAIL_LIST[0]]
 
 if DEBUG:
-    bcc = MANAGER
+    bcc = TEST_EMAILS
 else:
     bcc = settings.PROPOSAL_EMAIL_LIST
     bcc.append(settings.MANAGERS[0][1])
@@ -279,7 +279,7 @@ def impact_form(request, pid):
                     to_list.append(approver.user.email)
                 if DEBUG:
                     proposal.to_list = to_list
-                    to_list = MANAGER
+                    to_list = TEST_EMAILS
 
                 if to_list:
                     # send the email to Approvers
@@ -312,7 +312,7 @@ def impact_form(request, pid):
                     to_list = [chairs[0][8]]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = MANAGER
+                        to_list = TEST_EMAILS
 
                     # send the email
                     send_mail(
@@ -334,7 +334,7 @@ def impact_form(request, pid):
                 to_list = [proposal.user.email]
                 if DEBUG:
                     proposal.to_list = to_list
-                    to_list = MANAGER
+                    to_list = TEST_EMAILS
 
                 # send the email
                 send_mail(
@@ -501,14 +501,14 @@ def proposal_form(request, pid=None):
                     to_list.append(chairs[0][8])
                     if DEBUG:
                         data.to_list = to_list
-                        to_list = MANAGER
+                        to_list = TEST_EMAILS
                 else:
                     # staff do not have a dean so we send the email
                     # to OSP folks
                     to_list.append(PROPOSAL_EMAIL_LIST)
                     if DEBUG:
                         data.to_list = to_list
-                        to_list = MANAGER
+                        to_list = TEST_EMAILS
 
                     # for display purposes only in the email
                     data.department_name = depts[0][1]
@@ -525,7 +525,6 @@ def proposal_form(request, pid=None):
                     Your Approval Needed for "{0}" by {1}, {2}'.format(
                     data.title, data.user.last_name, data.user.first_name,
                 )
-                # OSP can update proposals after save/submit
                 if not data.save_submit:
                     send_mail(
                         request,
@@ -541,7 +540,7 @@ def proposal_form(request, pid=None):
                 subject = "Part A Submission Received: {0}".format(data.title)
 
                 if DEBUG:
-                    to_list = MANAGER
+                    to_list = TEST_EMAILS
                     data.to_list = data.user.email
                 else:
                     to_list = [data.user.email]
@@ -707,7 +706,7 @@ def proposal_approver(request, pid=0):
                 )
 
                 if DEBUG:
-                    to_list = MANAGER
+                    to_list = TEST_EMAILS
                     proposal.to_list = [
                         proposal.user.email, approver.user.email,
                     ]
@@ -755,7 +754,7 @@ def email_investigator(request, pid, action):
             form_data = form.cleaned_data
             if 'execute' in request.POST:
                 if DEBUG:
-                    to_list = MANAGER
+                    to_list = TEST_EMAILS
                 else:
                     to_list = [proposal.user.email]
                 send_mail(
@@ -933,7 +932,7 @@ def proposal_status(request):
                     to_list = [proposal.user.email]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = MANAGER
+                        to_list = TEST_EMAILS
                     send_mail(
                         request,
                         to_list,
@@ -979,7 +978,7 @@ def proposal_status(request):
                     to_list = [proposal.user.email]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = MANAGER
+                        to_list = TEST_EMAILS
                     send_mail(
                         request,
                         to_list,
@@ -1007,7 +1006,7 @@ def proposal_status(request):
             to_list = [proposal.user.email]
             if DEBUG:
                 proposal.to_list = to_list
-                to_list = MANAGER
+                to_list = TEST_EMAILS
 
             # default message for when none of the conditions below are met
             message = "You do not have permission to '{}'".format(status)
@@ -1040,7 +1039,7 @@ def proposal_status(request):
                     to_list = [VEEP.email, PROVOST.email]
                     if DEBUG:
                         proposal.to_list = to_list
-                        to_list = MANAGER
+                        to_list = TEST_EMAILS
                     subject = 'Review and Provide Final Authorization for PART B: "{0}" by {1}, {2}'.format(
                         proposal.title,
                         proposal.user.last_name,
@@ -1098,7 +1097,7 @@ def proposal_status(request):
                         to_list = [VEEP.email, PROVOST.email]
                         if DEBUG:
                             proposal.to_list = to_list
-                            to_list = MANAGER
+                            to_list = TEST_EMAILS
                         subject = (
                             'Review and Provide Final Authorization for PART B: '
                             '"{0}" by {1}, {2}'
