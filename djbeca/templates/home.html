@@ -70,9 +70,7 @@ $(function() {
       <span class="nav-link-text">
       {% ifusergroup osp_group %}All{% else %}
       {% if dean_chair %}All{% else %}My{% endif %}
-        {% endifusergroup %}
-        Proposals
-      </span>
+      {% endifusergroup %}Proposals</span>
     </a>
   </li>
   {% if user.is_superuser or user.profile.css %}
@@ -147,7 +145,18 @@ $(function() {
     </div>
     <div class="col-lg-8" style="font-weight:bold;">
       {% get_lw_content as intro blurbs 2433 %}
-      {{intro.body|safe}}
+      <div id="lw_success_2433">{{intro.body|safe}}</div>
+      {% ifusergroup osp_group %}
+      <p>
+        <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2433"
+          target="_blank">
+          <i class="fa fa-pencil green" aria-hidden="true"
+          title="Manage the content above in LiveWhale"></i></a>
+        <a href="#" data-cid="2433" data-target="lw_success_2433" class="clear-cache">
+          <i class="fa fa-refresh green" aria-hidden="true"
+          title="Clear the cache for this content"></i></a>
+      </p>
+      {% endifusergroup %}
       <p>NOTE: Hover over icons and links to see more information.</p>
     </div>
   </div>

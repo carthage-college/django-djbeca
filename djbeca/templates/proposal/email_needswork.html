@@ -1,20 +1,28 @@
 {% load livewhale_api %}
+{% load ifusergroup %}
 {% autoescape off %}
 {% block message %}
-  {% get_lw_content as email blurbs 2583 %}
-  {{email.body|safe}}
+{% get_lw_content as email blurbs 2583 %}
+{{email.body|safe}}
+{% ifusergroup osp_group %}
+  <p>
+    <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2583"
+      target="_blank">Manage the content above in LiveWhale></a><br>
+    <a href="https://{{server_url}}{% url 'clear_cache_get' %}?cid=2583" class="clear-cache">
+      Clear the cache for this content</a>
+  </p>
+{% endifusergroup %}
 <h3>
   <a href="{{data.get_update_url}}">
     Click Here to Update This Proposal
   </a>
 </h3>
-
-  <h4>This action  was executed by:</h4>
-  <p>
-    <a href="mailto:{{request.user.email}}">
-      {{request.user.last_name}}, {{request.user.first_name}}
-    </a>
-  </p>
+<h4>This action  was executed by:</h4>
+<p>
+  <a href="mailto:{{request.user.email}}">
+    {{request.user.last_name}}, {{request.user.first_name}}
+  </a>
+</p>
 {% if data.to_list %}
 to_list = {{data.to_list}}
 {% endif %}

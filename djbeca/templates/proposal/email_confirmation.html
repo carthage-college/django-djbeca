@@ -1,15 +1,16 @@
 {% autoescape off %}
 {% load livewhale_api %}
+{% load ifusergroup %}
 {% get_lw_content as email blurbs 2404 %}
 {{email.body|safe}}
-{% if data.osp %}
+{% ifusergroup osp_group %}
   <p>
   <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2405"
   target="_blank">
     <i class="fa fa-pencil green" aria-hidden="true"
     title="Manage the content above in LiveWhale"></i></a>
   </p>
-{% endif %}
+{% endifusergroup %}
 {% if data.to_list %}
 to_list = {{data.to_list}}
 {% endif %}

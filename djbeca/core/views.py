@@ -725,7 +725,7 @@ def proposal_approver(request, pid=0):
                 )
 
                 return HttpResponseRedirect(
-                    reverse_lazy('proposal_approver_success'),
+                    reverse_lazy('approver_success'),
                 )
 
         else:
@@ -770,7 +770,7 @@ def email_investigator(request, pid, action):
                     bcc,
                 )
                 return HttpResponseRedirect(
-                    reverse_lazy('email_investigator_done'),
+                    reverse_lazy('email_investigator_success'),
                 )
             else:
                 return render(
@@ -1169,9 +1169,33 @@ def clear_cache(request, ctype='blurbs'):
     session_var='DJSAPO_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
-def proposal_success(request, ctype='blurb'):
+def proposal_success(request):
     """Redirect here after user submits Part A."""
-    osp = in_group(request.user, OSP_GROUP)
-    return render(
-        request, 'proposal/done.html', {'osp': osp},
-    )
+    return render(request, 'proposal/done.html')
+
+
+@portal_auth_required(
+    session_var='DJSAPO_AUTH',
+    redirect_url=reverse_lazy('access_denied'),
+)
+def impact_success(request):
+    """Redirect here after user submits Part B."""
+    return render(request, 'impact/done.html')
+
+
+@portal_auth_required(
+    session_var='DJSAPO_AUTH',
+    redirect_url=reverse_lazy('access_denied'),
+)
+def approver_success(request):
+    """Redirect here after user adds an approver to a proposal."""
+    return render(request, 'impact/done.html')
+
+
+@portal_auth_required(
+    session_var='DJSAPO_AUTH',
+    redirect_url=reverse_lazy('access_denied'),
+)
+def email_investigator_success(request):
+    """Redirect here after user submits an email form."""
+    return render(request, 'investigator/done.html')

@@ -57,7 +57,6 @@ urlpatterns = [
     # -------------------------------------------------------------------------
     # Part A: new submission
     path('proposal/', views.proposal_form, name='proposal_form'),
-    path('proposal/success/', views.proposal_success, name='proposal_success'),
     # Part A: Detail
     path(
         'proposal/<int:pid>/detail/',
@@ -79,9 +78,7 @@ urlpatterns = [
         name='impact_form',
     ),
     path(
-        'proposal/impact/success/',
-        TemplateView.as_view(template_name='impact/done.html'),
-        name='impact_success',
+        'proposal/impact/success/', views.impact_success, name='impact_success',
     ),
     # Manager Dashboard
     # -------------------------------------------------------------------------
@@ -93,8 +90,8 @@ urlpatterns = [
     ),
     path(
         'proposal/approver/success/',
-        TemplateView.as_view(template_name='approver/done.html'),
-        name='proposal_approver_success',
+        views.approver_success,
+        name='approver_success',
     ),
     path(
         'proposal/approver/',
@@ -104,8 +101,8 @@ urlpatterns = [
     # Send an email to primary investigator
     path(
         'proposal/email/success/',
-        TemplateView.as_view(template_name='investigator/email_done.html'),
-        name='email_investigator_done',
+        views.email_investigator_success,
+        name='email_investigator_success',
     ),
     path(
         'proposal/email/<int:pid>/<str:action>/',
