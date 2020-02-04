@@ -69,6 +69,9 @@ urlpatterns = [
         views.proposal_form,
         name='proposal_update',
     ),
+    path(
+        'proposal/success/', views.proposal_success, name='proposal_success',
+    ),
     # Proposal Impact: Part B
     # -------------------------------------------------------------------------
     # Part B: new submission
