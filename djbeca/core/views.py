@@ -3,7 +3,6 @@
 """Views for all requests."""
 
 import json
-import logging
 from datetime import datetime
 from decimal import Decimal
 from re import sub
@@ -40,7 +39,6 @@ from djtools.fields import NOW
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 
-logger = logging.getLogger('debug_logfile')
 
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
@@ -283,9 +281,7 @@ def impact_form(request, pid):
                     proposal.to_list = to_list
                     to_list = TEST_EMAILS
 
-                logger.debug('to_list = {0}'.format(to_list))
                 if to_list:
-                    logger.debug('send_mail')
                     # send the email to Approvers
                     sent = send_mail(
                         request,
@@ -296,7 +292,6 @@ def impact_form(request, pid):
                         proposal,
                         bcc,
                     )
-                    logger.debug('sent = {0}'.format(sent))
 
                 # email Division Dean (level3)
                 where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
