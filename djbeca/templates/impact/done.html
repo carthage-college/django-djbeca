@@ -1,10 +1,9 @@
 {% extends "home.html" %}
 {% load livewhale_api %}
-{% load ifusergroup %}
 {% block content %}
 {% get_lw_content as thanks blurbs 2506 %}
 <div id="lw_success_2506">{{thanks.body|safe}}</div>
-{% ifusergroup osp_group or debug %}
+{% if debug %}
 <p>
   <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2506"
   target="_blank">
@@ -14,5 +13,5 @@
     <i class="fa fa-refresh green" aria-hidden="true"
     title="Clear the cache for this content"></i></a>
 </p>
-{% endifusergroup %}
+{% endif %}
 {% endblock %}

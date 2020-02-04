@@ -260,11 +260,9 @@ def impact_form(request, pid):
             # (i.e. hits 'submit-save' rather than 'save and continue')
             post = request.POST
             if post.get('save_submit') and not proposal.save_submit:
-
                 # set the save submit flag so PI cannot update
                 proposal.save_submit = True
                 proposal.save()
-
                 # email approvers
                 subject = (
                     'Routing & Authorization Form Part B: '
@@ -283,7 +281,7 @@ def impact_form(request, pid):
 
                 if to_list:
                     # send the email to Approvers
-                    sent = send_mail(
+                    send_mail(
                         request,
                         to_list,
                         subject,

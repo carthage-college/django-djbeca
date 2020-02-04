@@ -121,7 +121,7 @@
                 {% endif %}
               {% endif %}
               {% endfor %}
-              {% if p.proposal_impact.level3 %}
+              {% if p.impact.level3 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Division Dean or Department VP Approved"></i>
@@ -130,7 +130,7 @@
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Dean or Department VP has NOT approved Part B"></i>
               {% endif %}
-              {% if p.proposal_impact.level2 %}
+              {% if p.impact.level2 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="CFO Approved"></i>
@@ -139,7 +139,7 @@
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="CFO has NOT approved Part B"></i>
               {% endif %}
-              {% if p.proposal_impact.level1 %}
+              {% if p.impact.level1 %}
                 <i class="fa fa-2x fa-check green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden="true"
                 title="Provost Approved"></i>

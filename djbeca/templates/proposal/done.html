@@ -3,7 +3,7 @@
 {% block content %}
 {% get_lw_content as thanks blurbs 2404 %}
 <div id="lw_success_2404">{{thanks.body|safe}}</div>
-{% if osp or debug %}
+{% if debug %}
 <p>
   <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2404"
   target="_blank">
