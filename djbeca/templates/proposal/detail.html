@@ -131,8 +131,7 @@ $(function() {
           <dt>Author</dt>
           <dd>
             <a href="mailto:{{proposal.user.email}}">
-              {{proposal.user.last_name}},
-              {{proposal.user.first_name}}
+              {{proposal.user.last_name}}, {{proposal.user.first_name}}
             </a>
           </dd>
           <dt>Department</dt>
@@ -143,7 +142,7 @@ $(function() {
         <h4>In this proposal, Carthage is considered:</h4>
         <h5>{{proposal.lead_institution}}</h5>
         <h4>Lead institution contact information</h4>
-        <div>{{proposal.lead_institution_contact}}</div>
+        <div>{{proposal.lead_institution_contact|safe}}</div>
         <h4>
         Co-Principal Investigators & Associated Institution
         </h4>
