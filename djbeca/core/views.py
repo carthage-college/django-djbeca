@@ -3,6 +3,7 @@
 """Views for all requests."""
 
 import json
+import logging
 from datetime import datetime
 from decimal import Decimal
 from re import sub
@@ -39,6 +40,7 @@ from djtools.fields import NOW
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 
+logger = logging.getLogger('debug_logfile')
 
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
@@ -281,9 +283,11 @@ def impact_form(request, pid):
                     proposal.to_list = to_list
                     to_list = TEST_EMAILS
 
+                logger.debug('to_list = {0}'.format(to_list))
                 if to_list:
+                    logger.debug('send_mail')
                     # send the email to Approvers
-                    send_mail(
+                    sent = send_mail(
                         request,
                         to_list,
                         subject,
@@ -292,6 +296,7 @@ def impact_form(request, pid):
                         proposal,
                         bcc,
                     )
+                    logger.debug('sent = {0}'.format(sent))
 
                 # email Division Dean (level3)
                 where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
@@ -432,14 +437,13 @@ def proposal_form(request, pid=None):
         # we do not allow anyone but the PI to update a proposal
         if proposal.user != user and not group:
             return HttpResponseRedirect(reverse_lazy('home'))
-
         # we do not allow PIs to update their proposals after save-submit
         # but OSP can do so
         elif proposal.save_submit and not group:
             return HttpResponseRedirect(reverse_lazy('home'))
-        elif not proposal.level3 and not proposal.opened:
+        elif (not proposal.level3 or not proposal.opened) and not group:
             return HttpResponseRedirect(reverse_lazy('home'))
-        elif proposal.decline or proposal.closed:
+        elif (proposal.decline or proposal.closed) and not group:
             return HttpResponseRedirect(reverse_lazy('home'))
         else:
             investigators = proposal.contact.filter(
@@ -619,9 +623,13 @@ def proposal_detail(request, pid):
         tags__name='Co-Principal Investigators',
     )
 
-    form_impact = forms.ImpactForm(
-        instance=proposal.impact, label_suffix='',
-    )
+    try:
+        form_impact = forms.ImpactForm(
+            instance=proposal.impact, label_suffix='',
+        )
+    except ProposalImpact.DoesNotExist:
+        form_impact = None
+
     excludes = [
         'id',
         'created_at',
