@@ -176,9 +176,9 @@ class Proposal(models.Model):
         "Program summary (~500 words)",
         help_text="""
             Provide a brief description of your proposed project.
-            How does your project address one or more strategies/goals
-            in Carthage’s strategic plan? Include subrecipient/subaward
-            details, if applicable.
+            How does your project help further Carthage's mission?
+            Describe any partnerships or collaborative relationships
+            needed to execute the project. 
         """,
     )
     # Project Funding / Budget Overview
@@ -190,11 +190,32 @@ class Proposal(models.Model):
     )
     budget_summary = models.TextField(
         "Budget Summary (~500 words)",
-        help_text="""
-            Describe your funding plan. Include brief responses regarding the
-            use of new/existing funds and cost share/match requirements, if
-            applicable.
-        """,
+        help_text=mark_safe(
+        """
+            Describe your funding plan: 
+            <ul>
+                <li>
+                    What types of expenses do you expect to have
+                    (summer salary, travel, student research dollars,
+                    admin support, materials and supplies, equipment,
+                    etc...)?
+                </li>
+                <li>
+                    Will this grant provide new funds for a new project
+                    or new funds for an existing project? Will the grant
+                    provide any budget relief for Carthage? Describe.
+                </li>
+                <li>
+                    Will other gift or grant dollars be used to support
+                    this project? Describe.
+                </li>
+                    What, if any financial commitments
+                    (match/ cost-share/ in-kind will Carthage need to
+                    make if awarded these funds?
+                </li>
+                <li>Does the grant allow for indirect costs? </li>
+            </ul>
+        """),
     )
     # additional comments
     comments = models.TextField(
@@ -500,7 +521,7 @@ class ProposalImpact(models.Model):
         help_text="Please provide additional details",
     )
     students_stipends = models.CharField(
-        "Student stipends",
+        "Student Stipends/ Scholarships/ Fellowships",
         max_length=16,
         choices=choices.BINARY_CHOICES,
     )
