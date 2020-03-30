@@ -52,7 +52,7 @@ STATIC_URL = '/static/djbeca/'
 MEDIA_URL = '/media/djbeca/'
 UPLOADS_DIR = '{0}files/'.format(MEDIA_ROOT)
 UPLOADS_URL = '{0}files/'.format(MEDIA_URL)
-FILE_UPLOAD_PERMISSIONS=0o644
+FILE_UPLOAD_PERMISSIONS = 0o644
 STATICFILES_DIRS = ()
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -172,9 +172,9 @@ else:
     PROPOSAL_EMAIL_LIST = []
 # approval level positions
 TposStruct = namedtuple('TposStruct', 'id email')
-PROV_TPOS=2877
-VEEP_TPOS=2760
-PREZ_TPOS=2674
+PROV_TPOS = 2877
+VEEP_TPOS = 2760
+PREZ_TPOS = 2674
 TPOS_DEFAULT = {
     PROV_TPOS: TposStruct(id=0, email=''),
     VEEP_TPOS: TposStruct(id=0, email=''),
@@ -234,18 +234,18 @@ LOGGING = {
     },
     'loggers': {
         'custom_logfile': {
-            'level':'ERROR',
-            'filters': ['require_debug_true'], # do not run error logger in production
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],  # do not run error logger in production
             'class': 'logging.FileHandler',
             'filename': CUSTOM_LOG_FILENAME,
             'formatter': 'custom',
         },
         'info_logfile': {
-            'level':'INFO',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
             'backupCount': 10,
             'maxBytes': 50000,
-            'filters': ['require_debug_false'], # run logger in production
+            'filters': ['require_debug_false'],  # run logger in production
             'filename': INFO_LOG_FILENAME,
             'formatter': 'simple',
         },
@@ -253,14 +253,14 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': DEBUG_LOG_FILENAME,
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         },
         'error_logfile': {
             'level': 'ERROR',
-            'filters': ['require_debug_true'], # do not run error logger in production
+            'filters': ['require_debug_true'],  # don't run logger in production
             'class': 'logging.FileHandler',
             'filename': ERROR_LOG_FILENAME,
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         },
         'djauth': {
             'handlers': ['logfile'],
