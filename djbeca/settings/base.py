@@ -21,8 +21,8 @@ from djimix.settings.local import (
 )
 
 # Debug
-DEBUG = True
-INFORMIX_DEBUG = 'debug'
+DEBUG = False
+INFORMIX_DEBUG = ''
 REQUIRED_ATTRIBUTE = True
 ADMINS = ()
 MANAGERS = ADMINS

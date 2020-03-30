@@ -1131,7 +1131,7 @@ def proposal_status(request):
 
 @csrf_exempt
 @portal_auth_required(
-    session_var='DJSAPO_AUTH',
+    session_var='DJBECA_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
 def clear_cache(request, ctype='blurbs'):
@@ -1166,7 +1166,7 @@ def clear_cache(request, ctype='blurbs'):
 
 
 @portal_auth_required(
-    session_var='DJSAPO_AUTH',
+    session_var='DJBECA_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
 def proposal_success(request):
@@ -1175,7 +1175,7 @@ def proposal_success(request):
 
 
 @portal_auth_required(
-    session_var='DJSAPO_AUTH',
+    session_var='DJBECA_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
 def impact_success(request):
@@ -1184,7 +1184,7 @@ def impact_success(request):
 
 
 @portal_auth_required(
-    session_var='DJSAPO_AUTH',
+    session_var='DJBECA_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
 def approver_success(request):
@@ -1193,7 +1193,7 @@ def approver_success(request):
 
 
 @portal_auth_required(
-    session_var='DJSAPO_AUTH',
+    session_var='DJBECA_AUTH',
     redirect_url=reverse_lazy('access_denied'),
 )
 def email_investigator_success(request):
