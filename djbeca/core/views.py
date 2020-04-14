@@ -231,7 +231,9 @@ def impact_form(request, pid):
                         funding.budget = budget
                     if amount[index]:
                         # strip any non-numeric characters
-                        funding_amount = Decimal(sub(r'[^\d.]', '', amount[index]))
+                        funding_amount = 0
+                        if amount.get(index):
+                            funding_amount = Decimal(sub(r'[^\d.]', '', amount[index]))
                         funding.amount = funding_amount
                     funding.source = source[index]
                     funding.status = status[index]
