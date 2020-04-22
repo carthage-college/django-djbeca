@@ -1200,4 +1200,4 @@ def approver_success(request):
 )
 def email_investigator_success(request):
     """Redirect here after user submits an email form."""
-    return render(request, 'investigator/done.html')
+    return render(request, 'investigator/email_done.html')
