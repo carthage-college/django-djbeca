@@ -312,6 +312,10 @@ class Proposal(models.Model):
             perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level1'
+            # provost might be an adhoc approver
+            for approver in self.approvers.all():
+                if approver.user == user:
+                    perms['approver'] = True
         # Superuser?
         elif group:
             perms['view'] = True

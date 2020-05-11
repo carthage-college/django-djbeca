@@ -656,7 +656,7 @@ def proposal_detail(request, pid):
 def proposal_approver(request, pid=0):
     """Add an approver to a proposal."""
     #
-    # OJO: we still need to validate that a Dean  can add an approver
+    # OJO: we still need to validate that a Dean can add an approver
     # to the proposal but we can trust deans for now.
 
     user = request.user
@@ -1029,7 +1029,7 @@ def proposal_status(request):
                     proposal,
                     bcc,
                 )
-                message = "Dean approved Part A"
+                message = "Dean/VP approved Part A"
             # if step2 and Division Dean
             elif step == 'step2' and perms['level3']:
                 proposal.impact.level3 = True
@@ -1048,7 +1048,6 @@ def proposal_status(request):
                         proposal.user.last_name,
                         proposal.user.first_name,
                     )
-
                     send_mail(
                         request,
                         to_list,
@@ -1061,6 +1060,32 @@ def proposal_status(request):
             # VP for Business?
             elif user.id == VEEP.id and step == 'step2':
                 proposal.impact.level2 = True
+                try:
+                    approver = proposal.approvers.get(user=user)
+                    proposal.impact.level3 = True
+                    # send email to Provost to approve Part B because VEEP
+                    # was both level3 and level2 approver and provost has
+                    # not been notified yet.
+                    to_list = [PROVOST.email]
+                    subject = 'Review and Provide Final Authorization for PART B: "{0}" by {1}, {2}'.format(
+                        proposal.title,
+                        proposal.user.last_name,
+                        proposal.user.first_name,
+                    )
+                    if DEBUG:
+                        proposal.to_list = to_list
+                        to_list = TEST_EMAILS
+                    send_mail(
+                        request,
+                        to_list,
+                        subject,
+                        proposal.user.email,
+                        'impact/email_approve_level1.html',
+                        proposal,
+                        bcc,
+                    )
+                except ProposalApprover.DoesNotExist:
+                    pass
                 proposal.impact.save()
                 message = "VP for Business approved Part B"
             # Provost?
