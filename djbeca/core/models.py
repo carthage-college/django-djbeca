@@ -902,8 +902,8 @@ class ProposalApprover(models.Model):
         null=True,
         blank=True,
     )
-    step1 = models.BooleanField(default=False)
-    step2 = models.BooleanField(default=False)
+    step1 = models.BooleanField(default=True)
+    step2 = models.BooleanField(default=True)
 
     class Meta:
         """Attributes about the data model and admin options."""
