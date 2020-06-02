@@ -77,7 +77,6 @@ def home(request):
                 'dc': proposals['dc'],
                 'depts': proposals['depts'],
                 'div': proposals['div'],
-                'approver': proposals['approver'],
             },
         )
     else:

@@ -199,26 +199,11 @@
             {% endif%}
           </td>
           <td>
-            {% if approver %}
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
               data-toggle="tooltip" data-placement="top" class="blue-tooltip"
               title="Send email to primary investigator">
               {{p.user.last_name}}, {{p.user.first_name}}
             </a>
-            {% else %}
-            {% ifusergroup osp_group %}
-            <a href="{% url 'email_investigator_form' p.id 'compose' %}"
-              data-toggle="tooltip" data-placement="top" class="blue-tooltip"
-              title="Send email to primary investigator">
-              {{p.user.last_name}}, {{p.user.first_name}}
-            </a>
-            {% else %}
-            <a href="mailto:{{p.user.email}}"
-              data-toggle="tooltip" data-placement="top" class="blue-tooltip"
-              title="Send email to primary investigator">
-              {{p.user.last_name}}, {{p.user.first_name}}</a>
-            {% endifusergroup %}
-            {% endif %}
           </td>
           <td>{{p.grant_deadline_date}}</td>
         </tr>
