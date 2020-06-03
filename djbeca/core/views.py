@@ -231,8 +231,10 @@ def impact_form(request, pid):
                     if amount[index]:
                         # strip any non-numeric characters
                         funding_amount = 0
-                        if amount.get(index):
+                        try:
                             funding_amount = Decimal(sub(r'[^\d.]', '', amount[index]))
+                        except Exception:
+                            pass
                         funding.amount = funding_amount
                     funding.source = source[index]
                     funding.status = status[index]
