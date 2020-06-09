@@ -223,8 +223,15 @@
             {% endif %}
             {% if field.name == 'admin_comments' and not perms.approve  %}
             {% else %}
+            {% if field.name == 'department' and osp %}
+            <select name="departments">
+            {% for dept in depts %}
+            <option value="{{dept.0.strip}}"{% if dept.0.strip == form.department.value %} selected{% endif %}>{{dept.1}}</option>
+            {% endfor %}
+            </select>
+            {% else %}
             {% include "form_field.inc.html" %}
-            {% endif %}
+            {% endif %}{% endif %}
           {% endfor %}
           </ol>
         </fieldset>

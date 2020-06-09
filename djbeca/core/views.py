@@ -34,6 +34,7 @@ from djbeca.core.utils import get_proposals
 from djimix.decorators.auth import portal_auth_required
 from djimix.people.departments import department_division_chairs
 from djimix.people.departments import person_departments
+from djimix.people.departments import departments_all_choices
 from djimix.people.utils import get_position
 from djtools.fields import NOW
 from djtools.utils.mail import send_mail
@@ -445,8 +446,10 @@ def proposal_form(request, pid=None):
             investigators = proposal.contact.filter(
                 tags__name='Co-Principal Investigators',
             )
-
-    depts = person_departments(user.id)
+    if group:
+        depts = departments_all_choices()
+    else:
+        depts = person_departments(user.id)
     if request.method == 'POST':
         form = forms.ProposalForm(
             depts,
@@ -597,6 +600,7 @@ def proposal_form(request, pid=None):
             'perms': perms,
             'form_investi': form_investi,
             'osp': group,
+            'depts': depts,
         },
     )
 
