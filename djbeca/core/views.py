@@ -1126,7 +1126,6 @@ def proposal_status(request):
                     # if step 2 is complete and we are ready for
                     # VP for Business and Provost to weight in, send email
                     if proposal.ready_level1():
-
                         to_list = [VEEP.email, PROVOST.email]
                         if DEBUG:
                             proposal.to_list = to_list
@@ -1148,13 +1147,12 @@ def proposal_status(request):
                             proposal,
                             bcc,
                         )
-
                     message = "Approved by {0} {1}".format(
                         approver.user.first_name,
                         approver.user.last_name,
                     )
                 except ProposalApprover.DoesNotExist:
-                    message = "You cannot change the status for this proposal"
+                    message = "There was a problem setting the status for this proposal"
     else:
         message = "Requires POST request"
 
