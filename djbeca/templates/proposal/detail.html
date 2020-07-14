@@ -274,7 +274,7 @@ $(function() {
             </div>
           {% endfor %}
           <h4>{% field_name proposal.budget 'plan_b' %}</h4>
-          <div>{{proposal.budget.plan_b}}</div>
+          <div>{{proposal.budget.plan_b|safe}}</div>
           <h4>
             {% field_name proposal.budget 'budget_final' %}
             {% if proposal.budget.budget_final %}
@@ -304,7 +304,7 @@ $(function() {
               {{sub.name}}{% if not forloop.last %}, {% endif %}
               {% endfor %}
               {% else %}
-              <div>{{field.value|default_if_none:''}}</div>
+              <div>{{field.value|safe|default_if_none:''}}</div>
               {% endif %}
             {% endif %}
           {% endfor %}
