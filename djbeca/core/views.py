@@ -669,7 +669,11 @@ def proposal_approver(request, pid=0):
         proposal = None
         proposal = get_object_or_404(Proposal, id=pid)
         if request.method == 'POST':
-            form = forms.ProposalApproverForm(request.POST, user=user)
+            form = forms.ProposalApproverForm(
+                request.POST,
+                user=user,
+                use_required_attribute=REQUIRED_ATTRIBUTE,
+            )
             if form.is_valid():
                 cd = form.cleaned_data
                 cid = cd['user']
@@ -737,7 +741,9 @@ def proposal_approver(request, pid=0):
 
         else:
             form = forms.ProposalApproverForm(
-                initial={'proposal': pid}, user=user,
+                initial={'proposal': pid},
+                user=user,
+                use_required_attribute=REQUIRED_ATTRIBUTE,
             )
 
         return render(

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
+from django.contrib.auth.models import User
 from djbeca.core import choices
 from djbeca.core.models import GenericChoice
 from djbeca.core.models import Proposal
@@ -338,6 +339,21 @@ class ProposalApproverForm(forms.Form):
 
     user = forms.ChoiceField(label="Faculty/Staff", choices=())
     proposal = forms.ChoiceField(label="Proposal", choices=())
+
+    def clean(self):
+        """Check for a valid proposal, user, and if approver already exists."""
+        cd = self.cleaned_data
+        user = User.objects.filter(pk=cd.get('user')).first()
+        proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
+        if not user:
+            self.add_error('user', "That is not a valid user")
+        elif proposal:
+            for approver in proposal.approvers.all():
+                if approver.user == user:
+                    self.add_error('user', "That user is already an approver.")
+        else:
+            self.add_error('proposal', "That is not a valid proposal")
+        return cd
 
 
 class EmailInvestigatorForm(forms.Form):
