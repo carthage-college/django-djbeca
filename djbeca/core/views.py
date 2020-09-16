@@ -33,8 +33,8 @@ from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
 from djimix.decorators.auth import portal_auth_required
 from djimix.people.departments import department_division_chairs
-from djimix.people.departments import person_departments
 from djimix.people.departments import departments_all_choices
+from djimix.people.departments import person_departments
 from djimix.people.utils import get_position
 from djtools.fields import NOW
 from djtools.utils.mail import send_mail
