@@ -440,7 +440,10 @@ class ProposalImpact(models.Model):
         verbose_name="",
         null=True,
         blank=True,
-        help_text="If you checked any of the boxes above, please provide additional details",
+        help_text="""
+            If you checked any of the boxes above, please provide additional
+            details.
+        """,
     )
     course_relief = models.CharField(
         """
