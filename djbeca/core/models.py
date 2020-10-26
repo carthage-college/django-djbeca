@@ -91,6 +91,8 @@ class Proposal(models.Model):
     closed = models.BooleanField(default=False)
     # signifies that it has been reopened
     opened = models.BooleanField(default=False)
+    # signifies that it has been awarded funds
+    awarded = models.BooleanField(default=False)
 
     # Basic Proposal Elements
     proposal_type = models.CharField(

@@ -51,6 +51,7 @@ class ProposalForm(forms.ModelForm):
         exclude = (
             'opened',
             'closed',
+            'awarded',
             'user',
             'created_at',
             'updated_at',

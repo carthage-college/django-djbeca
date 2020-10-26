@@ -33,9 +33,11 @@ class ProposalAdmin(admin.ModelAdmin):
         'first_name',
         'title',
         'level3',
+        'awarded',
         'created_at',
         'updated_at',
     )
+    list_editable = ('awarded',)
     date_hierarchy = 'created_at'
     ordering = (
         '-created_at', 'user__last_name', 'user__first_name', 'level3',

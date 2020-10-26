@@ -21,6 +21,7 @@
             data-toggle="tooltip" data-placement="top" aria-hidden="true"
             title="Click the icon to open or close a proposal"></i>
         </th>
+        <th style="text-align:center;">Awarded</th>
         <th>
           Submitted by
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
@@ -198,6 +199,17 @@
               {% endifusergroup %}
             {% endif%}
           </td>
+          <td style="text-align:center;">
+            {% if p.awarded %}
+              <i class="fa fa-2x fa-check green blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Awarded"></i>
+            {% else %}
+              <i class="fa fa-2x fa-times red blue-tooltip"
+              data-toggle="tooltip" data-placement="top" aria-hidden="true"
+              title="Has NOT been awarded funds"></i>
+            {% endif %}
+          </td>
           <td>
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
               data-toggle="tooltip" data-placement="top" class="blue-tooltip"
@@ -229,6 +241,7 @@
             data-toggle="tooltip" data-placement="top" aria-hidden="true"
             title="Click the icon to open or close a proposal"></i>
         </th>
+        <th style="text-align:center;">Awarded</th>
         <th>
           Submitted by
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
