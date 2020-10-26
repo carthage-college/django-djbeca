@@ -205,10 +205,17 @@
               data-toggle="tooltip" data-placement="top" aria-hidden="true"
               title="Awarded"></i>
             {% else %}
-              <i class="fa fa-2x fa-times red blue-tooltip"
-              data-toggle="tooltip" data-placement="top" aria-hidden="true"
-              title="Has NOT been awarded funds"></i>
-            {% endif %}
+            {% if not p.decline and p.step1 and p.step2 %}
+              <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
+                data-placement="top" title="Set this proposal to 'Awarded'"
+                data-pid="{{p.id}}" data-status="awarded"
+                class="proposal-status blue-tooltip">
+                <i class="fa fa-2x fa-times red" aria-hidden="true"></i>
+              </a>
+            {% else %}
+              <i class="fa fa-2x fa-times red" aria-hidden="true"
+                title="This proposal has not been awarded"></i>
+            {% endif %}{% endif %}
           </td>
           <td>
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"

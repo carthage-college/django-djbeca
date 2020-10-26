@@ -1104,6 +1104,11 @@ def proposal_status(request):
                 proposal.impact.level1 = True
                 proposal.impact.save()
                 message = "Provost approved Part B"
+            # awarded
+            elif status == 'awarded' and perms['superuser']:
+                proposal.awarded = True
+                proposal.save()
+                message = "Proposal is awarded"
             # approvers
             else:
                 try:
@@ -1137,7 +1142,7 @@ def proposal_status(request):
                             proposal.to_list = to_list
                             to_list = TEST_EMAILS
                         subject = (
-                            'Review and Provide Final Authorization for PART B: '
+                            'Review & Provide Final Authorization for PART B: '
                             '"{0}" by {1}, {2}'
                         ).format(
                             proposal.title,
@@ -1158,7 +1163,9 @@ def proposal_status(request):
                         approver.user.last_name,
                     )
                 except ProposalApprover.DoesNotExist:
-                    message = "There was a problem setting the status for this proposal"
+                    message = """
+                        There was a problem setting the status for this proposal
+                    """
     else:
         message = "Requires POST request"
 
