@@ -235,8 +235,7 @@
             {% if field.help_text %}
             <p class="help">{{field.help_text|safe}}</p>
             {% endif %}
-
-            <select name="departments">
+            <select name="department">
             {% for dept in depts %}
             <option value="{{dept.0.strip}}"{% if dept.0.strip == form.department.value %} selected{% endif %}>{{dept.1}}</option>
             {% endfor %}
