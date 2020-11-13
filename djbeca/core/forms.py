@@ -2,6 +2,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from djauth.LDAPManager import LDAPManager
 from djbeca.core import choices
 from djbeca.core.models import GenericChoice
 from djbeca.core.models import Proposal
@@ -11,6 +12,7 @@ from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
 from djimix.people.utils import get_peeps
 from djtools.fields import BINARY_CHOICES
+from djtools.fields import NOW
 
 
 SUBCONTRACTS_CHOICES = GenericChoice.objects.filter(
@@ -344,7 +346,25 @@ class ProposalApproverForm(forms.Form):
     def clean(self):
         """Check for a valid proposal, user, and if approver already exists."""
         cd = self.cleaned_data
-        user = User.objects.filter(pk=cd.get('user')).first()
+        cid = cd.get('user')
+        try:
+            user = User.objects.get(pk=cd.get('user'))
+        except User.DoesNotExist:
+            # create a new user
+            ldapman = LDAPManager()
+            luser = ldapman.search(cid)
+            luser = luser[0][1]
+            password = User.objects.make_random_password(length=24)
+            user = User.objects.create(
+                pk=cid,
+                username=luser['cn'][0],
+                email=luser['mail'][0],
+                last_login=NOW,
+            )
+            user.set_password(password)
+            user.first_name = luser['givenName'][0]
+            user.last_name = luser['sn'][0]
+            user.save()
         proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
         if not user:
             self.add_error('user', "That is not a valid user")

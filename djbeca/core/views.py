@@ -20,7 +20,6 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
-from djauth.LDAPManager import LDAPManager
 from djbeca.core import forms
 from djbeca.core.choices import BUDGET_FUNDING_SOURCE
 from djbeca.core.choices import BUDGET_FUNDING_STATUS
@@ -36,7 +35,6 @@ from djimix.people.departments import department_division_chairs
 from djimix.people.departments import departments_all_choices
 from djimix.people.departments import person_departments
 from djimix.people.utils import get_position
-from djtools.fields import NOW
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 
@@ -677,25 +675,7 @@ def proposal_approver(request, pid=0):
             if form.is_valid():
                 cd = form.cleaned_data
                 cid = cd['user']
-                try:
-                    user = User.objects.get(id=cid)
-                except User.DoesNotExist:
-                    # create a new user
-                    ldapman = LDAPManager()
-                    luser = ldapman.search(cid)
-                    luser = luser[0][1]
-                    password = User.objects.make_random_password(length=24)
-                    user = User.objects.create(
-                        pk=cid,
-                        username=luser['cn'][0],
-                        email=luser['mail'][0],
-                        last_login=NOW,
-                    )
-                    user.set_password(password)
-                    user.first_name = luser['givenName'][0]
-                    user.last_name = luser['sn'][0]
-                    user.save()
-
+                user = User.objects.get(id=cid)
                 approver = ProposalApprover(user=user, proposal=proposal)
 
                 where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
