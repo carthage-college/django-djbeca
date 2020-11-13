@@ -366,9 +366,7 @@ class ProposalApproverForm(forms.Form):
             user.last_name = luser['sn'][0]
             user.save()
         proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
-        if not user:
-            self.add_error('user', "That is not a valid user")
-        elif proposal:
+        if proposal:
             for approver in proposal.approvers.all():
                 if approver.user == user:
                     self.add_error('user', "That user is already an approver.")
