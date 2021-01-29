@@ -36,7 +36,6 @@ from djimix.people.departments import department_division_chairs
 from djimix.people.departments import departments_all_choices
 from djimix.people.departments import person_departments
 from djimix.people.utils import get_position
-from djtools.fields import NOW
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 
@@ -695,7 +694,6 @@ def proposal_approver(request, pid=0):
                     user.first_name = luser['givenName'][0]
                     user.last_name = luser['sn'][0]
                     user.save()
-
                 approver = ProposalApprover(user=user, proposal=proposal)
 
                 where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
