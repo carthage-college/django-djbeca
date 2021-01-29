@@ -20,7 +20,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
-from djauth.LDAPManager import LDAPManager
+from djauth.managers import LDAPManager
 from djbeca.core import forms
 from djbeca.core.choices import BUDGET_FUNDING_SOURCE
 from djbeca.core.choices import BUDGET_FUNDING_STATUS
@@ -91,7 +91,7 @@ def home(request):
 )
 def impact_form(request, pid):
     """Proposal Form Part B view."""
-    proposal = get_object_or_404(Proposal, id=pid)
+    proposal = get_object_or_404(Proposal, pk=pid)
     user = request.user
     perms = proposal.permissions(user)
 
@@ -428,7 +428,7 @@ def proposal_form(request, pid=None):
     group = in_group(user, OSP_GROUP)
 
     if pid:
-        proposal = get_object_or_404(Proposal, id=pid)
+        proposal = get_object_or_404(Proposal, pk=pid)
         perms = proposal.permissions(user)
 
         # we do not allow anyone but the PI to update a proposal
@@ -610,7 +610,7 @@ def proposal_form(request, pid=None):
 )
 def proposal_detail(request, pid):
     """Proposal detail view."""
-    proposal = get_object_or_404(Proposal, id=pid)
+    proposal = get_object_or_404(Proposal, pk=pid)
     user = request.user
 
     # verify that the user can view this proposal
@@ -667,7 +667,7 @@ def proposal_approver(request, pid=0):
     user = request.user
     if in_group(user, OSP_GROUP, DEANS_GROUP):
         proposal = None
-        proposal = get_object_or_404(Proposal, id=pid)
+        proposal = get_object_or_404(Proposal, pk=pid)
         if request.method == 'POST':
             form = forms.ProposalApproverForm(
                 request.POST,
@@ -678,7 +678,7 @@ def proposal_approver(request, pid=0):
                 cd = form.cleaned_data
                 cid = cd['user']
                 try:
-                    user = User.objects.get(id=cid)
+                    user = User.objects.get(pk=cid)
                 except User.DoesNotExist:
                     # create a new user
                     ldapman = LDAPManager()
@@ -761,7 +761,7 @@ def proposal_approver(request, pid=0):
 def email_investigator(request, pid, action):
     """Send an email to the primary investigator."""
     form_data = None
-    proposal = get_object_or_404(Proposal, id=pid)
+    proposal = get_object_or_404(Proposal, pk=pid)
     if request.method == 'POST':
         form = forms.EmailInvestigatorForm(request.POST)
         if form.is_valid():
@@ -818,7 +818,7 @@ def proposal_status(request):
         except ValueError:
             return HttpResponse("Access Denied")
         user = request.user
-        proposal = get_object_or_404(Proposal, id=pid)
+        proposal = get_object_or_404(Proposal, pk=pid)
         try:
             impact = proposal.impact
         except ProposalImpact.DoesNotExist:
