@@ -354,19 +354,9 @@ class ProposalApproverForm(forms.Form):
         except User.DoesNotExist:
             # create a new user
             eldap = LDAPManager()
-            luser = eldap.search(username, field='cn')
-            luser = luser[0][1]
-            password = User.objects.make_random_password(length=32)
-            user = User.objects.create(
-                pk=luser[settings.LDAP_ID_ATTR][0],
-                username=luser['cn'][0],
-                email=luser['mail'][0],
-                last_login=datetime.datetime.now(),
-            )
-            user.set_password(password)
-            user.first_name = luser['givenName'][0]
-            user.last_name = luser['sn'][0]
-            user.save()
+            result_data = eldap.search(username, field='cn')
+            groups = eldap.get_groups(result_data)
+            user = eldap.dj_create(result_data, groups=groups)
         proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
         if proposal:
             for approver in proposal.approvers.all():
