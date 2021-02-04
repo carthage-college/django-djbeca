@@ -31,7 +31,7 @@ from djbeca.core.models import ProposalBudgetFunding
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
-from djimix.decorators.auth import portal_auth_required
+from djauth.decorators import portal_auth_required
 from djimix.people.departments import department_division_chairs
 from djimix.people.departments import departments_all_choices
 from djimix.people.departments import person_departments
@@ -605,7 +605,7 @@ def proposal_form(request, pid=None):
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def proposal_detail(request, pid):
     """Proposal detail view."""
@@ -655,7 +655,7 @@ def proposal_detail(request, pid):
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied')
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def proposal_approver(request, pid=0):
     """Add an approver to a proposal."""
@@ -675,27 +675,9 @@ def proposal_approver(request, pid=0):
             )
             if form.is_valid():
                 cd = form.cleaned_data
-                cid = cd['user']
-                try:
-                    user = User.objects.get(pk=cid)
-                except User.DoesNotExist:
-                    # create a new user
-                    ldapman = LDAPManager()
-                    luser = ldapman.search(cid)
-                    luser = luser[0][1]
-                    password = User.objects.make_random_password(length=24)
-                    user = User.objects.create(
-                        pk=cid,
-                        username=luser['cn'][0],
-                        email=luser['mail'][0],
-                        last_login=NOW,
-                    )
-                    user.set_password(password)
-                    user.first_name = luser['givenName'][0]
-                    user.last_name = luser['sn'][0]
-                    user.save()
+                user = User.objects.get(username=cd['user'])
                 approver = ProposalApprover(user=user, proposal=proposal)
-
+                # check for a chair
                 where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
                 chairs = department_division_chairs(where)
                 # in the future, users might be able to select the role
@@ -1172,8 +1154,7 @@ def proposal_status(request):
 
 @csrf_exempt
 @portal_auth_required(
-    session_var='DJBECA_AUTH',
-    redirect_url=reverse_lazy('access_denied'),
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def clear_cache(request, ctype='blurbs'):
     """Clear the cache for API content."""
@@ -1207,8 +1188,7 @@ def clear_cache(request, ctype='blurbs'):
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH',
-    redirect_url=reverse_lazy('access_denied'),
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def proposal_success(request):
     """Redirect here after user submits Part A."""
@@ -1216,8 +1196,7 @@ def proposal_success(request):
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH',
-    redirect_url=reverse_lazy('access_denied'),
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def impact_success(request):
     """Redirect here after user submits Part B."""
@@ -1225,8 +1204,7 @@ def impact_success(request):
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH',
-    redirect_url=reverse_lazy('access_denied'),
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def approver_success(request):
     """Redirect here after user adds an approver to a proposal."""
@@ -1234,8 +1212,7 @@ def approver_success(request):
 
 
 @portal_auth_required(
-    session_var='DJBECA_AUTH',
-    redirect_url=reverse_lazy('access_denied'),
+    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
 )
 def email_investigator_success(request):
     """Redirect here after user submits an email form."""

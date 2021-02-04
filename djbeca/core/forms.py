@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
-from djauth.LDAPManager import LDAPManager
+from djauth.managers import LDAPManager
 from djbeca.core import choices
 from djbeca.core.models import GenericChoice
 from djbeca.core.models import Proposal
@@ -12,7 +15,6 @@ from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
 from djimix.people.utils import get_peeps
 from djtools.fields import BINARY_CHOICES
-from djtools.fields import NOW
 
 
 SUBCONTRACTS_CHOICES = GenericChoice.objects.filter(
@@ -319,12 +321,12 @@ class ProposalApproverForm(forms.Form):
         # populate the approvers select field with faculty/staff
         facstaff = get_peeps('facstaff')
         approvers = [('', '-----------')]
-        cid = None
+        username = None
         for fac in facstaff:
-            if cid != fac['cid']:
+            if username != fac['username']:
                 name = '{0}, {1}'.format(fac['lastname'], fac['firstname'])
-                approvers.append((fac['cid'], name))
-                cid = fac['cid']
+                approvers.append((fac['username'], name))
+                username = fac['username']
         self.fields['user'].choices = approvers
 
         # populate the proposals select field
@@ -346,20 +348,20 @@ class ProposalApproverForm(forms.Form):
     def clean(self):
         """Check for a valid proposal, user, and if approver already exists."""
         cd = self.cleaned_data
-        cid = cd.get('user')
+        username = cd.get('user')
         try:
-            user = User.objects.get(pk=cd.get('user'))
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
             # create a new user
-            ldapman = LDAPManager()
-            luser = ldapman.search(cid)
+            eldap = LDAPManager()
+            luser = eldap.search(username, field='cn')
             luser = luser[0][1]
-            password = User.objects.make_random_password(length=24)
+            password = User.objects.make_random_password(length=32)
             user = User.objects.create(
-                pk=cid,
+                pk=luser[settings.LDAP_ID_ATTR][0],
                 username=luser['cn'][0],
                 email=luser['mail'][0],
-                last_login=NOW,
+                last_login=datetime.datetime.now(),
             )
             user.set_password(password)
             user.first_name = luser['givenName'][0]
