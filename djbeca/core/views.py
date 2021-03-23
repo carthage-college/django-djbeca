@@ -20,6 +20,14 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
+from djauth.decorators import portal_auth_required
+from djimix.people.departments import department_division_chairs
+from djimix.people.departments import departments_all_choices
+from djimix.people.departments import person_departments
+from djimix.people.utils import get_position
+from djtools.utils.mail import send_mail
+from djtools.utils.users import in_group
+
 from djbeca.core import forms
 from djbeca.core.choices import BUDGET_FUNDING_SOURCE
 from djbeca.core.choices import BUDGET_FUNDING_STATUS
@@ -30,13 +38,6 @@ from djbeca.core.models import ProposalBudgetFunding
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
-from djauth.decorators import portal_auth_required
-from djimix.people.departments import department_division_chairs
-from djimix.people.departments import departments_all_choices
-from djimix.people.departments import person_departments
-from djimix.people.utils import get_position
-from djtools.utils.mail import send_mail
-from djtools.utils.users import in_group
 
 
 DEBUG = settings.DEBUG
