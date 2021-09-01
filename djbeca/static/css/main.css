@@ -56,6 +56,7 @@ h6 {font-weight:600;}
 .strike span {
   color:black;
 }
+span.error {display: block; margin-bottom:4px;}
 .blue-box {background-color:#eef6fe;}
 .lightgrey-box {background-color:#f7f0e4;}
 .list-group-item {

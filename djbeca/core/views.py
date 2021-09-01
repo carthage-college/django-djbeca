@@ -487,7 +487,7 @@ def proposal_form(request, pid=None):
 
             # send emails only if we have a new proposal or a revised proposal
             if not proposal or data.opened:
-                where = 'dept_table.dept = "{0}"'.format(proposal.department)
+                where = 'dept_table.dept = "{0}"'.format(data.department)
                 chairs = department_division_chairs(where)
                 to_list = []
                 # add approvers to distribution list
