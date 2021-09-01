@@ -16,7 +16,7 @@ def get_proposals(user):
     div = False
     dc = None
     dean_chair = department_division_chairs(
-        '(DTID.id={0} or DVID.id={1})'.format(user.id, user.id),
+        '(dept_id.id={0} OR div_id.id={1})'.format(user.id, user.id),
     )
     # obtain proposals where the user is an adhoc approver
     proposals = Proposal.objects.filter(
