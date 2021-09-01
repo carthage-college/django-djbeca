@@ -21,13 +21,6 @@ from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from djauth.decorators import portal_auth_required
-from djimix.people.departments import department_division_chairs
-from djimix.people.departments import departments_all_choices
-from djimix.people.departments import person_departments
-from djimix.people.utils import get_position
-from djtools.utils.mail import send_mail
-from djtools.utils.users import in_group
-
 from djbeca.core import forms
 from djbeca.core.choices import BUDGET_FUNDING_SOURCE
 from djbeca.core.choices import BUDGET_FUNDING_STATUS
@@ -38,6 +31,12 @@ from djbeca.core.models import ProposalBudgetFunding
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
+from djimix.people.departments import department_division_chairs
+from djimix.people.departments import departments_all_choices
+from djimix.people.departments import person_departments
+from djimix.people.utils import get_position
+from djtools.utils.mail import send_mail
+from djtools.utils.users import in_group
 
 
 DEBUG = settings.DEBUG
@@ -295,7 +294,7 @@ def impact_form(request, pid):
                     )
 
                 # email Division Dean (level3)
-                where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
+                where = 'dept_table.dept = "{0}"'.format(proposal.department)
                 chairs = department_division_chairs(where)
                 # staff do not have deans so len will be 0 in that case
                 if len(chairs) > 0:
@@ -488,9 +487,8 @@ def proposal_form(request, pid=None):
 
             # send emails only if we have a new proposal or a revised proposal
             if not proposal or data.opened:
-                where = 'PT.pcn_03 = "{0}"'.format(data.department)
+                where = 'dept_table.dept = "{0}"'.format(proposal.department)
                 chairs = department_division_chairs(where)
-
                 to_list = []
                 # add approvers to distribution list
                 for approver in data.approvers.all():
@@ -678,7 +676,7 @@ def proposal_approver(request, pid=0):
                 user = User.objects.get(username=cd['user'])
                 approver = ProposalApprover(user=user, proposal=proposal)
                 # check for a chair
-                where = 'PT.pcn_03 = "{0}"'.format(proposal.department)
+                where = 'dept_table.dept = "{0}"'.format(proposal.department)
                 chairs = department_division_chairs(where)
                 # in the future, users might be able to select the role
                 # that an approver might replace but for now we handle it
