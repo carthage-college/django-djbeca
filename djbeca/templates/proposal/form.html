@@ -2,7 +2,7 @@
 {% load livewhale_api %}
 {% block extra_javascript %}
 {{ block.super }}
-<script src="//www.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
+<script src="//app.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
   type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
   $(function() {
@@ -83,7 +83,7 @@
         firstDay:1,appendText:'(format yyyy-mm-dd)',
         changeFirstDay:false,dateFormat:'yy-mm-dd',
         showOn:'both',
-        buttonImage:'//www.carthage.edu/themes/shared/img/ico/calendar.gif',
+        buttonImage:'//app.carthage.edu/themes/shared/img/ico/calendar.gif',
         buttonImageOnly:true
     });
     // disable submit button after users clicks it
@@ -97,7 +97,7 @@
 {% endblock %}
 {% block extra_style %}
     {{block.super}}
-    <link href="//www.carthage.edu/static/vendor/jquery/ui/datepicker/css/smoothness/jquery-ui-1.10.4.custom.min.css"
+    <link href="//app.carthage.edu/static/vendor/jquery/ui/datepicker/css/smoothness/jquery-ui-1.10.4.custom.min.css"
         rel="stylesheet" type="text/css" />
     <style type="text/css">
     .note-editor{
@@ -141,7 +141,7 @@
         <div id="lw_success_2246">{{intro.body|safe}}</div>
         {% if osp %}
         <p>
-          <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=285&id=2246"
+          <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=14&id=2246"
             target="_blank">
             <i class="fa fa-pencil green" aria-hidden="true"
             title="Manage the content above in LiveWhale"></i></a>
