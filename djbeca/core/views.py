@@ -309,7 +309,7 @@ def impact_form(request, pid):
                     # we need department full name in email
                     proposal.department_name = chairs[0][0]
                     # Division dean's email
-                    to_list = [chairs[0][8]]
+                    to_list = [chairs[0][10]]
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = TEST_EMAILS
@@ -498,7 +498,7 @@ def proposal_form(request, pid=None):
                     # we need department full name in email
                     data.department_name = chairs[0][0]
                     # Division dean's email
-                    to_list.append(chairs[0][8])
+                    to_list.append(chairs[0][10])
                     if DEBUG:
                         data.to_list = to_list
                         to_list = TEST_EMAILS
