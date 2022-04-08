@@ -358,6 +358,13 @@ div.growlUI h1, div.growlUI h2 {
 color: white; padding: 5px 5px 5px 78px; text-align: left;
 font-size:1.4em;}
 .btn-block { width: 20%; }
+.navbar-nav .dropdown-menu a {color: lavender;}
+.navbar-nav .dropdown-menu a:hover {color: #fff;}
+.navbar-nav .dropdown-menu {padding: 5px; background-color:#003c4b;}
+.navbar-toggler-icon {color:yellow;}
+.navbar-nav .dropdown, .dropup { padding: 3px; }
+nav a {color: #cbbde2;}
+nav a:hover {color:#fff;}
 .navbar-static-side { width: 170px; }
 @media (min-width: 768px) {
     #page-wrapper { margin: 0 0 0 170px; }
