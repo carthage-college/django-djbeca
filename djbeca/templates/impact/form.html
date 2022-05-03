@@ -292,12 +292,12 @@
               </p>
               {% endif %}
               {% if form_impact.disclosure_assurance.errors %}
-              <div class="required warning">
-                <span class="error-message">
+              <div class="required warning mb-2">
+                <span class="error">
                   {{ form_impact.disclosure_assurance.errors|join:", "}}
                 </span>
               {% else %}
-              <div class="required">
+              <div class="required mt-2 mb-2">
               {% endif %}
                 <input name="disclosure_assurance" type="checkbox"
                 id="id_disclosure_assurance"
