@@ -34,7 +34,6 @@ from djbeca.core.utils import get_proposals
 from djimix.people.departments import department_division_chairs
 from djimix.people.departments import departments_all_choices
 from djimix.people.departments import person_departments
-from djimix.people.utils import get_position
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 
@@ -43,9 +42,11 @@ DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
 DEANS_GROUP = settings.DEANS_GROUP
-VEEP = get_position(settings.VEEP_TPOS)
-PROVOST = get_position(settings.PROV_TPOS)
-PRESIDENT = get_position(settings.PREZ_TPOS)
+
+VEEP = User.objects.get(pk=settings.VEEP_TPOS)
+PROVOST = User.objects.get(pk=settings.PROV_TPOS)
+PRESIDENT = User.objects.get(pk=settings.PREZ_TPOS)
+
 PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL
 TEST_EMAILS = [settings.MANAGERS[0][1], PROPOSAL_EMAIL_LIST[0]]

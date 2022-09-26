@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from djbeca.core import choices
 from djimix.people.departments import chair_departments
-from djimix.people.utils import get_position
 from djtools.fields.helpers import upload_to_path
 from djtools.utils.users import in_group
 from taggit.managers import TaggableManager
@@ -267,8 +266,8 @@ class Proposal(models.Model):
     def permissions(self, user):
         """What can the user access in terms of viewing & approval process."""
         osp_group = settings.OSP_GROUP
-        veep = get_position(settings.VEEP_TPOS)
-        provost = get_position(settings.PROV_TPOS)
+        veep = User.objects.get(pk=settings.VEEP_TPOS)
+        provost = User.objects.get(pk=settings.PROV_TPOS)
 
         perms = {
             'view': False,

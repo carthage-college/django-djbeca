@@ -177,15 +177,9 @@ if DEBUG:
 else:
     PROPOSAL_EMAIL_LIST = []
 # approval level positions
-TposStruct = namedtuple('TposStruct', 'id email')
-PROV_TPOS = 2877
-VEEP_TPOS = 2760
-PREZ_TPOS = 2674
-TPOS_DEFAULT = {
-    PROV_TPOS: TposStruct(id=0, email=''),
-    VEEP_TPOS: TposStruct(id=0, email=''),
-    PREZ_TPOS: TposStruct(id=0, email=''),
-}
+PROV_TPOS = None
+VEEP_TPOS = None
+PREZ_TPOS = None
 # logging
 LOG_FILEPATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs/')
 LOG_FILENAME = '{0}{1}'.format(LOG_FILEPATH, 'debug.log')
