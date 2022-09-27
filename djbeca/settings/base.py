@@ -7,7 +7,6 @@ import os
 from collections import namedtuple
 
 # sqlserver connection string
-from djimix.settings.local import MSSQL_EARL
 from djimix.settings.local import INFORMIX_ODBC, INFORMIX_ODBC_TRAIN
 from djimix.settings.local import (
     INFORMIXSERVER,
@@ -45,19 +44,20 @@ ROOT_URLCONF = 'djbeca.core.urls'
 WSGI_APPLICATION = 'djbeca.wsgi.application'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = BASE_DIR
+PROJECT_APP = os.path.basename(BASE_DIR)
+ROOT_URL = '/{0}/'.format(PROJECT_APP)
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 MEDIA_ROOT = '{0}/assets/'.format(ROOT_DIR)
 STATIC_ROOT = '{0}/static/'.format(ROOT_DIR)
-STATIC_URL = '/static/djbeca/'
-MEDIA_URL = '/media/djbeca/'
-UPLOADS_DIR = '{0}files/'.format(MEDIA_ROOT)
-UPLOADS_URL = '{0}files/'.format(MEDIA_URL)
+STATIC_URL = '/static/{0}/'.format(PROJECT_APP)
+MEDIA_URL = '/media/{0}/'.format(PROJECT_APP)
 FILE_UPLOAD_PERMISSIONS = 0o644
 STATICFILES_DIRS = ()
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'django.contrib.staticfiles.finders.FileSystemFinder',
 )
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 DATABASES = {
     'default': {
         'HOST': '127.0.0.1',
@@ -292,3 +292,24 @@ LOGGING = {
         },
     }
 }
+##################
+# LOCAL SETTINGS #
+##################
+
+# Allow any settings to be defined in local.py which should be
+# ignored in your version control system allowing for settings to be
+# defined per machine.
+
+# Instead of doing "from .local import *", we use exec so that
+# local has full access to everything defined in this module.
+# Also force into sys.modules so it's visible to Django's autoreload.
+
+phile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'local.py')
+if os.path.exists(phile):
+    import imp
+    import sys
+    module_name = '{0}.settings.local'.format(PROJECT_APP)
+    module = imp.new_module(module_name)
+    module.__file__ = phile
+    sys.modules[module_name] = module
+    exec(open(phile, 'rb').read())
