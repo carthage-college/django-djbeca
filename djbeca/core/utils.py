@@ -2,11 +2,32 @@
 
 from django.conf import settings
 from django.db.models import Q
+from djbeca.core.models import Profile
+from djbeca.core.models import Proposal
 from djimix.people.departments import chair_departments
 from djimix.people.departments import department_division_chairs
 from djtools.utils.users import in_group
+from sortedcontainers import SortedDict
 
-from djbeca.core.models import Proposal
+
+def departments_all():
+    """Returns department tuples for choices parameter in models and forms."""
+    depts = (
+        ('', '---Choose Your Department---'),
+        ('', '---Faculty Departments---'),
+    )
+    profiles = Profile.objects.using('workday')
+    faculty = profiles.filter(facstaff='faculty')
+    staff = profiles.filter(facstaff='staff')
+    for fac in faculty:
+        depts.append((fac.department, fac.department))
+
+    depts.append(('', '---Staff Deparments---'))
+
+    for st in staff:
+        depts.append((st.department, st.department))
+
+    return depts
 
 
 def get_proposals(user):

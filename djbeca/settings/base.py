@@ -67,6 +67,20 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
     },
+    'workday': {
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'NAME': 'workday',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'workday',
+        'PASSWORD': '',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'ssl': {
+                'ca': '',
+            },
+        },
+    },
 }
 INSTALLED_APPS = (
     # 'grappelli',

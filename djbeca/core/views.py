@@ -31,8 +31,8 @@ from djbeca.core.models import ProposalBudgetFunding
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
+from djbeca.core.utils import departments_all
 from djimix.people.departments import department_division_chairs
-from djimix.people.departments import departments_all_choices
 from djimix.people.departments import person_departments
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
@@ -446,7 +446,7 @@ def proposal_form(request, pid=None):
                 tags__name='Co-Principal Investigators',
             )
     if group:
-        depts = departments_all_choices()
+        depts = departments_all()
     else:
         depts = person_departments(user.id)
     if request.method == 'POST':
