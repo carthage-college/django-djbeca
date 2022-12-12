@@ -707,7 +707,13 @@ class ProposalBudget(models.Model):
         upload_to=upload_to_path,
         validators=FILE_VALIDATORS,
         max_length=512,
-        help_text="PDF or Excel Format Only",
+        help_text=mark_safe(
+           """
+            PDF or Excel Format Only:
+            <a href="https://app.carthage.edu/media/djbeca/proposal/budget.xlsx"
+              target="_blank">Download</a>
+           """
+        ),
     )
     budget_justification_final = models.FileField(
         "Final Budget Justification for Review",
