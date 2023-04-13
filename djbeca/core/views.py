@@ -31,17 +31,16 @@ from djbeca.core.models import ProposalBudgetFunding
 from djbeca.core.models import ProposalContact
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
-from djbeca.core.utils import departments_all
-from djimix.people.departments import department_division_chairs
-from djimix.people.departments import person_departments
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
+from djtools.utils.workday import department_person
+from djtools.utils.workday import department_all
+from djtools.utils.workday import get_deans
 
 
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
-DEANS_GROUP = settings.DEANS_GROUP
 
 VEEP = User.objects.get(pk=settings.VEEP_TPOS)
 PROVOST = User.objects.get(pk=settings.PROV_TPOS)
@@ -72,7 +71,7 @@ def home(request):
             'home.html',
             {
                 'proposals': proposals['objects'],
-                'dean_chair': proposals['dean_chair'],
+                'dean': proposals['dean'],
                 'group': group,
                 'dc': proposals['dc'],
                 'depts': proposals['depts'],
@@ -294,11 +293,17 @@ def impact_form(request, pid):
                         bcc,
                     )
 
+
                 # email Division Dean (level3)
                 where = 'dept_table.dept = "{0}"'.format(proposal.department)
-                chairs = department_division_chairs(where)
-                # staff do not have deans so len will be 0 in that case
-                if len(chairs) > 0:
+                for dean in get_deans():
+                    for dept in dean['departments_managed']:
+                        if dept == proposal.department:
+                            pass
+
+
+                # staff do not have deans so no need to send email
+                if deans:
                     subject = (
                         'Review and Provide Final Authorization for PART B: '
                         '"{0}" by {1}, {2}'
@@ -307,7 +312,7 @@ def impact_form(request, pid):
                         proposal.user.last_name,
                         proposal.user.first_name,
                     )
-                    # we need department full name in email
+                    # we need department code in email e.g. MUS
                     proposal.department_name = chairs[0][0]
                     # Division dean's email
                     to_list = [chairs[0][10]]
@@ -446,9 +451,9 @@ def proposal_form(request, pid=None):
                 tags__name='Co-Principal Investigators',
             )
     if group:
-        depts = departments_all()
+        depts = department_all(choices=True)
     else:
-        depts = person_departments(user.id)
+        depts = department_person(user.id, choices=True)
     if request.method == 'POST':
         form = forms.ProposalForm(
             depts,
@@ -512,7 +517,7 @@ def proposal_form(request, pid=None):
                         to_list = TEST_EMAILS
 
                     # for display purposes only in the email
-                    data.department_name = depts[0][1]
+                    #data.department_name = depts[0][1]
 
                 # if proposal has been reopened, we set opened to False
                 # so that proposal now is considered a new attempt at approval
@@ -590,6 +595,10 @@ def proposal_form(request, pid=None):
             prefix='investi',
             use_required_attribute=REQUIRED_ATTRIBUTE,
         )
+    if group:
+        depts = department_all()
+    else:
+        depts = department_person(user.id)
     return render(
         request,
         'proposal/form.html',
@@ -663,29 +672,29 @@ def proposal_approver(request, pid=0):
     # to the proposal but we can trust deans for now.
 
     user = request.user
-    if in_group(user, OSP_GROUP, DEANS_GROUP):
+    if in_group(user, OSP_GROUP) or get_deans(user.id):
         proposal = None
         proposal = get_object_or_404(Proposal, pk=pid)
         if request.method == 'POST':
             form = forms.ProposalApproverForm(
                 request.POST,
-                user=user,
                 use_required_attribute=REQUIRED_ATTRIBUTE,
             )
             if form.is_valid():
                 cd = form.cleaned_data
-                user = User.objects.get(username=cd['user'])
+                user = User.objects.get(pk=cd['user'])
                 approver = ProposalApprover(user=user, proposal=proposal)
-                # check for a chair
-                where = 'dept_table.dept = "{0}"'.format(proposal.department)
-                chairs = department_division_chairs(where)
                 # in the future, users might be able to select the role
                 # that an approver might replace but for now we handle it
-                # here and by default in the model, which is 'level3',
-                # and if a dean is adding an approver there is no replace
-                if len(chairs) > 0:
-                    approver.replace = None
-                approver.save()
+                # here and by default in the model, which is 'level3'.
+                # if the proposal is from faculty, the approver does not
+                # replace level3 so replace is set to None.
+                did = proposal.department_name
+                for dept in department_all():
+                    if dept['id'] == did and dept['orbit'] == 'faculty':
+                        approver.replace = None
+                        approver.save()
+                        break
 
                 # send an email to approver
                 prefix = 'Your Review and Authorization Required'
@@ -721,7 +730,6 @@ def proposal_approver(request, pid=0):
         else:
             form = forms.ProposalApproverForm(
                 initial={'proposal': pid},
-                user=user,
                 use_required_attribute=REQUIRED_ATTRIBUTE,
             )
 
@@ -1207,7 +1215,7 @@ def impact_success(request):
 )
 def approver_success(request):
     """Redirect here after user adds an approver to a proposal."""
-    return render(request, 'impact/done.html')
+    return render(request, 'approver/done.html')
 
 
 @portal_auth_required(

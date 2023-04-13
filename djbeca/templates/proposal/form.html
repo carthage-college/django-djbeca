@@ -237,7 +237,7 @@
             {% endif %}
             <select name="department">
             {% for dept in depts %}
-            <option value="{{dept.0.strip}}"{% if dept.0.strip == form.department.value %} selected{% endif %}>{{dept.1}}</option>
+            <option value="{{dept.id}}"{% if dept.id == form.department.value %} selected{% endif %}>{{dept.name}}</option>
             {% endfor %}
             </select>
             </div>

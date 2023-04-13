@@ -13,8 +13,9 @@ from djbeca.core.models import ProposalBudget
 from djbeca.core.models import ProposalDocument
 from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
-from djimix.people.utils import get_peeps
 from djtools.fields import BINARY_CHOICES
+from djtools.utils.workday import get_peep
+from djtools.utils.workday import get_peeps
 
 
 SUBCONTRACTS_CHOICES = GenericChoice.objects.filter(
@@ -313,48 +314,27 @@ class CommentsForm(forms.Form):
 class ProposalApproverForm(forms.Form):
     """Proposal approver form."""
 
+    user = forms.ChoiceField(label="Faculty/Staff", choices=())
+    proposal = forms.CharField(widget=forms.HiddenInput())
+
     def __init__(self, *args, **kwargs):
         """Set up choices for select field."""
-        user = kwargs.pop('user')
         super(ProposalApproverForm, self).__init__(*args, **kwargs)
-
         # populate the approvers select field with faculty/staff
-        facstaff = get_peeps('facstaff')
-        approvers = [('', '-----------')]
-        username = None
-        for fac in facstaff:
-            if username != fac['username']:
-                name = '{0}, {1}'.format(fac['lastname'], fac['firstname'])
-                approvers.append((fac['username'], name))
-                username = fac['username']
-        self.fields['user'].choices = approvers
-
-        # populate the proposals select field
-        proposals = get_proposals(user)
-        if proposals['objects']:
-            props = [('', '-----------')]
-            for prop in proposals['objects']:
-                title = '{0}: by {1}, {2}'.format(
-                    prop.title, prop.user.last_name, prop.user.first_name,
-                )
-                props.append((prop.id, title))
-            self.fields['proposal'].choices = props
-        else:
-            self.fields['proposal'].widget.attrs['class'] = 'error'
-
-    user = forms.ChoiceField(label="Faculty/Staff", choices=())
-    proposal = forms.ChoiceField(label="Proposal", choices=())
+        facstaff = get_peeps(who=False, choices=True)
+        self.fields['user'].choices = facstaff
 
     def clean(self):
         """Check for a valid proposal, user, and if approver already exists."""
         cd = self.cleaned_data
-        username = cd.get('user')
+        cid = cd.get('user')
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(pk=cid)
         except User.DoesNotExist:
             # create a new user
             eldap = LDAPManager()
-            result_data = eldap.search(username, field='cn')
+            peep = get_peep(cid)
+            result_data = eldap.search(peep['username'], field='cn')
             groups = eldap.get_groups(result_data)
             user = eldap.dj_create(result_data, groups=groups)
         proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()

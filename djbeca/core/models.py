@@ -12,6 +12,7 @@ from djbeca.core import choices
 from djimix.people.departments import chair_departments
 from djtools.fields.helpers import upload_to_path
 from djtools.utils.users import in_group
+from djtools.utils.workday import department_detail
 from taggit.managers import TaggableManager
 
 
@@ -259,13 +260,16 @@ class Proposal(models.Model):
             reverse('proposal_update', args=(self.id,)),
         )
 
+    def get_department(self):
+        """Returns the proposal slug."""
+        return department_detail(self.department)
+
     def get_slug(self):
         """Returns the proposal slug."""
         return 'proposal/'
 
     def permissions(self, user):
         """What can the user access in terms of viewing & approval process."""
-        osp_group = settings.OSP_GROUP
         veep = User.objects.get(pk=settings.VEEP_TPOS)
         provost = User.objects.get(pk=settings.PROV_TPOS)
 
@@ -284,7 +288,7 @@ class Proposal(models.Model):
         }
 
         # in_group includes an exception for superusers
-        group = in_group(user, osp_group)
+        group = in_group(user, settings.OSP_GROUP
 
         chair_depts = chair_departments(user.id)
 

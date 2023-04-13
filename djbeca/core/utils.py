@@ -2,32 +2,28 @@
 
 from django.conf import settings
 from django.db.models import Q
-from djbeca.core.models import Profile
 from djbeca.core.models import Proposal
 from djimix.people.departments import chair_departments
-from djimix.people.departments import department_division_chairs
 from djtools.utils.users import in_group
-from sortedcontainers import SortedDict
+from djtools.utils.workday import get_deans
 
 
-def departments_all():
-    """Returns department tuples for choices parameter in models and forms."""
-    depts = (
-        ('', '---Choose Your Department---'),
-        ('', '---Faculty Departments---'),
+def deans_chairs(cid=False):
+    """Obtain all deans or a dean."""
+    deans = []
+    response = requests.get(
+        '{0}profile/deans/?format=json'.format(
+            settings.DIRECTORY_API_URL,
+        ),
+        headers=HEADERS,
     )
-    profiles = Profile.objects.using('workday')
-    faculty = profiles.filter(facstaff='faculty')
-    staff = profiles.filter(facstaff='staff')
-    for fac in faculty:
-        depts.append((fac.department, fac.department))
-
-    depts.append(('', '---Staff Deparments---'))
-
-    for st in staff:
-        depts.append((st.department, st.department))
-
-    return depts
+    if response.json():
+        for dean in response.json():
+            if cid and cid == dean['id']:
+                return response.json()
+            else:
+                deans.append(dean)
+    return deans
 
 
 def get_proposals(user):
@@ -36,10 +32,8 @@ def get_proposals(user):
     depts_props = False
     div = False
     dc = None
-    dean_chair = department_division_chairs(
-        '(dept_id.id={0} OR div_id.id={1})'.format(user.id, user.id),
-    )
-    # obtain proposals where the user is an adhoc approver
+    dean = get_deans(user.id)
+    # obtain user proposals and those where the user is an adhoc approver
     proposals = Proposal.objects.filter(
         Q(user=user) | Q(approvers__user=user),
     )
@@ -47,7 +41,7 @@ def get_proposals(user):
     group = in_group(user, settings.OSP_GROUP)
     if group:
         proposals = Proposal.objects.all()
-    elif dean_chair:
+    elif dean:
         chair_depts = chair_departments(user.id)
         dc = chair_depts[1]
         div = chair_depts[2]
@@ -64,7 +58,7 @@ def get_proposals(user):
 
     return {
         'objects': proposals,
-        'dean_chair': dean_chair,
+        'dean': dean,
         'dc': dc,
         'div': div,
         'depts': depts,

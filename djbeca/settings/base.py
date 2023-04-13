@@ -2,9 +2,7 @@
 
 """Django settings for project."""
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from collections import namedtuple
 
 # sqlserver connection string
 from djimix.settings.local import INFORMIX_ODBC, INFORMIX_ODBC_TRAIN
@@ -37,7 +35,7 @@ USE_TZ = False
 DEFAULT_CHARSET = 'utf-8'
 FILE_CHARSET = 'utf-8'
 SERVER_URL = ''
-API_URL = '{0}/{1}'.format(SERVER_URL, 'api')
+DIRECTORY_API_URL = 'https://{0}/{1}'.format(SERVER_URL, 'directory/api/')
 LIVEWHALE_API_URL = 'https://{0}'.format(SERVER_URL)
 ROOT_URL = '/djbeca/'
 ROOT_URLCONF = 'djbeca.core.urls'
@@ -183,9 +181,10 @@ SESSION_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_SSL_REDIRECT = True
+# REST API AUTHENTICATION TOKEN
+REST_FRAMEWORK_TOKEN = ''
 # OSP specific settings
 OSP_GROUP = 'Sponsored Programs'
-DEANS_GROUP = 'Deans'
 if DEBUG:
     PROPOSAL_EMAIL_LIST = []
 else:

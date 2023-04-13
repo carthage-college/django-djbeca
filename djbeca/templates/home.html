@@ -67,10 +67,7 @@ $(function() {
   <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My Propoals">
     <a class="nav-link" href="{% url 'home' %}" title="Proposals List">
       <i class="fa fa-fw fa fa-dashboard" aria-hidden="true"></i>
-      <span class="nav-link-text">
-      {% ifusergroup osp_group %}All{% else %}
-      {% if dean_chair %}All{% else %}My{% endif %}
-      {% endifusergroup %}Proposals</span>
+      <span class="nav-link-text">Proposals</span>
     </a>
   </li>
   {% if user.is_superuser or user.profile.css %}
@@ -81,18 +78,6 @@ $(function() {
     </a>
   </li>
   {% endif %}
-  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Carthage Home">
-    <a class="nav-link" href="https://www.carthage.edu/">
-      <i class="fa fa-fw fa fa-home" aria-hidden="true"></i>
-      <span class="nav-link-text">Carthage Home</span>
-    </a>
-  </li>
-  <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My.Carthage">
-    <a class="nav-link" href="https://my.carthage.edu/">
-      <i class="fa fa-fw fa fa-lemon-o" aria-hidden="true"></i>
-      <span class="nav-link-text">My.Carthage</span>
-    </a>
-  </li>
   <li class="nav-item">
     <a class="nav-link text-center" data-toggle="tooltip" data-placement="right" title="Expand Menu" id="sidenavToggler">
       <i class="fa fa-fw fa-angle-double-left" aria-hidden="true"></i>
@@ -122,31 +107,14 @@ $(function() {
 <!-- /.row -->
 <div class="row">
   <div class="col-lg-12">
-    <h1>
-      {% if not dean_chair %}
-        {% if not group %}
-          {{user.first_name}}'s
-        {% else %}
-          All
-        {% endif %}
-      {% else %}
-        {% if dc == "dean" %}
-          {{div}}
-        {% else %}
-          {% for k,v in depts.items %}
-            {{v.dept_name}}{% if not forloop.last %},{% endif %}
-          {% endfor %}
-        {% endif %}
-      {% endif %}
-      Proposals
-    </h1>
+    <h1>Proposals</h1>
     <div class="btn-group fright" style="margin-left:18px;margin-bottom:12px;">
       <a href="{% url 'proposal_form' %}" class="btn btn-default btn-primary">Submit Proposal</a>
     </div>
     <div class="col-lg-8" style="font-weight:bold;">
       {% get_lw_content as intro blurbs 2433 %}
       <div id="lw_success_2433">{{intro.body|safe}}</div>
-      {% ifusergroup osp_group %}
+      {% if osp %}
       <p>
         <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=14&id=2433"
           target="_blank">
@@ -156,7 +124,7 @@ $(function() {
           <i class="fa fa-refresh green" aria-hidden="true"
           title="Clear the cache for this content"></i></a>
       </p>
-      {% endifusergroup %}
+      {% endif %}
       <p>NOTE: Hover over icons and links to see more information.</p>
     </div>
   </div>

@@ -34,8 +34,10 @@
         {% include "includes/errors_text.html" %}
         <form method="post" enctype="multipart/form-data" action="."
           class="form" id="profile">{% csrf_token %}
+          {{form.proposal}}
           <fieldset class="blockLabels">
-            <legend>Add an Approver to a Proposal</legend>
+            <legend>Add an Approver for the following proposal:</legend>
+            <h4 class="mb-4">{{proposal.title}}</h4>
             <ol>
               {% for field in form.visible_fields %}
               {% include "form_field.inc.html" %}

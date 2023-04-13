@@ -5,7 +5,7 @@
 <h2>Success</h2>
 {% get_lw_content as done blurbs 2522 %}
 <div id="lw_success_2522">{{done.body|safe}}</div>
-{% ifusergroup osp_group %}
+{% if osp %}
 <p>
   <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=14&id=2522"
     target="_blank">
@@ -15,5 +15,5 @@
     <i class="fa fa-refresh green" aria-hidden="true"
     title="Clear the cache for this content"></i></a>
 </p>
-{% endifusergroup %}
+{% endif %}
 {% endblock %}

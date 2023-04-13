@@ -164,13 +164,13 @@
                 class="proposal-status blue-tooltip">
                 <i class="fa fa-2x fa-recycle green" aria-hidden="true"></i>
               </a>
-              {% ifusergroup osp_group %}
+              {% if osp %}
                 <i class="fa fa-2x fa-power-off grey" data-toggle="tooltip"
                 data-placement="top" title="This proposal is closed"
                 aria-hidden="true"></i>
-              {% endifusergroup %}
+              {% endif %}
             {% else %}
-              {% ifusergroup osp_group %}
+              {% if osp %}
               {% if p.step1 and p.step2 %}
               <i class="fa fa-2x fa-smile-o green" data-toggle="tooltip"
                 data-placement="top" title="This proposal is complete"
@@ -196,7 +196,7 @@
                 data-placement="top" title="This proposal is open"
                 aria-hidden="true"></i>
               {% endif %}
-              {% endifusergroup %}
+              {% endif %}
             {% endif%}
           </td>
           <td style="text-align:center;">

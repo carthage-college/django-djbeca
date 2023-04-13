@@ -40,13 +40,13 @@ $(function() {
         <i class="fa fa-print green blue-tooltip" aria-hidden="true"
           data-toggle="tooltip" data-placement="top"
           title="Print to paper or PDF"></i></a> |
-      {% ifusergroup osp_group deans_group %}
+      {% if osp or dean or user.is_superuser %}
       <a href="{% url 'proposal_approver' proposal.id %}"
         class="no-print-icon">
         <i class="fa fa-thumbs-o-up green blue-tooltip" aria-hidden="true"
           data-toggle="tooltip" data-placement="top"
           title="Add Approver to this proposal"></i></a> |
-      {% endifusergroup %}
+      {% endif %}
       <a href="{% url 'email_investigator_form' proposal.id 'email' %}"
         class="no-print-icon">
         <i class="fa fa-envelope green blue-tooltip" aria-hidden="true"
@@ -135,9 +135,7 @@ $(function() {
             </a>
           </dd>
           <dt>Department</dt>
-          <dd>
-            {{proposal.department}}
-          </dd>
+          <dd>{{proposal.get_department.name}}</dd>
         </dl>
         <h4>In this proposal, Carthage is considered:</h4>
         <h5>{{proposal.lead_institution}}</h5>
@@ -195,14 +193,14 @@ $(function() {
           <h4>Administrative Comments</h4>
           <div>{{proposal.admin_comments}}</div>
         {% endif %}
-        {% ifusergroup osp_group deans_group %}
+        {% if osp or dean or user.is_superuser %}
         <h3 class="clear detail">Approvers</h3>
         <ul>
         {% for a in proposal.approvers.all %}
         <li>{{a.last_name}}, {{a.first_name}}</li>
         {% endfor %}
         </ul>
-        {% endifusergroup %}
+        {% endif %}
         <!-- fin -->
       </div>
       <!-- /.panel-body -->
