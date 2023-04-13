@@ -13,22 +13,22 @@
             data-placement="top" aria-hidden="true"
             title="Print Proposal"></i>
         </th>
-        <th>Part A</th>
-        <th>Part B</th>
-        <th style="text-align:center;">
+        <th nowrap>Part A</th>
+        <th nowrap>Part B</th>
+        <th style="text-align:center;" nowrap>
           Open/Closed
           <i class="fa fa-question-circle-o green blue-tooltip"
             data-toggle="tooltip" data-placement="top" aria-hidden="true"
             title="Click the icon to open or close a proposal"></i>
         </th>
-        <th style="text-align:center;">Awarded</th>
-        <th>
+        <th style="text-align:center;" nowrap>Awarded</th>
+        <th nowrap>
           Submitted by
           <i class="fa fa-envelope-o green blue-tooltip" data-toggle="tooltip"
             data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
-        </th>
-        <th>Deadline Date</th>
+        <th nowrap>Department</th>
+        <th nowrap>Deadline Date</th>
       </tr>
     </thead>
     <tbody>
@@ -54,7 +54,7 @@
               title="Click the Recycle icon to reopen this proposal and resubmit it"></i>
           </td>
           {% else %}
-          <td>
+          <td nowrap>
             {% if p.step1 or p.opened or group or request.user.is_superuser %}
               {% if p.user.id == request.user.id or group or request.user.is_superuser %}
                 {% if not p.save_submit %}
@@ -98,7 +98,7 @@
               title="Division Dean or VP has NOT approved Part A"></i>
             {% endif %}
           </td>
-          <td>
+          <td nowrap>
             {% if p.step1 %}
               {% if p.user.id == request.user.id or group or request.user.is_superuser %}
                 {% if not p.save_submit %}
@@ -217,14 +217,15 @@
                 title="This proposal has not been awarded"></i>
             {% endif %}{% endif %}
           </td>
-          <td>
+          <td nowrap>
             <a href="{% url 'email_investigator_form' p.id 'compose' %}"
               data-toggle="tooltip" data-placement="top" class="blue-tooltip"
               title="Send email to primary investigator">
               {{p.user.last_name}}, {{p.user.first_name}}
             </a>
           </td>
-          <td>{{p.grant_deadline_date}}</td>
+          <td nowrap>{{p.get_department.name}}</td>
+          <td nowrap>{{p.grant_deadline_date}}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -255,6 +256,7 @@
             data-placement="top" aria-hidden="true"
             title="Send email to primary investigator"></i>
         </th>
+        <th>Department</th>
         <th>Deadline Date</th>
       </tr>
     </tfoot>

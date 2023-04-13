@@ -9,10 +9,10 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from djbeca.core import choices
-from djimix.people.departments import chair_departments
 from djtools.fields.helpers import upload_to_path
 from djtools.utils.users import in_group
 from djtools.utils.workday import department_detail
+from djtools.utils.workday import get_managers
 from taggit.managers import TaggableManager
 
 
@@ -288,15 +288,10 @@ class Proposal(models.Model):
         }
 
         # in_group includes an exception for superusers
-        group = in_group(user, settings.OSP_GROUP
-
-        chair_depts = chair_departments(user.id)
-
-        # dean or chair?
-        dc = chair_depts[1]
-
+        group = in_group(user, settings.OSP_GROUP)
+        dean = get_managers('deans', cid=user.id)
         # Dean?
-        if dc == 'dean':
+        if dean:
             perms['view'] = True
             perms['level3'] = True
             perms['open'] = True

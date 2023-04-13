@@ -35,7 +35,7 @@ from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
 from djtools.utils.workday import department_person
 from djtools.utils.workday import department_all
-from djtools.utils.workday import get_deans
+from djtools.utils.workday import get_managers
 
 
 DEBUG = settings.DEBUG
@@ -73,9 +73,6 @@ def home(request):
                 'proposals': proposals['objects'],
                 'dean': proposals['dean'],
                 'group': group,
-                'dc': proposals['dc'],
-                'depts': proposals['depts'],
-                'div': proposals['div'],
             },
         )
     else:
@@ -296,7 +293,7 @@ def impact_form(request, pid):
 
                 # email Division Dean (level3)
                 where = 'dept_table.dept = "{0}"'.format(proposal.department)
-                for dean in get_deans():
+                for dean in get_managers('deans'):
                     for dept in dean['departments_managed']:
                         if dept == proposal.department:
                             pass
@@ -672,7 +669,7 @@ def proposal_approver(request, pid=0):
     # to the proposal but we can trust deans for now.
 
     user = request.user
-    if in_group(user, OSP_GROUP) or get_deans(user.id):
+    if in_group(user, OSP_GROUP) or get_managers('deans', user.id):
         proposal = None
         proposal = get_object_or_404(Proposal, pk=pid)
         if request.method == 'POST':
