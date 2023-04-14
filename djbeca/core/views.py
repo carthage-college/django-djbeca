@@ -42,9 +42,9 @@ DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
 
-VEEP = User.objects.get(pk=settings.VEEP_TPOS)
-PROVOST = User.objects.get(pk=settings.PROV_TPOS)
-PRESIDENT = User.objects.get(pk=settings.PREZ_TPOS)
+VEEP = User.objects.filter(groups__name=settings.CFO_GROUP)[0]
+PROVOST = User.objects.filter(groups__name=settings.PROVOST_GROUP)[0]
+PRESIDENT = User.objects.filter(groups__name=settings.PRESIDENT_GROUP)[0]
 
 PROPOSAL_EMAIL_LIST = settings.PROPOSAL_EMAIL_LIST
 SERVER_EMAIL = settings.SERVER_EMAIL

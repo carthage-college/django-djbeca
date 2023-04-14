@@ -270,8 +270,8 @@ class Proposal(models.Model):
 
     def permissions(self, user):
         """What can the user access in terms of viewing & approval process."""
-        veep = User.objects.get(pk=settings.VEEP_TPOS)
-        provost = User.objects.get(pk=settings.PROV_TPOS)
+        veep = User.objects.filter(groups__name=settings.CFO_GROUP)[0]
+        provost = User.objects.filter(groups__name=settings.PROVOST_GROUP)[0]
 
         perms = {
             'view': False,
@@ -290,7 +290,8 @@ class Proposal(models.Model):
         # in_group includes an exception for superusers
         group = in_group(user, settings.OSP_GROUP)
         dean = get_managers('deans', cid=user.id)
-        # Dean?
+        chair = get_managers('chairs', cid=user.id)
+        # Dean
         if dean:
             perms['view'] = True
             perms['level3'] = True
@@ -298,14 +299,17 @@ class Proposal(models.Model):
             perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level3'
-        # VP for Business?
+        # chair
+        elif chair:
+            perms['view'] = True
+        # VP for Business
         elif user.id == veep.id:
             perms['view'] = True
             perms['level2'] = True
             perms['needswork'] = True
             perms['decline'] = True
             perms['approve'] = 'level2'
-        # Provost?
+        # Provost
         elif user.id == provost.id:
             perms['view'] = True
             perms['level1'] = True
@@ -316,7 +320,7 @@ class Proposal(models.Model):
             for approver in self.approvers.all():
                 if approver.user == user:
                     perms['approver'] = True
-        # Superuser?
+        # Superuser
         elif group:
             perms['view'] = True
             perms['open'] = True

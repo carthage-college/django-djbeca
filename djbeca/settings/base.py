@@ -190,9 +190,9 @@ if DEBUG:
 else:
     PROPOSAL_EMAIL_LIST = []
 # approval level positions
-PROV_TPOS = None
-VEEP_TPOS = None
-PREZ_TPOS = None
+PROVOST_GROUP = 'Provost'
+CFO_GROUP = 'CFO'
+PRESIDENT_GROUP = 'President'
 # logging
 LOG_FILEPATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs/')
 LOG_FILENAME = '{0}{1}'.format(LOG_FILEPATH, 'debug.log')
