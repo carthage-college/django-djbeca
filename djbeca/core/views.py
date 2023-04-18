@@ -33,8 +33,8 @@ from djbeca.core.models import ProposalImpact
 from djbeca.core.utils import get_proposals
 from djtools.utils.mail import send_mail
 from djtools.utils.users import in_group
-from djtools.utils.workday import department_person
 from djtools.utils.workday import department_all
+from djtools.utils.workday import department_person
 from djtools.utils.workday import get_managers
 
 
@@ -289,18 +289,16 @@ def impact_form(request, pid):
                         proposal,
                         bcc,
                     )
-
-
                 # email Division Dean (level3)
-                where = 'dept_table.dept = "{0}"'.format(proposal.department)
-                for dean in get_managers('deans'):
-                    for dept in dean['departments_managed']:
-                        if dept == proposal.department:
-                            pass
-
-
+                dean = None
+                for man in get_managers('deans'):
+                    for dept in man['managed']:
+                        did = dept.split('/')[-2]
+                        if did == proposal.department:
+                            dean = man
+                            break
                 # staff do not have deans so no need to send email
-                if deans:
+                if dean:
                     subject = (
                         'Review and Provide Final Authorization for PART B: '
                         '"{0}" by {1}, {2}'
@@ -309,10 +307,8 @@ def impact_form(request, pid):
                         proposal.user.last_name,
                         proposal.user.first_name,
                     )
-                    # we need department code in email e.g. MUS
-                    proposal.department_name = chairs[0][0]
                     # Division dean's email
-                    to_list = [chairs[0][10]]
+                    to_list = [dean['email']]
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = TEST_EMAILS
@@ -490,18 +486,21 @@ def proposal_form(request, pid=None):
 
             # send emails only if we have a new proposal or a revised proposal
             if not proposal or data.opened:
-                where = 'dept_table.dept = "{0}"'.format(data.department)
-                chairs = department_division_chairs(where)
                 to_list = []
                 # add approvers to distribution list
                 for approver in data.approvers.all():
                     to_list.append(approver.user.email)
-
-                if len(chairs) > 0:
-                    # we need department full name in email
-                    data.department_name = chairs[0][0]
+                # check for a dean
+                dean = None
+                for man in get_managers('deans'):
+                    for dept in man['managed']:
+                        did = dept.split('/')[-2]
+                        if did == data.department:
+                            dean = man
+                            break
+                if dean:
                     # Division dean's email
-                    to_list.append(chairs[0][10])
+                    to_list.append([dean['email']])
                     if DEBUG:
                         data.to_list = to_list
                         to_list = TEST_EMAILS
@@ -513,16 +512,12 @@ def proposal_form(request, pid=None):
                         data.to_list = to_list
                         to_list = TEST_EMAILS
 
-                    # for display purposes only in the email
-                    #data.department_name = depts[0][1]
-
                 # if proposal has been reopened, we set opened to False
                 # so that proposal now is considered a new attempt at approval
                 data.opened = False
                 data.save()
                 # set OSP status for editing email content
                 data.osp = group
-
                 # send the email to Dean or OSP
                 subject = 'Review and Authorization Required for Part A: \
                     Your Approval Needed for "{0}" by {1}, {2}'.format(
@@ -541,7 +536,6 @@ def proposal_form(request, pid=None):
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = "Part A Submission Received: {0}".format(data.title)
-
                 if DEBUG:
                     to_list = TEST_EMAILS
                     data.to_list = data.user.email
@@ -680,13 +674,13 @@ def proposal_approver(request, pid=0):
             if form.is_valid():
                 cd = form.cleaned_data
                 user = User.objects.get(pk=cd['user'])
-                approver = ProposalApprover(user=user, proposal=proposal)
+                approver = ProposalApprover.objects.create(user=user, proposal=proposal)
                 # in the future, users might be able to select the role
                 # that an approver might replace but for now we handle it
                 # here and by default in the model, which is 'level3'.
                 # if the proposal is from faculty, the approver does not
                 # replace level3 so replace is set to None.
-                did = proposal.department_name
+                did = proposal.department
                 for dept in department_all():
                     if dept['id'] == did and dept['orbit'] == 'faculty':
                         approver.replace = None

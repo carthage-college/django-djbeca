@@ -3,6 +3,10 @@
 {% block extra_javascript %}
 <script type="text/javascript">
 $(function() {
+  $.blockUI.defaults.css.top = '40%';
+  $.blockUI.defaults.centerX = true;
+  $.blockUI.defaults.centerY = true;
+  //$.growlUI('Test', 'status: boo!');
   $(".proposal-status").click(function () {
     $.ajax({
       type: "POST",
@@ -14,14 +18,13 @@ $(function() {
       },
       success: function(data) {
         spinner.stop(target);
-        $.growlUI(data);
+        $.growlUI('Success', data);
       },
       error: function(data) {
         spinner.stop(target);
         $.growlUI('Error', data);
       }
     });
-    //$.growlUI('Test', 'status: ' + $(this).data('status'));
   });
   $('#print').click(function() {
     window.print();
@@ -60,15 +63,15 @@ $(function() {
 {% if perms.approve %}
 {% if not proposal.closed or not proposal.decline %}
 {% if not proposal.step1 or not proposal.step2 and proposal.save_submit %}
-  <div class="row">
+  <div class="row mt-3 mb-2">
     <div class="col-lg-12 text-center">
       <div class="panel panel-default mb-3">
         <div class="panel-body">
-        <a href="#" class="btn btn-default btn-success proposal-status"
+        <a href="#" class="btn btn-default btn-success proposal-status p-2"
           style="width:128px;" data-status="approve">Approve</a>
-        <a href="#" class="btn btn-default btn-warning proposal-status"
+        <a href="#" class="btn btn-default btn-warning proposal-status p-2"
           style="margin-left:24px;width:128px;" data-status="needswork">Needs Work</a>
-        <a href="#" class="btn btn-default btn-danger proposal-status"
+        <a href="#" class="btn btn-default btn-danger proposal-status p-2"
           style="margin-left:24px;width:128px;" data-status="decline">Decline</a>
         </div>
       </div>

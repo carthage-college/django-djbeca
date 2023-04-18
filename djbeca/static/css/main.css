@@ -284,6 +284,14 @@ span.error {display: block; margin-bottom:4px;}
     width: 100px;
 }
 
+/* .blockUI{opacity:0.8 !important;}*/
+div.growlUI {
+    position:relative;margin-top:20%;
+    background: url(//www.carthage.edu/assets/img/ico/information.png) no-repeat 5px 5px;
+}
+h1.growlUI {font-weight:bold;}
+h2.growlUI { font-size:1.4em;}
+
 .panel-body h2{background-color: #5594b9;color: white;padding:4px;font-size:1.8em;}
 .row h1{color:#481676;}
 .form h3 {margin-top: 0;}

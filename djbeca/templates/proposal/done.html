@@ -2,7 +2,7 @@
 {% load livewhale_api %}
 {% block content %}
 {% get_lw_content as thanks blurbs 2404 %}
-<div id="lw_success_2404">{{thanks.body|safe}}</div>
+<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12" id="lw_success_2404">{{thanks.body|safe}}</div>
 {% if debug %}
 <p>
   <a href="https://www.carthage.edu/livewhale/?blurbs_edit&tid=14&id=2404"

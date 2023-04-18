@@ -92,12 +92,12 @@ $(function() {
   </li>
 </ul>
 {% endblock navbar-sidenav %}
-{% block content %}
-<div class="row">
+{% block breadcrumb %}
+<div class="row" id="alert-container">
   {% if messages %}
     {% for message in messages %}
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
-      <div class=" alert {{message.tags}}">
+      <div class="alert p-3 {{message.tags}}">
         <strong>{{ message }}</strong>
       </div>
     </div>
@@ -105,11 +105,13 @@ $(function() {
   {% endif %}
 </div>
 <!-- /.row -->
+{% endblock %}
+{% block content %}
 <div class="row">
   <div class="col-lg-12">
     <h1>Proposals</h1>
     <div class="btn-group fright" style="margin-left:18px;margin-bottom:12px;">
-      <a href="{% url 'proposal_form' %}" class="btn btn-default btn-primary">Submit Proposal</a>
+      <a href="{% url 'proposal_form' %}" class="btn btn-default btn-primary p-2">Submit Proposal</a>
     </div>
     <div class="col-lg-8" style="font-weight:bold;">
       {% get_lw_content as intro blurbs 2433 %}

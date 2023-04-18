@@ -8,7 +8,8 @@
       target="_blank">Manage the content above in LiveWhale</a><br>
     <a href="https://{{server_url}}{% url 'clear_cache_get' %}?cid=2404" class="clear-cache">
       Clear the cache for this content</a>
+    <br>
+    to_list = {{data.to_list}}
   </p>
-to_list = {{data.to_list}}
 {% endif %}
 {% endautoescape %}

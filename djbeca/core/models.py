@@ -261,7 +261,7 @@ class Proposal(models.Model):
         )
 
     def get_department(self):
-        """Returns the proposal slug."""
+        """Returns the proposal department."""
         return department_detail(self.department)
 
     def get_slug(self):

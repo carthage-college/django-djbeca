@@ -334,7 +334,7 @@ class ProposalApproverForm(forms.Form):
             # create a new user
             eldap = LDAPManager()
             peep = get_peep(cid)
-            result_data = eldap.search(peep['username'], field='cn')
+            result_data = eldap.search(peep[0]['username'], field='cn')
             groups = eldap.get_groups(result_data)
             user = eldap.dj_create(result_data, groups=groups)
         proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
