@@ -4,18 +4,6 @@
 
 import os
 
-# sqlserver connection string
-from djimix.settings.local import INFORMIX_ODBC, INFORMIX_ODBC_TRAIN
-from djimix.settings.local import (
-    INFORMIXSERVER,
-    DBSERVERNAME,
-    INFORMIXDIR,
-    ODBCINI,
-    ONCONFIG,
-    INFORMIXSQLHOSTS,
-    LD_LIBRARY_PATH,
-    LD_RUN_PATH,
-)
 
 # Debug
 DEBUG = False
