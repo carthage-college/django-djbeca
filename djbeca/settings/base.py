@@ -81,8 +81,6 @@ INSTALLED_APPS = (
     'djbeca.core',
     # needed for template tags
     'djtools',
-    # honeypot for admin attacks
-    'admin_honeypot',
     # sign in as a user
     'loginas',
     # tagging package
