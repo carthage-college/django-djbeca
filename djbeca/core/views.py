@@ -93,13 +93,14 @@ def impact_form(request, pid):
     # we do not allow PIs to update their proposals after save-submit
     # but OSP can do so
     group = in_group(user, OSP_GROUP)
-    if (user != proposal.user and not group) or \
+    if (user != proposal.user) or \
        (proposal.save_submit and user == proposal.user) or \
        (proposal.decline and user == proposal.user) or \
        (proposal.closed and user == proposal.user) or \
-       (proposal.closed or proposal.decline and group):
-
-        return HttpResponseRedirect(reverse_lazy('home'))
+       (proposal.closed or proposal.decline):
+        # this bit is only for OSP folks who also submit the form
+        if not group:
+            return HttpResponseRedirect(reverse_lazy('home'))
 
     # budget
     try:
