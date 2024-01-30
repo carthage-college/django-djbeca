@@ -3,7 +3,6 @@
 from django.conf import settings
 from django.db.models import Q
 from djbeca.core.models import Proposal
-from djimix.people.departments import chair_departments
 from djtools.utils.users import in_group
 from djtools.utils.workday import get_managers
 
