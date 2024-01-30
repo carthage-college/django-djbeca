@@ -39,10 +39,10 @@ class ProposalAdmin(admin.ModelAdmin):
     )
     list_editable = ('awarded',)
     date_hierarchy = 'created_at'
+    #readonly_fields = ('user',)
     ordering = (
         '-created_at', 'user__last_name', 'user__first_name', 'level3',
     )
-    readonly_fields = ('user',)
     search_fields = (
         'user__last_name', 'user__first_name', 'user__email', 'user__username',
     )

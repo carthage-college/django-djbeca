@@ -74,7 +74,6 @@ class Proposal(models.Model):
     updated_at = models.DateTimeField('Date Updated', auto_now=True)
     user = models.ForeignKey(
         User,
-        editable=settings.DEBUG,
         on_delete=models.CASCADE,
     )
     # Division Dean or Department VP approval
