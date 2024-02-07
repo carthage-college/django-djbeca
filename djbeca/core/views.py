@@ -10,6 +10,7 @@ from re import sub
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import Http404
@@ -20,7 +21,6 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
-from djauth.decorators import portal_auth_required
 from djbeca.core import forms
 from djbeca.core.choices import BUDGET_FUNDING_SOURCE
 from djbeca.core.choices import BUDGET_FUNDING_STATUS
@@ -57,9 +57,7 @@ else:
     bcc.append(settings.MANAGERS[0][1])
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def home(request):
     """Dashboard home page view."""
     user = request.user
@@ -81,9 +79,7 @@ def home(request):
     return response
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def impact_form(request, pid):
     """Proposal Form Part B view."""
     proposal = get_object_or_404(Proposal, pk=pid)
@@ -414,9 +410,7 @@ def impact_form(request, pid):
     )
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def proposal_form(request, pid=None):
     """Proposal Form Part A view."""
     investi = None
@@ -604,9 +598,7 @@ def proposal_form(request, pid=None):
     )
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def proposal_detail(request, pid):
     """Proposal detail view."""
     proposal = get_object_or_404(Proposal, pk=pid)
@@ -654,9 +646,7 @@ def proposal_detail(request, pid):
     )
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def proposal_approver(request, pid=0):
     """Add an approver to a proposal."""
     #
@@ -734,9 +724,7 @@ def proposal_approver(request, pid=0):
         return HttpResponseRedirect(reverse_lazy('home'))
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def email_investigator(request, pid, action):
     """Send an email to the primary investigator."""
     form_data = None
@@ -781,9 +769,7 @@ def email_investigator(request, pid, action):
 
 
 @csrf_exempt
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def proposal_status(request):
     """Set the status on a proposal."""
     # options:  approve, decline, open, close, needs work
@@ -1152,9 +1138,7 @@ def proposal_status(request):
 
 
 @csrf_exempt
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def clear_cache(request, ctype='blurbs'):
     """Clear the cache for API content."""
     cid = request.POST.get('cid')
@@ -1186,33 +1170,25 @@ def clear_cache(request, ctype='blurbs'):
     return HttpResponse(api_data, content_type=content_type)
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def proposal_success(request):
     """Redirect here after user submits Part A."""
     return render(request, 'proposal/done.html')
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def impact_success(request):
     """Redirect here after user submits Part B."""
     return render(request, 'impact/done.html')
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def approver_success(request):
     """Redirect here after user adds an approver to a proposal."""
     return render(request, 'approver/done.html')
 
 
-@portal_auth_required(
-    session_var='DJBECA_AUTH', redirect_url=reverse_lazy('access_denied'),
-)
+@login_required
 def email_investigator_success(request):
     """Redirect here after user submits an email form."""
     return render(request, 'investigator/email_done.html')
