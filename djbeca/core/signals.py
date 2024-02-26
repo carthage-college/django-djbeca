@@ -27,24 +27,25 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
         not proposal.email_approved
     )
     if status:
-
         to_list = settings.PROPOSAL_EMAIL_LIST
+        bcc [settings.MANAGERS[0][1]]
         if settings.DEBUG:
             proposal.to_list = to_list
             to_list = [settings.MANAGERS[0][1], settings.PROPOSAL_EMAIL_LIST[0]]
-
         # send the email OSP
         subject = "[Final] Proposal approved: '{0}' by {1}, {2}".format(
             proposal.title, proposal.user.last_name, proposal.user.first_name,
         )
+        frum = settings.SERVER_MAIL
         sent = send_mail(
             kwargs.get('request'),
-            to_list,
-            subject,
-            settings.SERVER_MAIL,
-            'proposal/email_final_approved.html',
-            proposal,
-            settings.MANAGERS,
+            recipients=to_list,
+            subject=subject,
+            femail=frum,
+            template='proposal/email_final_approved.html',
+            data=proposal,
+            reply_to=settings.PROPOSAL_EMAIL_LIST[:1],
+            bcc=bcc,
         )
         if sent:
             proposal.email_approved = True

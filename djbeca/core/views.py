@@ -275,16 +275,18 @@ def impact_form(request, pid):
                     proposal.to_list = to_list
                     to_list = TEST_EMAILS
 
+                frum = proposal.user.email
                 if to_list:
                     # send the email to Approvers
                     send_mail(
                         request,
                         to_list,
                         subject,
-                        proposal.user.email,
+                        frum,
                         'impact/email_approve_approvers.html',
                         proposal,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
                 # email Division Dean (level3)
                 dean = None
@@ -309,16 +311,16 @@ def impact_form(request, pid):
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = TEST_EMAILS
-
                     # send the email
                     send_mail(
                         request,
                         to_list,
                         subject,
-                        proposal.user.email,
+                        frum,
                         'impact/email_approve_level3.html',
                         proposal,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
 
                 # send confirmation to the Primary Investigator (PI)
@@ -332,15 +334,17 @@ def impact_form(request, pid):
                     proposal.to_list = to_list
                     to_list = TEST_EMAILS
 
+                frum = PROPOSAL_EMAIL_LIST[0]
                 # send the email
                 send_mail(
                     request,
                     to_list,
                     subject,
-                    PROPOSAL_EMAIL_LIST[0],
+                    frum,
                     'impact/email_confirmation.html',
                     proposal,
-                    bcc,
+                    reply_to=frum,
+                    bcc=bcc,
                 )
                 return HttpResponseRedirect(reverse_lazy('impact_success'))
             else:
@@ -519,15 +523,18 @@ def proposal_form(request, pid=None):
                     data.title, data.user.last_name, data.user.first_name,
                 )
                 if not data.save_submit:
+                    frum = PROPOSAL_EMAIL_LIST[0]
                     send_mail(
                         request,
                         to_list,
                         subject,
-                        PROPOSAL_EMAIL_LIST[0],
+                        frum,
                         'proposal/email_approve.html',
                         data,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
+
                 # send confirmation to the Primary Investigator (PI)
                 # who submitted the form
                 subject = "Part A Submission Received: {0}".format(data.title)
@@ -539,14 +546,16 @@ def proposal_form(request, pid=None):
 
                 # OSP can update proposals after save/submit
                 if not data.save_submit:
+                    frum = PROPOSAL_EMAIL_LIST[0]
                     send_mail(
                         request,
                         to_list,
                         subject,
-                        PROPOSAL_EMAIL_LIST[0],
+                        frum,
                         'proposal/email_confirmation.html',
                         data,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
                 return HttpResponseRedirect(reverse_lazy('proposal_success'))
             else:
@@ -695,14 +704,16 @@ def proposal_approver(request, pid=0):
                 else:
                     to_list = [approver.user.email]
 
+                frum = PROPOSAL_EMAIL_LIST[0]
                 send_mail(
                     request,
                     to_list,
                     subject,
-                    PROPOSAL_EMAIL_LIST[0],
+                    frum,
                     'approver/email.html',
                     {'proposal': proposal},
-                    bcc,
+                    reply_to=frum,
+                    bcc=bcc,
                 )
 
                 return HttpResponseRedirect(
@@ -738,16 +749,18 @@ def email_investigator(request, pid, action):
                     to_list = TEST_EMAILS
                 else:
                     to_list = [proposal.user.email]
+                frum = request.user.email
                 send_mail(
                     request,
                     to_list,
                     "[Office of Sponsored Programs] Grant Proposal: {0}".format(
                         proposal.title,
                     ),
-                    request.user.email,
+                    frum,
                     'investigator/email_data.html',
                     {'content': form_data['content']},
-                    bcc,
+                    reply_to=frum,
+                    bcc=bcc,
                 )
                 return HttpResponseRedirect(
                     reverse_lazy('email_investigator_success'),
@@ -912,14 +925,16 @@ def proposal_status(request):
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = TEST_EMAILS
+                    frum = user.email
                     send_mail(
                         request,
                         to_list,
                         decline_subject,
-                        user.email,
+                        frum,
                         decline_template,
                         proposal,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
                     return HttpResponse("Proposal Declined")
                 else:
@@ -958,14 +973,16 @@ def proposal_status(request):
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = TEST_EMAILS
+                    frum = user.email
                     send_mail(
                         request,
                         to_list,
                         needs_work_subject,
-                        user.email,
+                        frum,
                         needs_work_template,
                         proposal,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
                     return HttpResponse('Proposal "needs work" email sent')
                 else:
@@ -996,14 +1013,16 @@ def proposal_status(request):
                 proposal.save()
                 # send email to PI informing them that they are approved
                 # to begin Part B
+                frum = proposal.user.email
                 send_mail(
                     request,
                     to_list,
                     subject,
-                    proposal.user.email,
+                    frum,
                     'proposal/email_authorized.html',
                     proposal,
-                    bcc,
+                    reply_to=frum,
+                    bcc=bcc,
                 )
                 message = "Dean/VP approved Part A"
             # if step2 and Division Dean
@@ -1024,14 +1043,16 @@ def proposal_status(request):
                         proposal.user.last_name,
                         proposal.user.first_name,
                     )
+                    frum = PROPOSAL_EMAIL_LIST[0]
                     send_mail(
                         request,
                         to_list,
                         subject,
-                        PROPOSAL_EMAIL_LIST[0],
+                        frum,
                         'impact/email_approve_level1.html',
                         proposal,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
             # VP for Business?
             elif user.id == VEEP.id and step == 'step2':
@@ -1051,14 +1072,16 @@ def proposal_status(request):
                     if DEBUG:
                         proposal.to_list = to_list
                         to_list = TEST_EMAILS
+                    frum = proposal.user.email
                     send_mail(
                         request,
                         to_list,
                         subject,
-                        proposal.user.email,
+                        frum,
                         'impact/email_approve_level1.html',
                         proposal,
-                        bcc,
+                        reply_to=frum,
+                        bcc=bcc,
                     )
                 except ProposalApprover.DoesNotExist:
                     pass
@@ -1090,14 +1113,16 @@ def proposal_status(request):
                             proposal.impact.save()
                     # if step 1 is complete send email notification
                     if (proposal.step1() and step == 'step1'):
+                        frum = proposal.user.email
                         send_mail(
                             request,
                             to_list,
                             subject,
-                            proposal.user.email,
+                            frum,
                             'proposal/email_authorized.html',
                             proposal,
-                            bcc,
+                            reply_to=frum,
+                            bcc=bcc,
                         )
                     # if step 2 is complete and we are ready for
                     # VP for Business and Provost to weight in, send email
@@ -1114,23 +1139,25 @@ def proposal_status(request):
                             proposal.user.last_name,
                             proposal.user.first_name,
                         )
+                        frum = PROPOSAL_EMAIL_LIST[0]
                         send_mail(
                             request,
                             to_list,
                             subject,
-                            PROPOSAL_EMAIL_LIST[0],
+                            frum,
                             'impact/email_approve_level1.html',
                             proposal,
-                            bcc,
+                            reply_to=frum,
+                            bcc=bcc,
                         )
                     message = "Approved by {0} {1}".format(
                         approver.user.first_name,
                         approver.user.last_name,
                     )
-                except ProposalApprover.DoesNotExist:
+                except ProposalApprover.DoesNotExist as error:
                     message = """
-                        There was a problem setting the status for this proposal
-                    """
+                        There was a problem setting the status for this proposal: {0}
+                    """.format(error)
     else:
         message = "Requires POST request"
 

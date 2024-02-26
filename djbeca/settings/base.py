@@ -69,7 +69,6 @@ DATABASES = {
     },
 }
 INSTALLED_APPS = (
-    # 'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +80,8 @@ INSTALLED_APPS = (
     'djbeca.core',
     # needed for template tags
     'djtools',
+    # gmail api for send mail
+    'gmailapi_backend',
     # sign in as a user
     'loginas',
     # tagging package
@@ -157,10 +158,16 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_FAIL_SILENTLY = True
 DEFAULT_FROM_EMAIL = ''
 SERVER_EMAIL = ''
 SERVER_MAIL = ''
+# gmail API settings
+EMAIL_FROM = ''
+GMAIL_USER = ''
+EMAIL_BACKEND = 'gmailapi_backend.service.GmailApiBackend'
+GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+GMAIL_SERVICE_ACCOUNT_JSON = ''
+GOOGLE_SERVICE_ACCOUNT = ''
 # security
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
@@ -291,6 +298,8 @@ LOGGING = {
         },
     }
 }
+
+
 ##################
 # LOCAL SETTINGS #
 ##################

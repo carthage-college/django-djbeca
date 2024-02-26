@@ -1,5 +1,6 @@
 cryptography
 django==4.2.10
+django-gmailapi-json-backend
 django-loginas
 django-taggit
 mysqlclient
