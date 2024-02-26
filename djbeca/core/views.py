@@ -285,7 +285,7 @@ def impact_form(request, pid):
                         frum,
                         'impact/email_approve_approvers.html',
                         proposal,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
                 # email Division Dean (level3)
@@ -319,7 +319,7 @@ def impact_form(request, pid):
                         frum,
                         'impact/email_approve_level3.html',
                         proposal,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
 
@@ -343,7 +343,7 @@ def impact_form(request, pid):
                     frum,
                     'impact/email_confirmation.html',
                     proposal,
-                    reply_to=frum,
+                    reply_to=[frum,],
                     bcc=bcc,
                 )
                 return HttpResponseRedirect(reverse_lazy('impact_success'))
@@ -510,7 +510,9 @@ def proposal_form(request, pid=None):
                     if DEBUG:
                         data.to_list = to_list
                         to_list = TEST_EMAILS
-
+                # we will not have an approver if a staff submitted the proposal
+                if not to_list:
+                    to_list = [PROPOSAL_EMAIL_LIST[0],]
                 # if proposal has been reopened, we set opened to False
                 # so that proposal now is considered a new attempt at approval
                 data.opened = False
@@ -531,7 +533,7 @@ def proposal_form(request, pid=None):
                         frum,
                         'proposal/email_approve.html',
                         data,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
 
@@ -554,7 +556,7 @@ def proposal_form(request, pid=None):
                         frum,
                         'proposal/email_confirmation.html',
                         data,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
                 return HttpResponseRedirect(reverse_lazy('proposal_success'))
@@ -712,7 +714,7 @@ def proposal_approver(request, pid=0):
                     frum,
                     'approver/email.html',
                     {'proposal': proposal},
-                    reply_to=frum,
+                    reply_to=[frum,],
                     bcc=bcc,
                 )
 
@@ -759,7 +761,7 @@ def email_investigator(request, pid, action):
                     frum,
                     'investigator/email_data.html',
                     {'content': form_data['content']},
-                    reply_to=frum,
+                    reply_to=[frum,],
                     bcc=bcc,
                 )
                 return HttpResponseRedirect(
@@ -933,7 +935,7 @@ def proposal_status(request):
                         frum,
                         decline_template,
                         proposal,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
                     return HttpResponse("Proposal Declined")
@@ -981,7 +983,7 @@ def proposal_status(request):
                         frum,
                         needs_work_template,
                         proposal,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
                     return HttpResponse('Proposal "needs work" email sent')
@@ -1021,7 +1023,7 @@ def proposal_status(request):
                     frum,
                     'proposal/email_authorized.html',
                     proposal,
-                    reply_to=frum,
+                    reply_to=[frum,],
                     bcc=bcc,
                 )
                 message = "Dean/VP approved Part A"
@@ -1051,7 +1053,7 @@ def proposal_status(request):
                         frum,
                         'impact/email_approve_level1.html',
                         proposal,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
             # VP for Business?
@@ -1080,7 +1082,7 @@ def proposal_status(request):
                         frum,
                         'impact/email_approve_level1.html',
                         proposal,
-                        reply_to=frum,
+                        reply_to=[frum,],
                         bcc=bcc,
                     )
                 except ProposalApprover.DoesNotExist:
@@ -1121,7 +1123,7 @@ def proposal_status(request):
                             frum,
                             'proposal/email_authorized.html',
                             proposal,
-                            reply_to=frum,
+                            reply_to=[frum,],
                             bcc=bcc,
                         )
                     # if step 2 is complete and we are ready for
@@ -1147,7 +1149,7 @@ def proposal_status(request):
                             frum,
                             'impact/email_approve_level1.html',
                             proposal,
-                            reply_to=frum,
+                            reply_to=[frum,],
                             bcc=bcc,
                         )
                     message = "Approved by {0} {1}".format(
