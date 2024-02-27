@@ -22,7 +22,7 @@ def get_proposals(user):
     if group:
         proposals = Proposal.objects.all()
     elif dean:
-        for dept in dean[0]['managed']:
+        for dept in dean['managed']:
             depts.append(dept.split('/')[-2])
         depts_props = Proposal.objects.filter(department__in=depts)
         # merge them all together
