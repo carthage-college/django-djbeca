@@ -28,7 +28,7 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
     )
     if status:
         to_list = settings.PROPOSAL_EMAIL_LIST
-        bcc [settings.MANAGERS[0][1]]
+        bcc = [settings.MANAGERS[0][1]]
         if settings.DEBUG:
             proposal.to_list = to_list
             to_list = [settings.MANAGERS[0][1], settings.PROPOSAL_EMAIL_LIST[0]]
