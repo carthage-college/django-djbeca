@@ -44,7 +44,7 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
             femail=frum,
             template='proposal/email_final_approved.html',
             data=proposal,
-            reply_to=settings.PROPOSAL_EMAIL_LIST[:1],
+            reply_to=settings.PROPOSAL_EMAIL_LIST[,
             bcc=bcc,
         )
         if sent:
