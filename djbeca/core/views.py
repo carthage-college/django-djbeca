@@ -1102,7 +1102,7 @@ def proposal_status(request):
             # approvers
             else:
                 try:
-                    approver = proposal.approvers.get(user=user)
+                    approver = proposal.approvers.filter(user=user)[0]
                     approver.__dict__[step] = True
                     approver.save()
                     # if approver replaces Division Dean set level3 to True
