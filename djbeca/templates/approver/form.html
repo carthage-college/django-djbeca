@@ -40,7 +40,7 @@
             <h4 class="mb-4">{{proposal.title}}</h4>
             <ol>
               {% for field in form.visible_fields %}
-              {% include "form_field.inc.html" %}
+                {% include "form_field.inc.html" %}
               {% endfor %}
               {% include "form_submit.inc.html" %}
             </ol>

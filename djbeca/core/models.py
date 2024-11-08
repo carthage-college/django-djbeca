@@ -2,6 +2,8 @@
 
 """Data models."""
 
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
@@ -16,6 +18,7 @@ from djtools.utils.workday import get_managers
 from taggit.managers import TaggableManager
 
 
+logger = logging.getLogger('debug_logfile')
 ALLOWED_EXTENSIONS = ['xls', 'xlsx', 'pdf']
 FILE_VALIDATORS = [
     FileExtensionValidator(allowed_extensions=ALLOWED_EXTENSIONS),
@@ -333,28 +336,29 @@ class Proposal(models.Model):
             perms['open'] = True
         # Ad-hoc approver?
         else:
+            step2 = hasattr(self, 'impact')
             for approver in self.approvers.all():
                 if approver.user == user:
                     perms['view'] = True
-                    perms['approver'] = True
-                    perms['needswork'] = True
-                    perms['decline'] = True
-                    perms['approve'] = 'approver'
+                    if step2 and self.level3:
+                        if approver.steps == '2' or approver.steps == '3':
+                            perms['approver'] = True
+                            perms['approve'] = 'approver'
+                            # right now, approvers can only replace level3
+                            perms['level3'] = True
+                            perms['needswork'] = True
+                            perms['decline'] = True
+                    else:
+                        if approver.steps == '1' or approver.steps == '3':
+                            perms['approver'] = True
+                            perms['approve'] = 'approver'
+                            # right now, approvers can only replace level3
+                            perms['level3'] = True
+                            perms['needswork'] = True
+                            perms['decline'] = True
                     break
 
         return perms
-
-    # at the moment, we assume all approvers will be responsible for
-    # step 1 AND step 2. in the future, i suspect that this might change.
-    def step1(self):
-        """Check if step 1 has been approved."""
-        # Dean or Department VP
-        approved = self.level3
-        for approver in self.approvers.all():
-            if not approver.step1:
-                approved = False
-                break
-        return approved
 
     def step2(self):
         """Check if step 2 has been approved."""
@@ -914,8 +918,8 @@ class ProposalApprover(models.Model):
         null=True,
         blank=True,
     )
-    step1 = models.BooleanField(default=True)
-    step2 = models.BooleanField(default=True)
+    step1 = models.BooleanField(default=False)
+    step2 = models.BooleanField(default=False)
 
     class Meta:
         """Attributes about the data model and admin options."""

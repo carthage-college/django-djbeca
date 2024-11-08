@@ -3,6 +3,7 @@
 """Views for all requests."""
 
 import json
+import logging
 from datetime import datetime
 from decimal import Decimal
 from re import sub
@@ -38,6 +39,7 @@ from djtools.utils.workday import department_person
 from djtools.utils.workday import get_managers
 
 
+logger = logging.getLogger('debug_logfile')
 DEBUG = settings.DEBUG
 REQUIRED_ATTRIBUTE = settings.REQUIRED_ATTRIBUTE
 OSP_GROUP = settings.OSP_GROUP
@@ -845,13 +847,13 @@ def proposal_status(request):
                 if perms['open']:
                     # Approvers
                     for approver in proposal.approvers.all():
-                        if not proposal.step1() and not proposal.closed:
+                        if not proposal.level3 and not proposal.closed:
                             approver.step1 = False
-                        if proposal.step1() and not proposal.closed:
+                        if proposal.level3 and not proposal.closed:
                             approver.step2 = False
                         approver.save()
                     # reset booleans back to False
-                    if not proposal.step1() and not proposal.closed:
+                    if not proposal.level3 and not proposal.closed:
                         proposal.level3 = False
                     proposal.closed = False
                     proposal.opened = True
@@ -861,7 +863,7 @@ def proposal_status(request):
                     proposal.proposal_type = 'resubmission'
                     proposal.save()
                     # we might not have a proposal impact relationship
-                    if proposal.step1() and impact:
+                    if proposal.level3 and impact:
                         proposal.impact.disclosure_assurance = False
                         proposal.impact.level3 = False
                         proposal.impact.level2 = False
@@ -879,7 +881,7 @@ def proposal_status(request):
             needs_work_template = 'impact/email_needswork.html'
             needs_work_subject = 'Part B: Needs work, requires \
                 additional clarrification: "{0}"'.format(proposal.title)
-            if not proposal.step1():
+            if not proposal.level3:
                 step = 'step1'
                 decline_template = 'proposal/email_decline.html'
                 decline_subject = 'Part A: Not approved, requires \
@@ -887,7 +889,7 @@ def proposal_status(request):
                 needs_work_template = 'proposal/email_needswork.html'
                 needs_work_subject = 'Part A: Needs work, requires \
                     additonal clarrification: "{0}"'.format(proposal.title)
-            elif proposal.step1() and not impact:
+            elif proposal.level3 and not impact:
                 return HttpResponse("Step 2 has not been initiated")
             elif impact and not proposal.save_submit:
                 return HttpResponse("Step 2 has not been completed")
@@ -1008,9 +1010,8 @@ def proposal_status(request):
 
             # default message for when none of the conditions below are met
             message = "You do not have permission to '{}'".format(status)
-
             # if step1 and Division Dean
-            if step == 'step1' and perms['level3']:
+            if step == 'step1' and perms['level3'] and not perms['approver']:
                 proposal.level3 = True
                 proposal.save()
                 # send email to PI informing them that they are approved
@@ -1028,7 +1029,7 @@ def proposal_status(request):
                 )
                 message = "Dean/VP approved Part A"
             # if step2 and Division Dean
-            elif step == 'step2' and perms['level3']:
+            elif step == 'step2' and perms['level3'] and not perms['approver']:
                 proposal.impact.level3 = True
                 proposal.impact.save()
                 message = "Division Dean approved Part B"
@@ -1106,15 +1107,20 @@ def proposal_status(request):
                     approver.__dict__[step] = True
                     approver.save()
                     # if approver replaces Division Dean set level3 to True
+                    logger.debug('step = {0} perms={1}'.format(step, perms))
                     if approver.replace == 'level3':
                         if step == 'step1':
                             proposal.level3 = True
                             proposal.save()
+                            approver.step1 = True
+                            approver.save()
                         else:
                             proposal.impact.level3 = True
                             proposal.impact.save()
+                            approver.step2 = True
+                            approver.save()
                     # if step 1 is complete send email notification
-                    if (proposal.step1() and step == 'step1'):
+                    if (proposal.level3 and step == 'step1'):
                         frum = proposal.user.email
                         send_mail(
                             request,

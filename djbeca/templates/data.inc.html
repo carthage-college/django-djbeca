@@ -55,7 +55,7 @@
           </td>
           {% else %}
           <td nowrap>
-            {% if p.step1 or p.opened or group or request.user.is_superuser %}
+            {% if p.level3 or p.opened or group or request.user.is_superuser %}
               {% if p.user.id == request.user.id or group or request.user.is_superuser %}
                 {% if not p.save_submit %}
                 <a href="{% url 'proposal_update' p.id %}" data-toggle="tooltip"
@@ -99,7 +99,7 @@
             {% endif %}
           </td>
           <td nowrap>
-            {% if p.step1 %}
+            {% if p.level3 %}
               {% if p.user.id == request.user.id or group or request.user.is_superuser %}
                 {% if not p.save_submit %}
                 <a href="{% url 'impact_form' p.id %}"
@@ -171,7 +171,7 @@
               {% endif %}
             {% else %}
               {% if osp %}
-              {% if p.step1 and p.step2 %}
+              {% if p.level3 and p.step2 %}
               <i class="fa fa-2x fa-smile-o green" data-toggle="tooltip"
                 data-placement="top" title="This proposal is complete"
                 aria-hidden="true"></i>
@@ -187,7 +187,7 @@
                 <i class="fa fa-2x fa-power-off red" aria-hidden="true"></i>
               </a>
               {% else %}
-              {% if p.step1 and p.step2 %}
+              {% if p.level3 and p.step2 %}
               <i class="fa fa-2x fa-smile-o green" data-toggle="tooltip"
                 data-placement="top" title="This proposal is complete"
                 aria-hidden="true"></i>
@@ -205,7 +205,7 @@
               data-toggle="tooltip" data-placement="top" aria-hidden="true"
               title="Awarded"></i>
             {% else %}
-            {% if not p.decline and p.step1 and p.step2 and request.user.is_superuser %}
+            {% if not p.decline and p.level3 and p.step2 and request.user.is_superuser %}
               <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
                 data-placement="top" title="Set this proposal to 'Awarded'"
                 data-pid="{{p.id}}" data-status="awarded"

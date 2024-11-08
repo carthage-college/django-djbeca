@@ -22,7 +22,7 @@ def proposal_impact_post_save_notify_osp(sender, **kwargs):
 
     status = (
         not proposal.decline and
-        proposal.step1() and
+        proposal.level3 and
         proposal.step2() and
         not proposal.email_approved
     )

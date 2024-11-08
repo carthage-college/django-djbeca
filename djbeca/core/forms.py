@@ -316,6 +316,10 @@ class ProposalApproverForm(forms.Form):
 
     user = forms.ChoiceField(label="Faculty/Staff", choices=())
     proposal = forms.CharField(widget=forms.HiddenInput())
+    steps = forms.ChoiceField(
+        choices=choices.PROPOSAL_STEPS_CHOICES,
+        required=True,
+    )
 
     def __init__(self, *args, **kwargs):
         """Set up choices for select field."""
@@ -328,22 +332,23 @@ class ProposalApproverForm(forms.Form):
         """Check for a valid proposal, user, and if approver already exists."""
         cd = self.cleaned_data
         cid = cd.get('user')
-        try:
-            user = User.objects.get(pk=cid)
-        except User.DoesNotExist:
-            # create a new user
-            eldap = LDAPManager()
-            peep = get_peep(cid)
-            result_data = eldap.search(peep[0]['username'], field='cn')
-            groups = eldap.get_groups(result_data)
-            user = eldap.dj_create(result_data, groups=groups)
-        proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
-        if proposal:
-            for approver in proposal.approvers.all():
-                if approver.user == user:
-                    self.add_error('user', "That user is already an approver.")
-        else:
-            self.add_error('proposal', "That is not a valid proposal")
+        if cid:
+            try:
+                user = User.objects.get(pk=cid)
+            except User.DoesNotExist:
+                # create a new user
+                eldap = LDAPManager()
+                peep = get_peep(cid)
+                result_data = eldap.search(peep[0]['username'], field='cn')
+                groups = eldap.get_groups(result_data)
+                user = eldap.dj_create(result_data, groups=groups)
+            proposal = Proposal.objects.filter(pk=cd.get('proposal')).first()
+            if proposal:
+                for approver in proposal.approvers.all():
+                    if approver.user == user:
+                        self.add_error('user', "That user is already an approver.")
+            else:
+                self.add_error('proposal', "That is not a valid proposal")
         return cd
 
 
