@@ -636,6 +636,7 @@ def proposal_detail(request, pid):
 
     excludes = [
         'id',
+        'perms', perms,
         'created_at',
         'updated_at',
         'proposal',
@@ -860,7 +861,7 @@ def proposal_status(request):
                     proposal.decline = False
                     proposal.email_approved = False
                     proposal.save_submit = False
-                    proposal.proposal_type = 'resubmission'
+                    proposal.proposal_type = 'Resubmission'
                     proposal.save()
                     # we might not have a proposal impact relationship
                     if proposal.level3 and impact:
@@ -917,13 +918,8 @@ def proposal_status(request):
                         proposal.impact.save()
                     # Approvers
                     for approver in proposal.approvers.all():
-                        if approver.user == user:
-                            if step == 'step1':
-                                approver.step1 = False
-                            else:
-                                approver.step2 = False
-                            approver.save()
-                            break
+                        approver.step2 = False
+                        approver.save()
                     # send email to PI
                     to_list = [proposal.user.email]
                     if DEBUG:
@@ -951,9 +947,10 @@ def proposal_status(request):
                     proposal.decline = False
                     proposal.closed = False
                     proposal.opened = True
+                    proposal.level3 = False
                     proposal.email_approved = False
                     proposal.save_submit = False
-                    proposal.proposal_type = 'revised'
+                    proposal.proposal_type = 'Revised'
                     if step == 'step1':
                         proposal.level3 = False
                     proposal.save()
@@ -966,12 +963,9 @@ def proposal_status(request):
                         proposal.impact.save()
                     # Approvers
                     for approver in proposal.approvers.all():
-                        if step == 'step1':
-                            approver.step1 = False
-                        else:
-                            approver.step2 = False
+                        approver.step1 = False
+                        approver.step2 = False
                         approver.save()
-                        break
 
                     to_list = [proposal.user.email]
                     if DEBUG:
@@ -1111,6 +1105,8 @@ def proposal_status(request):
                     if approver.replace == 'level3':
                         if step == 'step1':
                             proposal.level3 = True
+                            if proposal.proposal_type == 'revised':
+                                proposal.proposal_type == 'Resubmission'
                             proposal.save()
                             approver.step1 = True
                             approver.save()

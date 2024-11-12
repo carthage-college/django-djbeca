@@ -342,12 +342,13 @@ class Proposal(models.Model):
                     perms['view'] = True
                     if step2 and self.level3:
                         if approver.steps == '2' or approver.steps == '3':
-                            perms['approver'] = True
-                            perms['approve'] = 'approver'
-                            # right now, approvers can only replace level3
-                            perms['level3'] = True
-                            perms['needswork'] = True
-                            perms['decline'] = True
+                            if not approver.step2:
+                                perms['approver'] = True
+                                perms['approve'] = 'approver'
+                                # right now, approvers can only replace level3
+                                perms['level3'] = True
+                                perms['needswork'] = True
+                                perms['decline'] = True
                     else:
                         if approver.steps == '1' or approver.steps == '3':
                             perms['approver'] = True
@@ -376,6 +377,15 @@ class Proposal(models.Model):
                 if not approver.step2:
                     approved = False
                     break
+        return approved
+
+    def step2_approvers(self, user):
+        """Check if step 2 has been approved by approvers."""
+        approved = True
+        for approver in self.approvers.all():
+            if user == approver.user and not approver.step2:
+                approved = False
+                break
         return approved
 
     def ready_level1(self):

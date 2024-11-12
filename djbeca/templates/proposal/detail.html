@@ -194,7 +194,7 @@ $(function() {
         <div>{{proposal.budget_summary|safe}}</div>
         {% if proposal.admin_comments %}
           <h4>Administrative Comments</h4>
-          <div>{{proposal.admin_comments}}</div>
+          <div>{{proposal.admin_comments|safe}}</div>
         {% endif %}
         {% if osp or dean or user.is_superuser %}
         <h3 class="clear detail">Approvers</h3>

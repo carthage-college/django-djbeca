@@ -63,8 +63,13 @@
                   <i class="fa fa-2x fa-pencil-square-o" aria-hidden="true"></i>
                 </a>
                 {% endif %}
+                {% if p.opened and p.proposal_type == 'Revised' and not p.level3 %}
+                <i class="fa fa-2x fa-meh-o green blue-tooltip"
+                data-toggle="tooltip" data-placement="top" aria-hidden='true'
+                title="Part A needs work"></i>
+                {% endif %}
               {% else %}
-                {% if p.opened and p.proposal_type == 'revised' %}
+                {% if p.opened and p.proposal_type == 'Revised' and not p.level3 %}
                 <i class="fa fa-2x fa-meh-o green blue-tooltip"
                 data-toggle="tooltip" data-placement="top" aria-hidden='true'
                 title="Part A needs work"></i>
@@ -158,19 +163,19 @@
           {% endif %}{% endif %}
           <td style="text-align:center;">
             {% if p.closed or p.decline %}
+              {% if group or request.user.is_superuser %}
               <a href="{% url 'proposal_status' %}" data-toggle="tooltip"
                 data-placement="top" title="Reopen this proposal"
                 data-pid="{{p.id}}" data-status="open"
                 class="proposal-status blue-tooltip">
                 <i class="fa fa-2x fa-recycle green" aria-hidden="true"></i>
               </a>
-              {% if osp %}
-                <i class="fa fa-2x fa-power-off grey" data-toggle="tooltip"
-                data-placement="top" title="This proposal is closed"
-                aria-hidden="true"></i>
               {% endif %}
+              <i class="fa fa-2x fa-power-off grey" data-toggle="tooltip"
+                data-placement="top" title="This proposal is closed or needs work"
+                aria-hidden="true"></i>
             {% else %}
-              {% if osp %}
+              {% if group %}
               {% if p.level3 and p.step2 %}
               <i class="fa fa-2x fa-smile-o green" data-toggle="tooltip"
                 data-placement="top" title="This proposal is complete"
