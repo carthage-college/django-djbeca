@@ -327,6 +327,9 @@ class Proposal(models.Model):
             perms['view'] = True
             perms['open'] = True
             perms['close'] = True
+            perms['level3'] = True
+            perms['level2'] = True
+            perms['level1'] = True
             perms['superuser'] = True
             perms['needswork'] = True
             perms['decline'] = True
