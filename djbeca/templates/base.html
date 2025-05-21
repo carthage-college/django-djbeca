@@ -22,6 +22,9 @@
 <link href="/static/djbeca/css/main.css" rel="stylesheet" type="text/css">
 <link href="/static/djbeca/css/print.css" rel="stylesheet" type="text/css">
 {% endblock %}
+{% block jquery %}
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+{% endblock %}
 {% block javascript %}
 {{block.super}}
 <script src="//app.carthage.edu/static/vendor/jquery/ui/datepicker/js/jquery-ui-1.10.4.custom.min.js"
